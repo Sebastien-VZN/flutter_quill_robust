@@ -265,7 +265,6 @@ class _TextLineState extends State<TextLine> {
     TextStyle lineStyle,
     TextSpanBuilder textSpanBuilder,
   ) {
-    var nodes = LinkedList<Node>();
     if (nodes.isEmpty && kIsWeb) {
       nodes = LinkedList<Node>()..add(leaf.QuillText());
     }

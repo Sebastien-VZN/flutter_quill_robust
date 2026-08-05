@@ -191,8 +191,8 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
       return;
     }
 
-    _lastKnownRemoteTextEditingValue = actualValue;
     print("[REMOTE-PUSH] setEditingState actualValue.text='${actualValue.text}' len=${actualValue.text.length} sel=${actualValue.selection}");
+    _lastKnownRemoteTextEditingValue = actualValue;
     _textInputConnection!.setEditingState(
       actualValue.copyWith(composing: TextRange.empty),
     );

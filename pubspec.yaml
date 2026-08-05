@@ -43,6 +43,8 @@ dev_dependencies:
   very_good_analysis: ^10.2.0
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   test: ^1.24.3
 
   # For scripts only
