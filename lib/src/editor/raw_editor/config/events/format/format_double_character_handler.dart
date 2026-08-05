@@ -91,7 +91,7 @@ bool handleFormatByWrappingWithDoubleCharacter({
     ..delete(2) // delete both start double char
     ..retain(
       lastCharIndex - (thirdLastCharIndex + (secondLastCharIndex - (thirdLastCharIndex - 1))),
-      style == null ? null : {style.key: style.value},
+      attributes: style == null ? null : {style.key: style.value},
     ) // retain the text before last double chars and apply the styles
     ..delete(1); // delete last char
 

@@ -95,7 +95,7 @@ class ResolveLineFormatRule extends FormatRule {
       final actualStyle = attribute.toJson()..addEntries(removedBlocks);
       result
         ..retain(lf - offset)
-        ..retain(1, actualStyle);
+        ..retain(1, attributes: actualStyle);
 
       if (firstOnly) {
         return result;
@@ -163,7 +163,7 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
 
     delta
       ..retain(beg)
-      ..retain(retain, attribute.toJson());
+      ..retain(retain, attributes: attribute.toJson());
     return delta;
   }
 }
@@ -195,19 +195,19 @@ class ResolveInlineFormatRule extends FormatRule {
       final text = op.data is String ? (op.data as String?)! : '';
       var lineBreak = text.indexOf('\n');
       if (lineBreak < 0) {
-        delta.retain(op.length!, attribute.toJson());
+        delta.retain(op.length!, attributes: attribute.toJson());
         continue;
       }
       var pos = 0;
       while (lineBreak >= 0) {
         delta
-          ..retain(lineBreak - pos, attribute.toJson())
+          ..retain(lineBreak - pos, attributes: attribute.toJson())
           ..retain(1);
         pos = lineBreak + 1;
         lineBreak = text.indexOf('\n', pos);
       }
       if (pos < op.length!) {
-        delta.retain(op.length! - pos, attribute.toJson());
+        delta.retain(op.length! - pos, attributes: attribute.toJson());
       }
     }
 
@@ -241,7 +241,7 @@ class ResolveImageFormatRule extends FormatRule {
 
     final delta = Delta()
       ..retain(index)
-      ..retain(1, attribute.toJson());
+      ..retain(1, attributes: attribute.toJson());
 
     return delta;
   }

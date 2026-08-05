@@ -66,7 +66,7 @@ abstract base class Leaf extends Node {
   @override
   Delta toDelta() {
     final data = _value is Embeddable ? (_value as Embeddable).toJson() : _value;
-    return Delta()..insert(data, style.toJson());
+    return Delta()..insert(data, attributes: style.toJson());
   }
 
   @override

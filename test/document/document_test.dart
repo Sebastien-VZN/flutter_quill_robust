@@ -7,8 +7,8 @@ void main() {
     test('No selection', () {
       final delta = Delta()
         ..insert('plain\n')
-        ..insert('bold\n', <String, dynamic>{'bold': true})
-        ..insert('italic\n', <String, dynamic>{'italic': true});
+        ..insert('bold\n', attributes: <String, dynamic>{'bold': true})
+        ..insert('italic\n', attributes: <String, dynamic>{'italic': true});
       final document = Document.fromDelta(delta);
       //
       expect(
@@ -45,9 +45,9 @@ void main() {
         /// Change the format of the last line using [attr] and verify [change]
         final delta = Delta()
           ..insert('A')
-          ..insert('\n', start)
-          ..insert('B', {'bold': true})
-          ..insert('\n', start);
+          ..insert('\n', attributes: start)
+          ..insert('B', attributes: {'bold': true})
+          ..insert('\n', attributes: start);
         final document = Document.fromDelta(delta)
           /// insert a newline
           ..insert(3, '\n');
@@ -57,9 +57,9 @@ void main() {
           document.toDelta(),
           Delta()
             ..insert('A')
-            ..insert('\n', start)
-            ..insert('B', {'bold': true})
-            ..insert('\n\n', start),
+            ..insert('\n', attributes: start)
+            ..insert('B', attributes: {'bold': true})
+            ..insert('\n\n', attributes: start),
         );
 
         /// Change format of last (empty) line
@@ -68,10 +68,10 @@ void main() {
           document.toDelta(),
           Delta()
             ..insert('A')
-            ..insert('\n', start)
-            ..insert('B', {'bold': true})
-            ..insert('\n', start)
-            ..insert('\n', {attr.key: attr.value}),
+            ..insert('\n', attributes: start)
+            ..insert('B', attributes: {'bold': true})
+            ..insert('\n', attributes: start)
+            ..insert('\n', attributes: {attr.key: attr.value}),
           reason: 'document updated',
         );
 
@@ -96,7 +96,7 @@ void main() {
     test('Simulate double enter key at end', () {
       final delta = Delta()
         ..insert('data\n')
-        ..insert('second\n', <String, dynamic>{'bold': true})
+        ..insert('second\n', attributes: <String, dynamic>{'bold': true})
         ..insert('\n\nplain\n');
       final document = Document.fromDelta(delta);
       //
@@ -135,8 +135,8 @@ void main() {
     test('No selection', () {
       final delta = Delta()
         ..insert('plain\n')
-        ..insert('bold\n', <String, dynamic>{'bold': true})
-        ..insert('italic\n', <String, dynamic>{'italic': true});
+        ..insert('bold\n', attributes: <String, dynamic>{'bold': true})
+        ..insert('italic\n', attributes: <String, dynamic>{'italic': true});
       final document = Document.fromDelta(delta);
       //
       expect(
@@ -167,7 +167,7 @@ void main() {
     test('Selection', () {
       final delta = Delta()
         ..insert('data\n')
-        ..insert('second\n', <String, dynamic>{'bold': true});
+        ..insert('second\n', attributes: <String, dynamic>{'bold': true});
       final document = Document.fromDelta(delta);
       //
       expect(const Style(), document.collectStyle(0, 4));
@@ -191,7 +191,7 @@ void main() {
     test('Links and line boundaries', () {
       final delta = Delta()
         ..insert('A link ')
-        ..insert('home page', <String, dynamic>{'link': 'https://unknown.com'})
+        ..insert('home page', attributes: <String, dynamic>{'link': 'https://unknown.com'})
         ..insert('\n\nplain\n');
       final document = Document.fromDelta(delta);
       //

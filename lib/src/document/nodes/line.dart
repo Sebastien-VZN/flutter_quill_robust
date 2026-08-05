@@ -63,7 +63,7 @@ base class Line extends QuillContainer<Leaf?> {
       attributes = attributes.mergeAll(block.style);
     }
 
-    delta.insert("\n", attributes.toJson());
+    delta.insert("\n", attributes: attributes.toJson());
     return delta;
   }
 

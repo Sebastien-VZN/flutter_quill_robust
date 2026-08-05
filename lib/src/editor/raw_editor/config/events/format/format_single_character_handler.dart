@@ -95,7 +95,7 @@ bool handleFormatByWrappingWithSingleCharacter({
     ..delete(1) // delete both start char
     ..retain(
       (selection.end - 2) - (lastCharIndex - 1),
-      style == null ? null : {style.key: style.value},
+      attributes: style == null ? null : {style.key: style.value},
     ); // retain the text before that the new char that we type on keyboard
 
   controller
