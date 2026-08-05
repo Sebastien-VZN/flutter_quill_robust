@@ -16,6 +16,7 @@ import 'package:flutter_quill/src/editor/raw_editor/raw_editor.dart';
 mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClient {
   TextInputConnection? _textInputConnection;
   TextEditingValue? __lastKnownRemoteTextEditingValue;
+  bool _isHandlingUpdateEditingValue = false;
 
   set _lastKnownRemoteTextEditingValue(TextEditingValue? value) {
     __lastKnownRemoteTextEditingValue = value;
@@ -72,6 +73,9 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
 
     if (!hasConnection) {
       _lastKnownRemoteTextEditingValue = textEditingValue;
+      print(
+        "[OPEN-1] textEditingValue.text='${_lastKnownRemoteTextEditingValue?.text}' len=${_lastKnownRemoteTextEditingValue?.text.length} sel=${_lastKnownRemoteTextEditingValue?.selection}",
+      );
       _textInputConnection = TextInput.attach(
         this,
         TextInputConfiguration(
@@ -89,22 +93,22 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
       );
 
       _updateSizeAndTransform();
-      //update IME position for Windows
       _updateComposingRectIfNeeded();
-      //update IME position for Macos
       _updateCaretRectIfNeeded();
 
-      /// Trap selection extends off end of document
-      if (_lastKnownRemoteTextEditingValue != null) {
-        if (_lastKnownRemoteTextEditingValue!.selection.end > _lastKnownRemoteTextEditingValue!.text.length) {
-          _lastKnownRemoteTextEditingValue = _lastKnownRemoteTextEditingValue!.copyWith(
-            selection: _lastKnownRemoteTextEditingValue!.selection.copyWith(
-              extentOffset: _lastKnownRemoteTextEditingValue!.text.length,
-            ),
-          );
-        }
+      final last = _lastKnownRemoteTextEditingValue;
+      if (last != null && last.selection.end > last.text.length) {
+        _lastKnownRemoteTextEditingValue = last.copyWith(
+          selection: last.selection.copyWith(
+            extentOffset: last.text.length,
+          ),
+        );
       }
-      _textInputConnection!.setEditingState(_lastKnownRemoteTextEditingValue!);
+      final remote = _lastKnownRemoteTextEditingValue;
+      if (remote != null) {
+        print("[OPEN-2] setEditingState appelé, remote.text='${remote.text}' len=${remote.text.length} sel=${remote.selection}");
+        _textInputConnection!.setEditingState(remote);
+      }
     }
     _textInputConnection!.show();
   }
@@ -167,28 +171,29 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
     if (!hasConnection) {
       return;
     }
+    if (_isHandlingUpdateEditingValue) {
+      return;
+    }
 
     final value = textEditingValue;
+    final last = _lastKnownRemoteTextEditingValue;
 
-    // Since we don't keep track of the composing range in value provided
-    // by the Controller we need to add it here manually before comparing
-    // with the last known remote value.
-    // It is important to prevent excessive remote updates as it can cause
-    // race conditions.
-    final composingRange = _lastKnownRemoteTextEditingValue!.composing;
+    if (last == null) {
+      return;
+    }
+
+    final composingRange = last.composing;
     final actualValue = value.copyWith(
-      // Ignore last known composing range if it exceeds current text length.
       composing: composingRange.end > value.text.length ? null : composingRange,
     );
 
-    if (actualValue == _lastKnownRemoteTextEditingValue) {
+    if (actualValue == last) {
       return;
     }
 
     _lastKnownRemoteTextEditingValue = actualValue;
+    print("[REMOTE-PUSH] setEditingState actualValue.text='${actualValue.text}' len=${actualValue.text.length} sel=${actualValue.selection}");
     _textInputConnection!.setEditingState(
-      // Set composing to (-1, -1), otherwise an exception will be thrown if
-      // the values are different.
       actualValue.copyWith(composing: TextRange.empty),
     );
   }
@@ -203,41 +208,59 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
 
   @override
   void updateEditingValue(TextEditingValue value) {
+    print("[IME-IN] value.text='${value.text}' len=${value.text.length} sel=${value.selection} composing=${value.composing}");
     if (!shouldCreateInputConnection) {
+      print("[IME-IN] shouldCreateInputConnection=false, return");
       return;
     }
 
-    if (_lastKnownRemoteTextEditingValue == value) {
-      // There is no difference between this value and the last known value.
+    final last = _lastKnownRemoteTextEditingValue;
+    final lastStr = last == null ? "NULL" : "text='${last.text}' len=${last.text.length} sel=${last.selection}";
+    print("[IME-LAST] last=$lastStr");
+    if (last == value) {
+      print("[IME-IN] last == value, return");
       return;
     }
 
-    // Check if only composing range changed.
-    if (_lastKnownRemoteTextEditingValue!.text == value.text && _lastKnownRemoteTextEditingValue!.selection == value.selection) {
-      // This update only modifies composing range. Since we don't keep track
-      // of composing range we just need to update last known value here.
-      // This check fixes an issue on Android when it sends
-      // composing updates separately from regular changes for text and
-      // selection.
+    if (last != null && last.text == value.text && last.selection == value.selection) {
+      print("[IME-IN] composing-only, return");
       _lastKnownRemoteTextEditingValue = value;
       return;
     }
 
-    final effectiveLastKnownValue = _lastKnownRemoteTextEditingValue!;
+    if (last != null && last.text == value.text) {
+      print("[IME-IN] selection-only, return");
+      _lastKnownRemoteTextEditingValue = value;
+      widget.controller.updateSelection(value.selection, ChangeSource.local);
+      return;
+    }
+
+    final effectiveLastKnownValue = last ?? textEditingValue;
     _lastKnownRemoteTextEditingValue = value;
     final oldText = effectiveLastKnownValue.text;
     final text = value.text;
     final cursorPosition = value.selection.extentOffset;
     final diff = getDiff(oldText, text, cursorPosition);
-    if (diff.deleted.isEmpty && diff.inserted.isEmpty) {
-      widget.controller.updateSelection(value.selection, ChangeSource.local);
-    } else {
-      widget.controller.replaceText(
-        diff.start,
-        diff.deleted.length,
-        diff.inserted,
-        value.selection,
-      );
+    print(
+      "[IME-DIFF] oldText='$oldText'(len=${oldText.length}) -> newText='$text'(len=${text.length}) cursor=$cursorPosition => start=${diff.start} del='${diff.deleted}'(${diff.deleted.length}) ins='${diff.inserted}'(${diff.inserted.length})",
+    );
+
+    _isHandlingUpdateEditingValue = true;
+    try {
+      if (diff.deleted.isEmpty && diff.inserted.isEmpty) {
+        print("[IME-IN] diff vide, updateSelection only");
+        widget.controller.updateSelection(value.selection, ChangeSource.local);
+      } else {
+        print("[IME-REPLACE] replaceText(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})");
+        widget.controller.replaceText(
+          diff.start,
+          diff.deleted.length,
+          diff.inserted,
+          value.selection,
+        );
+      }
+    } finally {
+      _isHandlingUpdateEditingValue = false;
     }
   }
 

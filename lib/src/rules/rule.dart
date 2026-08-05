@@ -86,6 +86,7 @@ class Rules {
         continue;
       }
       try {
+        print("[RULE-APPLY] essai rule=${rule.runtimeType} type=$ruleType index=$index len=$len data=$data");
         final result = rule.apply(
           document,
           index,
@@ -94,12 +95,17 @@ class Rules {
           attribute: attribute,
         );
         if (result != null) {
+          print("[RULE-RESULT] rule=${rule.runtimeType} a retourné delta ops=${result.length}");
           return result..trim();
+        } else {
+          print("[RULE-SKIP] rule=${rule.runtimeType} a retourné null, continue");
         }
       } catch (e) {
+        print("[RULE-THROW] rule=${rule.runtimeType} a lancé exception: $e");
         rethrow;
       }
     }
+    print("[RULE-NONE] aucune rule n'a matché pour type=$ruleType");
     throw FormatException(
       'Apply delta rules failed. No matching rule found for type: $ruleType',
     );

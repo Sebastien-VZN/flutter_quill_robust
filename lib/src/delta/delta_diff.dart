@@ -37,15 +37,12 @@ Diff getDiff(String oldText, String newText, int cursorPosition) {
   final delta = newText.length - end;
   for (final limit = math.max(0, cursorPosition - delta); end > limit && oldText[end - 1] == newText[end + delta - 1]; end--) {}
   var start = 0;
-  // we need to improve this part because this loop has a lot of unsafe index operations
   for (
     final startLimit = cursorPosition - math.max(0, delta);
     start < startLimit && (start > oldText.length - 1 ? '' : oldText[start]) == (start > newText.length - 1 ? '' : newText[start]);
     start++
   ) {}
   final deleted = (start >= end) ? '' : oldText.substring(start, end);
-  // we need to make the check if the start is major than the end because if we directly get the
-  // new inserted text without checking first, this will always throw an error since this is an unsafe op
   final inserted = (start >= end + delta) ? '' : newText.substring(start, end + delta);
   return Diff(start: start, deleted: deleted, inserted: inserted);
 }

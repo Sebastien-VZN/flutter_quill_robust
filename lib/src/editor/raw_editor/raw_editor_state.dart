@@ -674,19 +674,13 @@ class QuillRawEditorState extends EditorState
 
     if (attrs.containsKey(FormatAttribute.header.key)) {
       final formatKey = attrs[FormatAttribute.header.key];
-      if (formatKey == null || formatKey.intValue != null) {
+      final headerValue = formatKey?.intValue;
+      if (headerValue == null) {
         debugPrint('_getHorizontalSpacingForLine Error formatKey');
         return null;
       }
 
-      if (formatKey.intValue is! double) {
-        debugPrint(
-          '_getHorizontalSpacingForLine formatKey.intValue is not double',
-        );
-        return null;
-      }
-
-      switch (formatKey.intValue) {
+      switch (headerValue) {
         case 1:
           return defaultStyles!.h1!.horizontalSpacing;
         case 2:
@@ -715,19 +709,13 @@ class QuillRawEditorState extends EditorState
     final attrs = line.style.attributes;
     if (attrs.containsKey(FormatAttribute.header.key)) {
       final formatKey = attrs[FormatAttribute.header.key];
-      if (formatKey == null || formatKey.intValue != null) {
-        debugPrint('_getHorizontalSpacingForLine Error formatKey');
+      final headerValue = formatKey?.intValue;
+      if (headerValue == null) {
+        debugPrint('_getVerticalSpacingForLine Error formatKey');
         return null;
       }
 
-      if (formatKey.intValue is! double) {
-        debugPrint(
-          '_getHorizontalSpacingForLine formatKey.intValue is not double',
-        );
-        return null;
-      }
-
-      switch (formatKey.intValue) {
+      switch (headerValue) {
         case 1:
           return defaultStyles!.h1!.verticalSpacing;
         case 2:
@@ -1111,13 +1099,16 @@ class QuillRawEditorState extends EditorState
   }
 
   void _handleFocusChanged() {
+    print(" _handleFocusChanged INFO void _hasFocus=$_hasFocus dirty=$dirty");
     if (dirty) {
+      print("yolo !");
       requestKeyboard();
       SchedulerBinding.instance.addPostFrameCallback(
         (_) => _handleFocusChanged(),
       );
       return;
     }
+    print("[FOCUS-OPEN] dirty=false, appelle openOrCloseConnection");
     openOrCloseConnection();
     _cursorCont.startOrStopCursorTimerIfNeeded(_hasFocus, controller.selection);
     _updateOrDisposeSelectionOverlayIfNeeded();
@@ -1217,12 +1208,15 @@ class QuillRawEditorState extends EditorState
   /// keyboard become visible.
   @override
   void requestKeyboard() {
+    print("[REQKB] _hasFocus=$_hasFocus keyboardVisible=$_keyboardVisible skip=${controller.skipRequestKeyboard}");
     if (controller.skipRequestKeyboard) {
+      print("[REQKB] skipRequestKeyboard=true, return");
       controller.skipRequestKeyboard = false;
       return;
     }
     if (_hasFocus) {
       final keyboardAlreadyShown = _keyboardVisible;
+      print("[REQKB-OPEN] appelle openConnectionIfNeeded, keyboardAlreadyShown=$keyboardAlreadyShown");
       openConnectionIfNeeded();
       if (!keyboardAlreadyShown) {
         /// delay 500 milliseconds for waiting keyboard show up
@@ -1231,6 +1225,7 @@ class QuillRawEditorState extends EditorState
         _showCaretOnScreen();
       }
     } else {
+      print("[REQKB-NOFOCUS] pas de focus, requestFocus");
       widget.config.focusNode.requestFocus();
     }
   }
