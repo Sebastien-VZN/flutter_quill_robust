@@ -1116,6 +1116,16 @@ class QuillRawEditorState extends EditorState
 
   void _afterFocusChanged() {
     print("[FOCUS-OPEN] dirty=false, appelle openOrCloseConnection");
+    if (!_hasFocus && hasConnection && !widget.config.readOnly) {
+      // On Windows desktop, each keystroke can trigger a brief app lifecycle
+      // cycle (inactive -> resumed) which causes FocusManager to revoke focus
+      // from all non-primary FocusNodes. If the IME connection is still alive
+      // we re-acquire focus so the user can keep typing instead of having the
+      // connection closed under their fingers.
+      print("[FOCUS-REACQUIRE] focus perdu mais connexion active, re-requestFocus");
+      widget.config.focusNode.requestFocus();
+      return;
+    }
     openOrCloseConnection();
     _cursorCont.startOrStopCursorTimerIfNeeded(_hasFocus, controller.selection);
     _updateOrDisposeSelectionOverlayIfNeeded();
@@ -1126,6 +1136,14 @@ class QuillRawEditorState extends EditorState
       WidgetsBinding.instance.removeObserver(this);
     }
     updateKeepAlive();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_hasFocus && hasConnection && !widget.config.readOnly) {
+      print("[LIFECYCLE-RESUME] re-requestFocus après cycle lifecycle");
+      widget.config.focusNode.requestFocus();
+    }
   }
 
   void _onChangedClipboardStatus() {
