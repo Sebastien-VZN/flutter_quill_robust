@@ -72,7 +72,9 @@ abstract base class Leaf extends Node {
   @override
   void insert(int index, Object data, Style? style) {
     final length = this.length;
+    print("[LEAF-INSERT-IN] index=$index length=$length data=$data");
     if (index < 0 || index > length) {
+      print("[LEAF-INSERT-GUARD] BLOQUÉ — index=$index hors [0,$length]");
       debugPrint(
         'Leaf.insert — invalid index=$index (length=$length), aborting',
       );
@@ -80,8 +82,10 @@ abstract base class Leaf extends Node {
     }
     final node = Leaf(data);
     if (index < length) {
+      print("[LEAF-INSERT-SPLIT] splitAt($index) puis insertBefore");
       splitAt(index)!.insertBefore(node);
     } else {
+      print("[LEAF-INSERT-AFTER] insertAfter (fin de leaf)");
       insertAfter(node);
     }
     node.format(style);
