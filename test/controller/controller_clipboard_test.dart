@@ -39,7 +39,7 @@ void main() {
           ),
         );
 
-        final initialDelta = Delta()..insert('plain text\n', {'bold': true});
+        final initialDelta = Delta()..insert('plain text\n', attributes: {'bold': true});
 
         expect(
           await controller.getDeltaToPaste(initialDelta),
@@ -48,7 +48,7 @@ void main() {
 
         returnComposedDelta = false;
 
-        final secondDelta = Delta()..insert('plain text\n', {'bold': true});
+        final secondDelta = Delta()..insert('plain text\n', attributes: {'bold': true});
 
         expect(await controller.getDeltaToPaste(secondDelta), secondDelta);
       },
@@ -196,7 +196,7 @@ void main() {
         source.pasteDelta,
         Delta()
           ..insert('n ')
-          ..insert('te', {'bold': true}),
+          ..insert('te', attributes: {'bold': true}),
       );
       //
       final controller = QuillController.basic()
@@ -220,7 +220,7 @@ void main() {
         controller.document.toDelta(),
         Delta()
           ..insert('[n ')
-          ..insert('te', {'bold': true})
+          ..insert('te', attributes: {'bold': true})
           ..insert(']\n'),
       );
       expect(controller.selection, const TextSelection.collapsed(offset: 5));
@@ -255,17 +255,17 @@ void main() {
       expect(
         source.pasteDelta,
         Delta()
-          ..insert('B', {'underline': true})
+          ..insert('B', attributes: {'underline': true})
           ..insert('C\nD')
-          ..insert('E', {'italic': true})
+          ..insert('E', attributes: {'italic': true})
           ..insert('F')
-          ..insert('\n', {'list': 'ordered'})
+          ..insert('\n', attributes: {'list': 'ordered'})
           ..insert('G')
-          ..insert('H', {'code': true})
+          ..insert('H', attributes: {'code': true})
           ..insert('I')
-          ..insert('\n', {'list': 'ordered'})
+          ..insert('\n', attributes: {'list': 'ordered'})
           ..insert('J')
-          ..insert('K', {'strike': true}),
+          ..insert('K', attributes: {'strike': true}),
       );
       //
       final controller = QuillController.basic()
@@ -289,17 +289,17 @@ void main() {
         controller.document.toDelta(),
         Delta()
           ..insert('[')
-          ..insert('B', {'underline': true})
+          ..insert('B', attributes: {'underline': true})
           ..insert('C\nD')
-          ..insert('E', {'italic': true})
+          ..insert('E', attributes: {'italic': true})
           ..insert('F')
-          ..insert('\n', {'list': 'ordered'})
+          ..insert('\n', attributes: {'list': 'ordered'})
           ..insert('G')
-          ..insert('H', {'code': true})
+          ..insert('H', attributes: {'code': true})
           ..insert('I')
-          ..insert('\n', {'list': 'ordered'})
+          ..insert('\n', attributes: {'list': 'ordered'})
           ..insert('J')
-          ..insert('K', {'strike': true})
+          ..insert('K', attributes: {'strike': true})
           ..insert(']\n'),
       );
       expect(controller.selection, const TextSelection.collapsed(offset: 14));

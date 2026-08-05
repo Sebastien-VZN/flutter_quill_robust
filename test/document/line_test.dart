@@ -7,7 +7,7 @@ void main() {
     test('Simple', () {
       final delta = Delta()
         ..insert('First\nSecond ')
-        ..insert('Bold', <String, dynamic>{'bold': true})
+        ..insert('Bold', attributes: <String, dynamic>{'bold': true})
         ..insert('\n\nplain\n');
       final document = Document.fromDelta(delta);
       //
@@ -47,12 +47,12 @@ void main() {
 
     test('Block', () {
       final delta = Delta()
-        ..insert('first', {'bold': true})
-        ..insert('\n', {'list': 'ordered'})
-        ..insert('second', {'bold': true})
-        ..insert('\n', {'list': 'ordered'})
-        ..insert('third', {'italic': true})
-        ..insert('\n', {'list': 'ordered'})
+        ..insert('first', attributes: {'bold': true})
+        ..insert('\n', attributes: {'list': 'ordered'})
+        ..insert('second', attributes: {'bold': true})
+        ..insert('\n', attributes: {'list': 'ordered'})
+        ..insert('third', attributes: {'italic': true})
+        ..insert('\n', attributes: {'list': 'ordered'})
         ..insert('\nplain\n');
       final document = Document.fromDelta(delta);
       //

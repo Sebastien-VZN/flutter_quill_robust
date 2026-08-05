@@ -159,7 +159,7 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
       }
       delta
         ..retain(lineBreak)
-        ..retain(1, attributes);
+        ..retain(1, attributes: attributes);
       break;
     }
     return delta;

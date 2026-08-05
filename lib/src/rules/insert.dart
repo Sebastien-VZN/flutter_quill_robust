@@ -73,7 +73,7 @@ class PreserveLineStyleOnSplitRule extends InsertRule {
     final nextNewLine = _getNextNewLine(itr);
     final attributes = nextNewLine.operation?.attributes;
 
-    return delta..insert('\n', attributes);
+    return delta..insert('\n', attributes: attributes);
   }
 }
 
@@ -133,7 +133,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
       }
       if (i == 0) {
         // The first line should inherit the lineStyle entirely.
-        delta.insert('\n', lineStyle.toJson());
+        delta.insert('\n', attributes: lineStyle.toJson());
       } else if (i < lines.length - 1) {
         // we don't want to insert a newline after the last chunk of text, so -1
         final blockAttributes = blockStyle.isEmpty
@@ -141,7 +141,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
             : blockStyle.map<String, dynamic>(
                 (_, attribute) => MapEntry<String, dynamic>(attribute.key, attribute.value),
               );
-        delta.insert('\n', blockAttributes);
+        delta.insert('\n', attributes: blockAttributes);
       }
     }
 
@@ -150,7 +150,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
       delta
         ..retain(nextNewLine.skipped!)
         ..retain((nextNewLine.operation!.data! as String).indexOf('\n'))
-        ..retain(1, resetStyle);
+        ..retain(1, attributes: resetStyle);
     }
 
     return delta;
@@ -234,7 +234,7 @@ class AutoExitBlockRule extends InsertRule {
     // retain(1) should be '\n', set it with no attribute
     return Delta()
       ..retain(index + (len ?? 0))
-      ..retain(1, attributes);
+      ..retain(1, attributes: attributes);
   }
 }
 
@@ -271,8 +271,8 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
     }
     return Delta()
       ..retain(index + (len ?? 0))
-      ..insert('\n', cur.attributes)
-      ..retain(1, resetStyle)
+      ..insert('\n', attributes: cur.attributes)
+      ..retain(1, attributes: resetStyle)
       ..trim();
   }
 }
@@ -335,7 +335,7 @@ class InsertEmbedsRule extends InsertRule {
     }
 
     if (!isNewlineBefore) {
-      delta.insert('\n', lineStyle);
+      delta.insert('\n', attributes: lineStyle);
     }
     delta.insert(data);
     if (!isNewlineAfter) {
@@ -486,10 +486,10 @@ class AutoFormatMultipleLinksRule extends InsertRule {
       // Keep the leading segment of text and add link with its proper
       // attribute.
       formatterDelta
-        ..retain(separationLength, FormatAttribute.link.toJson())
+        ..retain(separationLength, attributes: FormatAttribute.link.toJson())
         ..retain(
           link.length,
-          FormatAttribute(
+          attributes: FormatAttribute(
             key: "link",
             scope: FormatScope.inline,
             value: link,
@@ -505,7 +505,7 @@ class AutoFormatMultipleLinksRule extends InsertRule {
     final remainingLength = affectedWords.length - previousLinkEndRelativeIndex;
 
     // Remove links from remaining non-link text.
-    formatterDelta.retain(remainingLength, FormatAttribute.link.toJson());
+    formatterDelta.retain(remainingLength, attributes: FormatAttribute.link.toJson());
 
     // Build and return resulting change delta.
     return baseDelta.compose(formatterDelta);
@@ -558,8 +558,8 @@ class AutoFormatLinksRule extends InsertRule {
       );
       return Delta()
         ..retain(index + (len ?? 0) - cand.length)
-        ..retain(cand.length, attributes)
-        ..insert(data, prev.attributes);
+        ..retain(cand.length, attributes: attributes)
+        ..insert(data, attributes: prev.attributes);
     } on FormatException {
       return null;
     }
@@ -642,7 +642,7 @@ class PreserveInlineStylesRule extends InsertRule {
     }
     return Delta()
       ..retain(index + len)
-      ..insert(data, attributes.isEmpty ? null : attributes);
+      ..insert(data, attributes: attributes.isEmpty ? null : attributes);
   }
 }
 

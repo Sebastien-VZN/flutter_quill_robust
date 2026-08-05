@@ -48,7 +48,7 @@ void main() {
     test('search plain', () {
       final delta = Delta()
         ..insert('Abc de\nfGhi')
-        ..insert('kl', {'bold': true})
+        ..insert('kl', attributes: {'bold': true})
         ..insert('demnoDe\n match whole word who\n');
       final document = Document.fromDelta(delta);
 
@@ -69,7 +69,7 @@ void main() {
         ..insert('Test ')
         ..insert(
           {'image': 'https://unknown08.com/7900d52.png'},
-          {
+          attributes: {
             'width': '230',
             'style': {'display': 'block', 'margin': 'auto'},
           },

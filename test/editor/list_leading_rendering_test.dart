@@ -47,7 +47,7 @@ void main() {
       final controller = buildController(
         Delta()
           ..insert('item1')
-          ..insert('\n', {"list": "bullet"}),
+          ..insert('\n', attributes: {"list": "bullet"}),
       );
       await pumpEditor(tester, controller);
 
@@ -62,9 +62,9 @@ void main() {
       final controller = buildController(
         Delta()
           ..insert('item1')
-          ..insert('\n', {"list": "ordered"})
+          ..insert('\n', attributes: {"list": "ordered"})
           ..insert('item2')
-          ..insert('\n', {"list": "ordered"}),
+          ..insert('\n', attributes: {"list": "ordered"}),
       );
       await pumpEditor(tester, controller);
 
@@ -79,7 +79,7 @@ void main() {
       final controller = buildController(
         Delta()
           ..insert('task1')
-          ..insert('\n', {"list": "unchecked"}),
+          ..insert('\n', attributes: {"list": "unchecked"}),
       );
       await pumpEditor(tester, controller);
 
@@ -95,8 +95,8 @@ void main() {
     testWidgets('bullet leading aligns with huge font size', (tester) async {
       final controller = buildController(
         Delta()
-          ..insert('item1', {"size": "huge"})
-          ..insert('\n', {"list": "bullet"}),
+          ..insert('item1', attributes: {"size": "huge"})
+          ..insert('\n', attributes: {"list": "bullet"}),
       );
       await pumpEditor(tester, controller);
 
@@ -108,8 +108,8 @@ void main() {
     testWidgets('number leading aligns with small font size', (tester) async {
       final controller = buildController(
         Delta()
-          ..insert('item1', {"size": "small"})
-          ..insert('\n', {"list": "ordered"}),
+          ..insert('item1', attributes: {"size": "small"})
+          ..insert('\n', attributes: {"list": "ordered"}),
       );
       await pumpEditor(tester, controller);
 
@@ -120,8 +120,8 @@ void main() {
     testWidgets('checkbox leading remains tappable with large font size', (tester) async {
       final controller = buildController(
         Delta()
-          ..insert('task1', {"size": "huge"})
-          ..insert('\n', {"list": "unchecked"}),
+          ..insert('task1', attributes: {"size": "huge"})
+          ..insert('\n', attributes: {"list": "unchecked"}),
       );
       await pumpEditor(tester, controller);
 
