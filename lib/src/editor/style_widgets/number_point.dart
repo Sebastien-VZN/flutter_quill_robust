@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import '../../../flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 class QuillNumberPoint extends StatelessWidget {
   const QuillNumberPoint({
@@ -21,7 +21,7 @@ class QuillNumberPoint extends StatelessWidget {
   final int count;
   final TextStyle style;
   final double width;
-  final Map<String, Attribute> attrs;
+  final Map<String, FormatAttribute> attrs;
   final bool withDot;
   final double padding;
   final Color? backgroundColor;
@@ -29,7 +29,7 @@ class QuillNumberPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!attrs.containsKey(Attribute.indent.key) && indentLevelCounts.isEmpty) {
+    if (!attrs.containsKey(FormatAttribute.indent.key) && indentLevelCounts.isEmpty) {
       return Container(
         alignment: AlignmentDirectional.topEnd,
         width: width,

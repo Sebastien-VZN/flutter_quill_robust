@@ -1,10 +1,9 @@
 import 'package:flutter/widgets.dart' show IconData, immutable;
 
-import '../../../document/attribute.dart';
-import '../base_button_options.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/toolbar/config/base_button_options.dart';
 
-class QuillToolbarSelectAlignmentButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarSelectAlignmentButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarSelectAlignmentButtonExtraOptions({
     required super.controller,
     required super.context,
@@ -13,11 +12,7 @@ class QuillToolbarSelectAlignmentButtonExtraOptions
 }
 
 class QuillToolbarSelectAlignmentButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarSelectAlignmentButtonOptions,
-          QuillToolbarBaseButtonExtraOptions
-        > {
+    extends QuillToolbarBaseButtonOptions<QuillToolbarSelectAlignmentButtonOptions, QuillToolbarBaseButtonExtraOptions> {
   const QuillToolbarSelectAlignmentButtonOptions({
     this.iconsData,
     this.tooltips,
@@ -47,7 +42,7 @@ class QuillToolbarSelectAlignmentButtonOptions
   /// By default will use the localized tooltips
   final QuillSelectAlignmentValues<String>? tooltips;
 
-  final List<Attribute>? attributes;
+  final List<FormatAttribute>? attributes;
 
   final bool showLeftAlignment;
   final bool showCenterAlignment;
@@ -57,7 +52,7 @@ class QuillToolbarSelectAlignmentButtonOptions
   QuillToolbarSelectAlignmentButtonOptions copyWith({
     QuillSelectAlignmentValues<IconData>? iconsData,
     QuillSelectAlignmentValues<String>? tooltips,
-    List<Attribute>? attributes,
+    List<FormatAttribute>? attributes,
     bool? showLeftAlignment,
     bool? showCenterAlignment,
     bool? showRightAlignment,

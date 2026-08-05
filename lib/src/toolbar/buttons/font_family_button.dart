@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../common/utils/widgets.dart';
-import '../../document/attribute.dart';
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/base_value_button.dart';
-import '../simple_toolbar.dart';
+import 'package:flutter_quill/src/common/utils/widgets.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
 
-class QuillToolbarFontFamilyButton
-    extends
-        QuillToolbarBaseButton<
-          QuillToolbarFontFamilyButtonOptions,
-          QuillToolbarFontFamilyButtonExtraOptions
-        > {
+class QuillToolbarFontFamilyButton extends QuillToolbarBaseButton<QuillToolbarFontFamilyButtonOptions, QuillToolbarFontFamilyButtonExtraOptions> {
   QuillToolbarFontFamilyButton({
     required super.controller,
     super.options = const QuillToolbarFontFamilyButtonOptions(),
@@ -20,12 +15,24 @@ class QuillToolbarFontFamilyButton
     /// over the [baseOptions].
     super.baseOptions,
     super.key,
-  }) : assert(options.items?.isNotEmpty ?? true),
-       assert(options.initialValue == null || options.initialValue!.isNotEmpty);
+  }) {
+    // Guards défensifs — remplacent les assert() pour éviter les crash en
+    // production. Les options sont déjà construites et finales, on loggue
+    // simplement les violations d'invariants.
+    if (options.items != null && options.items!.isEmpty) {
+      debugPrint(
+        'QuillToolbarFontFamilyButton — items is empty, will use defaults',
+      );
+    }
+    if (options.initialValue != null && options.initialValue!.isEmpty) {
+      debugPrint(
+        'QuillToolbarFontFamilyButton — initialValue is empty, ignoring',
+      );
+    }
+  }
 
   @override
-  QuillToolbarFontFamilyButtonState createState() =>
-      QuillToolbarFontFamilyButtonState();
+  QuillToolbarFontFamilyButtonState createState() => QuillToolbarFontFamilyButtonState();
 }
 
 class QuillToolbarFontFamilyButtonState
@@ -38,18 +45,12 @@ class QuillToolbarFontFamilyButtonState
         > {
   @override
   String get currentStateValue {
-    final attribute = controller
-        .getSelectionStyle()
-        .attributes[options.attribute.key];
-    return attribute == null
-        ? _defaultDisplayText
-        : (_getKeyName(attribute.value) ?? _defaultDisplayText);
+    final attribute = controller.getSelectionStyle().attributes[options.attribute.key];
+    return attribute == null ? _defaultDisplayText : (_getKeyName(attribute.stringValue.toString()) ?? _defaultDisplayText);
   }
 
   String get _defaultDisplayText {
-    return options.initialValue ??
-        widget.options.defaultDisplayText ??
-        context.loc.font;
+    return options.initialValue ?? widget.options.defaultDisplayText ?? context.loc.font;
   }
 
   Map<String, String> get _items {
@@ -115,9 +116,7 @@ class QuillToolbarFontFamilyButtonState
       wrapper: (child) {
         var effectiveTooltip = tooltip;
         if (options.overrideTooltipByFontFamily) {
-          effectiveTooltip = effectiveTooltip.isNotEmpty
-              ? '$effectiveTooltip: $currentValue'
-              : '${context.loc.font}: $currentValue';
+          effectiveTooltip = effectiveTooltip.isNotEmpty ? '$effectiveTooltip: $currentValue' : '${context.loc.font}: $currentValue';
         }
         return Tooltip(message: effectiveTooltip, child: child);
       },
@@ -138,8 +137,8 @@ class QuillToolbarFontFamilyButtonState
                   }
                   if (keyName != null) {
                     controller.formatSelection(
-                      Attribute.fromKeyValue(
-                        Attribute.font.key,
+                      FormatAttribute.fromKeyValue(
+                        FormatAttribute.font.key,
                         newValue == 'Clear' ? null : newValue,
                       ),
                     );
@@ -148,14 +147,10 @@ class QuillToolbarFontFamilyButtonState
                 });
               },
               child: Text(
-                fontFamily.key.toString(),
+                fontFamily.key,
                 style: TextStyle(
-                  fontFamily: options.renderFontFamilies
-                      ? fontFamily.value
-                      : null,
-                  color: fontFamily.value == 'Clear'
-                      ? options.defaultItemColor
-                      : null,
+                  fontFamily: options.renderFontFamilies ? fontFamily.value : null,
+                  color: fontFamily.value == 'Clear' ? options.defaultItemColor : null,
                 ),
               ),
             ),

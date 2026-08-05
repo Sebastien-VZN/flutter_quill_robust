@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show ViewportOffset;
 
-import '../../document/document.dart';
-import '../editor.dart';
-import '../widgets/cursor.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/editor/editor.dart';
+import 'package:flutter_quill/src/editor/widgets/cursor.dart';
 
-class QuillRawEditorMultiChildRenderObject
-    extends MultiChildRenderObjectWidget {
+class QuillRawEditorMultiChildRenderObject extends MultiChildRenderObjectWidget {
   const QuillRawEditorMultiChildRenderObject({
+    required this.offset,
     required super.children,
     required this.document,
     required this.textDirection,
@@ -21,10 +21,10 @@ class QuillRawEditorMultiChildRenderObject
     required this.scrollBottomInset,
     required this.cursorController,
     required this.floatingCursorDisabled,
-    super.key,
+
     this.padding = EdgeInsets.zero,
     this.maxContentWidth,
-    this.offset,
+    super.key,
   });
 
   final ViewportOffset? offset;
@@ -81,6 +81,6 @@ class QuillRawEditorMultiChildRenderObject
       ..onSelectionChanged = onSelectionChanged
       ..setScrollBottomInset(scrollBottomInset)
       ..setPadding(padding)
-      ..maxContentWidth = maxContentWidth;
+      ..maxContentWidth(maxContentWidth);
   }
 }

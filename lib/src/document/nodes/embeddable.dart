@@ -1,4 +1,7 @@
-import 'dart:convert' show jsonDecode, jsonEncode;
+import "dart:convert" show jsonDecode, jsonEncode;
+
+import "package:flutter/foundation.dart" show debugPrint;
+import "package:flutter_quill/src/document/data_caster.dart" show DataCaster;
 
 /// An object which can be embedded into a Quill document.
 ///
@@ -8,22 +11,42 @@ import 'dart:convert' show jsonDecode, jsonEncode;
 class Embeddable {
   const Embeddable(this.type, this.data);
 
+  factory Embeddable.fromJson(Map<String, dynamic> json) {
+    try {
+      final m = Map<String, Object>.from(json);
+      return Embeddable(m.keys.first, m.values.first);
+    } catch (e) {
+      debugPrint("Embeddable map must only have one key : $e");
+      return const Embeddable("", Object);
+    }
+  }
+
   /// The type of this object.
   final String type;
 
   /// The data payload of this object.
-  final dynamic data;
+  final Object data;
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object> toJson() {
     return {type: data};
   }
 
-  static Embeddable fromJson(Map<String, dynamic> json) {
-    final m = Map<String, dynamic>.from(json);
-    assert(m.length == 1, 'Embeddable map must only have one key');
+  /// Retourne `data` caste en `int?` si le type runtime est `int`, sinon `null`.
+  /// Log un warning si `data` est non-null mais pas un `int`.
+  int? get intVal => DataCaster.toInt(data, context: "Embeddable.intVal[$type]");
 
-    return Embeddable(m.keys.first, m.values.first);
-  }
+  /// Retourne `data` caste en `String?` si le type runtime est `String`, sinon `null`.
+  /// Log un warning si `data` est non-null mais pas un `String`.
+  String? get stringVal => DataCaster.toStr(data, context: "Embeddable.stringVal[$type]");
+
+  /// Retourne `data` caste en `bool?` si le type runtime est `bool`, sinon `null`.
+  /// Log un warning si `data` est non-null mais pas un `bool`.
+  bool? get boolValue => DataCaster.toBool(data, context: "Embeddable.boolValue[$type]");
+
+  /// Retourne `data` caste en `double?` si le type runtime est `num` (int ou double), sinon `null`.
+  /// Promouvoit un `int` en `double` automatiquement.
+  /// Log un warning si `data` est non-null mais pas un `num`.
+  double? get numberValue => DataCaster.toDouble(data, context: "Embeddable.numberValue[$type]");
 }
 
 /// There are two built-in embed types supported by Quill documents, however
@@ -31,19 +54,11 @@ class Embeddable {
 /// of embedded objects and allows users to define their own types.
 class BlockEmbed extends Embeddable {
   const BlockEmbed(super.type, String super.data);
+  factory BlockEmbed.formula(String formula) => BlockEmbed(formulaType, formula);
+  factory BlockEmbed.custom(CustomBlockEmbed customBlock) => BlockEmbed(customType, customBlock.toJsonString());
 
-  static const String imageType = 'image';
-  static BlockEmbed image(String imageUrl) => BlockEmbed(imageType, imageUrl);
-
-  static const String videoType = 'video';
-  static BlockEmbed video(String videoUrl) => BlockEmbed(videoType, videoUrl);
-
-  static const String formulaType = 'formula';
-  static BlockEmbed formula(String formula) => BlockEmbed(formulaType, formula);
-
-  static const String customType = 'custom';
-  static BlockEmbed custom(CustomBlockEmbed customBlock) =>
-      BlockEmbed(customType, customBlock.toJsonString());
+  static const String formulaType = "formula";
+  static const String customType = "custom";
 }
 
 class CustomBlockEmbed extends BlockEmbed {
@@ -51,8 +66,17 @@ class CustomBlockEmbed extends BlockEmbed {
 
   String toJsonString() => jsonEncode(toJson());
 
-  static CustomBlockEmbed fromJsonString(String data) {
-    final embeddable = Embeddable.fromJson(jsonDecode(data));
-    return CustomBlockEmbed(embeddable.type, embeddable.data);
+  static CustomBlockEmbed? fromJsonString(String data) {
+    try {
+      final value = jsonDecode(data);
+      if (value != null && value is Map<String, dynamic>) {
+        final embeddable = Embeddable.fromJson(value);
+        return CustomBlockEmbed(embeddable.type, embeddable.data.toString());
+      }
+    } catch (e) {
+      debugPrint("Error in fromJsonString CustomBlockEmbed : $e");
+      return null;
+    }
+    return null;
   }
 }

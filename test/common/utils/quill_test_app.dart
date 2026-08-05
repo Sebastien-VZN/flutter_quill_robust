@@ -3,8 +3,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/internal.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-typedef LocalizationsAvailableCallback =
-    void Function(FlutterQuillLocalizations quillLocalizations);
+typedef LocalizationsAvailableCallback = void Function(FlutterQuillLocalizations quillLocalizations);
 
 /// A utility for testing widgets within an application widget configured with
 /// the necessary localizations.
@@ -107,6 +106,5 @@ extension LocalizationsExt on WidgetTester {
   ///   expect(find.text(localizations.successImageDownloaded), findsOneWidget);
   /// });
   /// ```
-  FlutterQuillLocalizations localizationsFromElement(Type type) =>
-      (element(find.byType(type)) as BuildContext).loc;
+  FlutterQuillLocalizations localizationsFromElement(Type type) => (element(find.byType(type)) as BuildContext).loc;
 }

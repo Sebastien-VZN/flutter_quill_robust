@@ -10,14 +10,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Added
 
-- Fixed an issue where bullet points became visually detached from the text body when toggling text direction formatting (RTL) by locking the list leading block to the editor's base text direction.
-- Fixed typed text being inserted at the previous caret position on Android after moving the caret with a tap/mouse by keeping the platform IME's editing state in sync with the selection even when the keyboard is hidden.
+- **DataCaster** (`lib/src/document/data_caster.dart`) — centralized type-casting utility with `debugPrint` logging on type mismatches. Provides `toInt()`, `toStr()`, `toBool()`, `toDouble()` static methods with optional `context` parameter for traceability.
+- **FormatValueType** enum — runtime type marker (`boolean`, `string`, `nullableString`, `integer`, `nullableInteger`, `number`, `nullableNumber`) that compensates for Dart's lack of union types.
+- **Typed accessors** on `FormatAttribute` — `intValue`, `stringValue`, `boolValue`, `numberValue` delegate to `DataCaster` with full context logging.
+- **Typed accessors** on `Embeddable` — `intVal`, `stringVal`, `boolValue`, `numberValue` delegate to `DataCaster`.
+- **ClipboardService** rebuilt — interface cleaned of media methods, `DefaultClipboardService` recreated using only bridge-supported operations (`getClipboardHtml`, `getClipboardText`, `getClipboardMarkdown` + copy variants).
+- **ClipboardServiceProvider** recreated as singleton for the cleaned `ClipboardService`.
+
+### Changed
+
+- **Attribute → FormatAttribute** — Replaced 22+ `Attribute<T>` subclasses with a single `FormatAttribute` class using `FormatValueType` enum and named constructor (`key`, `scope`, `value`, `valueType`).
+- **AttributeScope → FormatScope** — Renamed enum. `ignore` scope renamed to `metadata`.
+- **BlockEmbed** — Removed `imageType` and `videoType` statics. Kept `formulaType` and `customType` as static factories.
+- **EditableTextLine constructor** — Migrated from 14 positional arguments to named parameters.
+- **text_line.dart** — All `.value` (Object?) direct accesses migrated to `.stringValue` via typed accessors. `CustomBlockEmbed.fromJsonString` calls now null-guarded with `.stringVal`.
+- **color_button.dart / color_dialog.dart** — `.value` migrated to `.stringValue` for `stringToColor()` / `hexToColor()` calls.
+- **raw_editor_state.dart** — `_linkActionPicker` converted from synchronous `LinkMenuAction?` to `Future<LinkMenuAction>` with `LinkMenuAction.none` fallback, matching the `LinkActionPicker` typedef.
+- **raw_editor_state.dart** — Added missing `offset` parameter to `QuillRawEditorMultiChildRenderObject` in the non-scrollable code path.
+- **proxy.dart** — `RenderBaselineProxy` construction fixed from 3 positional args to 2 + setter for `padding`.
+- **debugCheckHasMediaQuery** — Replaced `assert()` with defensive guard (`if (!debugCheckHasMediaQuery(context))` + `debugPrint` + `SizedBox.shrink()`). No asserts in production code paths.
+- **Linter** — `very_good_analysis` strict mode (`strict-casts`, `strict-inference`, `strict-raw-types`) enabled. Zero analyzer errors.
 
 ### Removed
 
-- Removed the already-`@Deprecated` and `@internal` `linkPrefixes` constant from the public API surface (it is hidden from the `flutter_quill.dart` export). Use `LinkValidator.linkPrefixes` instead.
+- **Media embed blocks** — Image, video, gif, and camera embed blocks removed from the editor and extensions. Only `formula` and `custom` embed types remain.
+- **ClipboardService media methods** — `getImageFile()`, `getGifFile()`, `copyImage()`, `getHtmlFile()`, `getMarkdownFile()` removed from the interface. Replaced with bridge-supported text/HTML/Markdown methods.
+- **DefaultClipboardService media methods** — All image/gif/file clipboard operations removed. Only text-based clipboard operations remain.
+- **HTML/Markdown converters** — Delta-to-HTML and Markdown-to-Delta converters removed from the fork. Ported to the `quill_native_bridge` package.
+- **`getFontSize()`** — Removed from `text_line.dart`. Replaced with `getFontSizeAsDouble()` from `font.dart`.
+- **`linkPrefixes`** — Already-`@Deprecated` and `@internal` constant removed from the public API surface. Use `LinkValidator.linkPrefixes` instead.
+
+### Fixed
+
+- **Embeddable.numberValue** — Was checking `data is bool` instead of `data is num`, causing all numeric embeds to return `null`. Fixed via `DataCaster.toDouble`.
+- **debugCheckHasMediaQuery inverted logic** — `if (debugCheckHasMediaQuery(context))` returned `SizedBox.shrink()` on every build (function always returns `true`). Fixed to use `if (!debugCheckHasMediaQuery(context))` defensive guard.
+- **text_line.dart nullable access** — `horizontalSpacing.left` / `verticalSpacing.top` accessed unconditionally on nullable types. Fixed with `?.` + `?? 0.0` fallbacks.
+
+### Tests
+
+- 121 tests passing, 0 failures.
+- Fixed 4 tests: `controller_test.dart` (`null` → `isEmpty`), `attributes_test.dart` (added `metadataKeys` removal), `document_search_test.dart` (`.data` → `.data.toString()`), `line_test.dart` (`FormatAttribute.ol` object → `"ordered"` string in Delta JSON).
 
 ## [11.5.1] - 2026-05-20
 
@@ -44,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **App crash on desktop platforms** when using Flutter `3.32.0-0.5.pre` and newer.  
+- **App crash on desktop platforms** when using Flutter `3.32.0-0.5.pre` and newer.
   Fixed by passing the required `viewId` for experimental multi-window support [#2579](https://github.com/singerdmx/flutter-quill/pull/2579).
 
 ## [11.4.1] - 2025-05-15
@@ -116,7 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [11.0.0] - 2025-02-16
 
 > [!IMPORTANT]
-> See the [migration guide from 10.0.0 to 11.0.0](https://github.com/singerdmx/flutter-quill/blob/master/doc/migration/10_to_11.md) for the full breaking changes and migration. Ensure to read the [breaking behavior](https://github.com/singerdmx/flutter-quill/blob/master/doc/migration/10_to_11.md#-breaking-behavior) section to avoid unexpected changes.
+> See the [migration guide from 10.0.0 to 11.0.0](https://github.com/singerdmx/flutter-quill/blob/master/doc/migration/10_to_11.md) for the full breaking changes and migration.
 
 ### Fixed
 
@@ -128,63 +162,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- New localization strings for the image save functionality [#2403](https://github.com/singerdmx/flutter-quill/pull/2403).
-- `Insert video` string in `quill_en.arb` to support localization for `flutter_quill_extensions`. Currently available **only in English**.
 - `QuillClipboardConfig` class with customizable clipboard paste handling callbacks, partial fix to [#2350](https://github.com/singerdmx/flutter-quill/issues/2350).
 - The option to enable/disable rich text paste (from other apps) in `QuillClipboardConfig`.
-- `Insert video` string in `quill_en.arb` to support localization for `flutter_quill_extensions`. Currently available **only in English**.
 - `onKeyPressed` in `QuillEditorConfig` to customize key press handling in the editor [#2368](https://github.com/singerdmx/flutter-quill/pull/2368).
 - Croatian (hr) language translation [#2431](https://github.com/singerdmx/flutter-quill/pull/2431).
-- `enableClipboardPaste` flag in `QuillToolbarClipboardButton` to determine if the button defaults to `null,` which will use `ClipboardMonitor`, which checks every second if the clipboard has content to paste [#2427](https://github.com/singerdmx/flutter-quill/pull/2427).
+- `enableClipboardPaste` flag in `QuillToolbarClipboardButton` [#2427](https://github.com/singerdmx/flutter-quill/pull/2427).
 
 ### Changed
 
-- Rewrite the image save functionality for [`flutter_quill_extensions`](https://pub.dev/packages/flutter_quill_extensions) [#2403](https://github.com/singerdmx/flutter-quill/pull/2403).
 - Migrate [quill_native_bridge](https://pub.dev/packages/quill_native_bridge) to `11.0.0` [#2403](https://github.com/singerdmx/flutter-quill/pull/2403).
-- Avoid using deprecated APIs in Flutter 3.27.0 [#2416](https://github.com/singerdmx/flutter-quill/pull/2416):
-    - Migrate from `withOpacity` to `withValues` according to [Color wide gamut - Opacity migration](https://docs.flutter.dev/release/breaking-changes/wide-gamut-framework#opacity).
-    - Avoid using the deprecated `Color.value` getter.
-- Ignore `unreachable_switch_default` warning (introduced in Dart 3.6) [#2416](https://github.com/singerdmx/flutter-quill/pull/2416).
-- Update `intl` dependency to support versions `0.19.0` and `0.20.0` [#2416](https://github.com/singerdmx/flutter-quill/pull/2416).
-- Restore [base button options](https://github.com/singerdmx/flutter-quill/pull/2338/commits/1f51935f1eaa229f01c4d14398708ab2d3bd05b0), now works without the inherited widgets, and support buttons of `flutter_quill_extensions`.
-- The option to enable/disable rich text paste (from other apps) in `QuillClipboardConfig`.
-- Improve `README.md`.
-- Simplify the `example` app.
-- Update the minimum supported SDK version to **Flutter 3.0/Dart 3.0** for compatibility, fixing [#2347](https://github.com/singerdmx/flutter-quill/issues/2347).
-- Improve dependencies constraints for compatibility.
-- Improve `README.md`.
-- [Always call `setState()` in `_markNeedsBuild()` in `QuillRawEditorState`](https://github.com/singerdmx/flutter-quill/pull/2338/commits/a127628214c23bb4a7a3b0cdc644fefb21eee738) (**revert to the old behavior**).
+- Avoid using deprecated APIs in Flutter 3.27.0 [#2416](https://github.com/singerdmx/flutter-quill/pull/2416).
 - **BREAKING**: Update configuration class names to use the suffix `Config` instead of `Configurations`.
 - **BREAKING**: Refactor **embed block interface** for both the `EmbedBuilder.build()` and `EmbedButtonBuilder`.
-- [Minor cleanup](https://github.com/singerdmx/flutter-quill/pull/2338/commits/b739b700cbae9c3d4427e4966963d97cebf0a852) to magnifier feature.
-- The `QuillSimpleToolbar` base button options now support buttons of `flutter_quill_extensions`.
-- Mark `shouldNotifyListeners` as experimental in `QuillController.replaceText()`.
-- Mark the method `QuillController.clipboardSelection()` as experimental.
-- Improve pub topics in package metadata.
-- Update the minimum required version of the dependency [quill_native_bridge](https://pub.dev/packages/quill_native_bridge) from `10.7.9` to `10.7.11`.
-- Address warnings of `unreachable_switch_default` (introduced in Dart 3.6).
-- **BREAKING**: Clipboard action buttons in `QuillSimpleToolbar` are now disabled by default. To enable them, set `showClipboardCut`, `showClipboardCopy`, and `showClipboardPaste` to `true` in `QuillSimpleToolbarConfig`.
-- **BREAKING**: Change the `options` parameter class type from `QuillToolbarToggleStyleButtonOptions` to `QuillToolbarClipboardButtonOptions` in `QuillToolbarClipboardButton`. To migrate, use `QuillToolbarClipboardButtonOptions` instead of `QuillToolbarToggleStyleButtonOptions` [#2433](https://github.com/singerdmx/flutter-quill/pull/2433). This change was made for the PR [#2427](https://github.com/singerdmx/flutter-quill/pull/2427).
-- **BREAKING**: Change the `onTapDown` to accept `TapDownDetails` instead of `TapDragDownDetails` (revert [#2128](https://github.com/singerdmx/flutter-quill/pull/2128/files#diff-49ca9b0fdd0d380a06b34d5aed7674bbfb27fede500831b3e1279615a9edd06dL259-L261) due to regressions).
-- **BREAKING**: Change the `onTapUp` to accept `TapUpDetails` instead of `TapDragUpDetails` (revert [#2128](https://github.com/singerdmx/flutter-quill/pull/2128/files#diff-49ca9b0fdd0d380a06b34d5aed7674bbfb27fede500831b3e1279615a9edd06dL263-L265) due to regressions).
-- **BREAKING**: Revert [`Copy TapAndPanGestureRecognizer from TextField` PR #2128](https://github.com/singerdmx/flutter-quill/pull/2128), restoring editor behavior to match versions before [`10.4.0`](https://pub.dev/packages/flutter_quill/changelog#1040) due to the regressions [#2413](https://github.com/singerdmx/flutter-quill/pull/2413).
-- **BREAKING**: Replace `QuillClipboardConfig.onDeltaPaste` with `QuillClipboardConfig.onRichTextPaste` which is more specific and provides an additional parameter `isExternal` to determine whether the `Delta` content is from an external app.
-- Bosnian (bs), Macedonian (mk) and Gujarati (gu) language translations [#2455](https://github.com/singerdmx/flutter-quill/pull/2455).
-- `textSpanBuilder` to `QuillEditorConfig` to allow overriding how text content is rendered.
+- **BREAKING**: Clipboard action buttons in `QuillSimpleToolbar` are now disabled by default.
+- **BREAKING**: Replace `QuillClipboardConfig.onDeltaPaste` with `QuillClipboardConfig.onRichTextPaste`.
 
 ### Removed
 
 - **BREAKING**: The quill shared configuration class.
 - The dependency [equatable](https://pub.dev/packages/equatable).
 - The experimental support for spell checking. See [#2246](https://github.com/singerdmx/flutter-quill/issues/2246).
-- **BREAKING**: The magnifier feature due to buggy behavior [#2413](https://github.com/singerdmx/flutter-quill/pull/2413). See [#2406](https://github.com/singerdmx/flutter-quill/issues/2406) for a list of reasons.
+- **BREAKING**: The magnifier feature due to buggy behavior [#2413](https://github.com/singerdmx/flutter-quill/pull/2413).
 
 ## [10.8.5] - 2024-10-24
 
 ### Fixed
 
 - Allow all correct URLs to be formatted [#2328](https://github.com/singerdmx/flutter-quill/pull/2328).
-- **[macOS]** Implement actions for `ExpandSelectionToDocumentBoundaryIntent` and `ExpandSelectionToLineBreakIntent` to use keyboard shortcuts, along with unrelated cleanup [#2279](https://github.com/singerdmx/flutter-quill/pull/2279).
+- **[macOS]** Implement actions for `ExpandSelectionToDocumentBoundaryIntent` and `ExpandSelectionToLineBreakIntent` to use keyboard shortcuts [#2279](https://github.com/singerdmx/flutter-quill/pull/2279).
 
 ## [9.4.0] - 2024-06-13
 
@@ -201,9 +206,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Apple-specific font dependency for subscript and superscript functionality from the example.
-- **BREAKING**: The [`super_clipboard`](https://pub.dev/packages/super_clipboard) plugin, To restore legacy behavior for `super_clipboard`, use [`flutter_quill_extensions`](https://pub.dev/packages/flutter_quill_extensions) package and `FlutterQuillExtensions.useSuperClipboardPlugin()`.
+- **BREAKING**: The [`super_clipboard`](https://pub.dev/packages/super_clipboard) plugin. To restore legacy behavior, use [`flutter_quill_extensions`](https://pub.dev/packages/flutter_quill_extensions) package and `FlutterQuillExtensions.useSuperClipboardPlugin()`.
 
-[unreleased]: https://github.com/singerdmx/flutter-quill/compare/v11.5.1...HEAD
+[unreleased]: https://github.com/Sebastien-VZN/flutter_quill_robust/compare/master
 [11.5.1]: https://github.com/singerdmx/flutter-quill/compare/v10.0.0...v11.5.1
 [11.5.0]: https://github.com/singerdmx/flutter-quill/compare/v10.0.0...v11.5.0
 [11.4.2]: https://github.com/singerdmx/flutter-quill/compare/v10.0.0...v11.4.2

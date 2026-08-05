@@ -1,14 +1,11 @@
-import 'dart:io' as io;
+import "package:flutter_quill/src/common/utils/quill_native_provider.dart";
+import "package:flutter_quill/src/editor_toolbar_controller_shared/clipboard/clipboard_service.dart";
 
-import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart' show experimental;
+/// Implementation de [ClipboardService] basee sur le bridge natif.
+///
+/// Ne supporte que les operations texte/HTML/Markdown.
+/// Les methodes media (image, gif, camera) ne sont plus supportees par le bridge.
 
-import '../../common/utils/quill_native_provider.dart';
-import 'clipboard_service.dart';
-
-/// Default implementation of [ClipboardService] to support rich clipboard
-/// operations.
-@experimental
 class DefaultClipboardService extends ClipboardService {
   @override
   Future<String?> getHtmlText() async {
@@ -17,71 +14,56 @@ class DefaultClipboardService extends ClipboardService {
     ))) {
       return null;
     }
-    return await QuillNativeProvider.instance.getClipboardHtml();
+    return QuillNativeProvider.instance.getClipboardHtml();
   }
 
   @override
-  Future<Uint8List?> getImageFile() async {
+  Future<void> copyHtmlToClipboard(String html) async {
     if (!(await QuillNativeProvider.instance.isSupported(
-      QuillNativeBridgeFeature.getClipboardImage,
-    ))) {
-      return null;
-    }
-    return await QuillNativeProvider.instance.getClipboardImage();
-  }
-
-  @override
-  Future<void> copyImage(Uint8List imageBytes) async {
-    if (!(await QuillNativeProvider.instance.isSupported(
-      QuillNativeBridgeFeature.copyImageToClipboard,
+      QuillNativeBridgeFeature.copyHtmlToClipboard,
     ))) {
       return;
     }
-    await QuillNativeProvider.instance.copyImageToClipboard(imageBytes);
+    await QuillNativeProvider.instance.copyHtmlToClipboard(html);
   }
 
   @override
-  Future<Uint8List?> getGifFile() async {
+  Future<String?> getClipboardText() async {
     if (!(await QuillNativeProvider.instance.isSupported(
-      QuillNativeBridgeFeature.getClipboardGif,
+      QuillNativeBridgeFeature.getClipboardText,
     ))) {
       return null;
     }
-    return QuillNativeProvider.instance.getClipboardGif();
+    return QuillNativeProvider.instance.getClipboardText();
   }
 
-  Future<String?> _getClipboardFile({required String fileExtension}) async {
+  @override
+  Future<void> copyTextToClipboard(String text) async {
     if (!(await QuillNativeProvider.instance.isSupported(
-      QuillNativeBridgeFeature.getClipboardFiles,
+      QuillNativeBridgeFeature.copyTextToClipboard,
+    ))) {
+      return;
+    }
+    await QuillNativeProvider.instance.copyTextToClipboard(text);
+  }
+
+  @override
+  Future<String?> getMarkdownText() async {
+    if (!(await QuillNativeProvider.instance.isSupported(
+      QuillNativeBridgeFeature.getClipboardMarkdown,
     ))) {
       return null;
     }
-    if (kIsWeb) {
-      // TODO: Can't read file with dart:io on the Web (See related https://github.com/FlutterQuill/quill-native-bridge/issues/6)
-      return null;
-    }
-    final filePaths = await QuillNativeProvider.instance.getClipboardFiles();
-    final filePath = filePaths.firstWhere(
-      (filePath) => filePath.endsWith('.$fileExtension'),
-      orElse: () => '',
-    );
-    if (filePath.isEmpty) {
-      // Could not find an item
-      return null;
-    }
-    final fileText = await io.File(filePath).readAsString();
-    return fileText;
+    return QuillNativeProvider.instance.getClipboardMarkdown();
   }
 
   @override
-  Future<String?> getHtmlFile() async {
-    final htmlFileText = await _getClipboardFile(fileExtension: 'html');
-    return htmlFileText;
-  }
-
-  @override
-  Future<String?> getMarkdownFile() async {
-    final htmlFileText = await _getClipboardFile(fileExtension: 'md');
-    return htmlFileText;
+  Future<void> copyMarkdownToClipboard(String markdown) async {
+    if (!(await QuillNativeProvider.instance.isSupported(
+      QuillNativeBridgeFeature.copyMarkdownToClipboard,
+    ))) {
+      return;
+    }
+    await QuillNativeProvider.instance.copyMarkdownToClipboard(markdown);
   }
 }

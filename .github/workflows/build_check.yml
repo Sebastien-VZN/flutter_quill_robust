@@ -1,0 +1,252 @@
+name: Build Check & Release
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master, dev]
+  workflow_dispatch:
+
+jobs:
+  # ┌─────────────────────────────────────────────────────────┐
+  # │  STEP 1 — Quality gate                                  │
+  # │  Format + Analyze + Unit tests                          │
+  # │  If ANY test fails, platform builds never start.        │
+  # └─────────────────────────────────────────────────────────┘
+  validate:
+    name: "Format, Analyze & Unit Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.44.8'
+
+      - name: "Install flutter_quill dependencies"
+        run: flutter pub get
+
+      - name: "Install flutter_quill_extensions dependencies"
+        run: flutter pub get -C flutter_quill_extensions
+
+      - name: "Install example dependencies"
+        run: flutter pub get -C example
+
+      - name: "Generate localizations"
+        run: flutter gen-l10n
+
+      - name: "Check Dart formatting (150 columns)"
+        run: dart ./scripts/format_check.dart
+
+      - name: "Run static analysis"
+        run: flutter analyze --no-fatal-infos .
+
+      - name: "Run flutter_quill unit tests"
+        run: flutter test
+
+  # ┌─────────────────────────────────────────────────────────┐
+  # │  STEP 2 — Platform builds (parallel, AFTER validate)  │
+  # │  Each build verifies compilation on its target platform.│
+  # └─────────────────────────────────────────────────────────┘
+  linux-web-android:
+    name: "Linux, Web & Android"
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.44.8'
+
+      - name: "Install dependencies"
+        run: |
+          flutter pub get
+          flutter pub get -C flutter_quill_extensions
+          flutter pub get -C example
+
+      - name: "Build Web (JS)"
+        working-directory: ./example
+        run: flutter build web --release --dart-define=CI=true
+
+      - name: "Build Web (Wasm)"
+        working-directory: ./example
+        run: flutter build web --release --wasm --dart-define=CI=true
+
+      - name: "Install Linux dependencies"
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y curl git unzip xz-utils zip libglu1-mesa
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+      - name: "Build Linux"
+        working-directory: ./example
+        run: flutter build linux --release --dart-define=CI=true
+
+      - name: "Build Android App Bundle"
+        working-directory: ./example
+        run: flutter build appbundle --release --dart-define=CI=true
+
+      - name: "Archive Web Build"
+        working-directory: ./example/build/web
+        run: zip -r $GITHUB_WORKSPACE/flutter-quill-web.zip .
+
+      - name: "Archive Linux Build"
+        working-directory: ./example/build/linux/x64/release/bundle
+        run: tar -czvf $GITHUB_WORKSPACE/flutter-quill-linux.tar.gz .
+
+      - name: "Upload Web"
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-build
+          path: flutter-quill-web.zip
+          retention-days: 1
+
+      - name: "Upload Linux"
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-build
+          path: flutter-quill-linux.tar.gz
+          retention-days: 1
+
+      - name: "Upload Android"
+        uses: actions/upload-artifact@v7
+        with:
+          name: android-build
+          path: example/build/app/outputs/bundle/release/app-release.aab
+          retention-days: 1
+
+  macos:
+    name: "iOS & macOS"
+    needs: validate
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.44.8'
+
+      - name: "Install dependencies"
+        run: |
+          flutter pub get
+          flutter pub get -C flutter_quill_extensions
+          flutter pub get -C example
+
+      - name: "Build iOS"
+        working-directory: ./example
+        run: flutter build ios --no-codesign --release --dart-define=CI=true
+
+      - name: "Build macOS"
+        working-directory: ./example
+        run: flutter build macos --release --dart-define=CI=true
+
+      - name: "Archive iOS Build"
+        working-directory: ./example/build/ios/iphoneos
+        run: zip -r $GITHUB_WORKSPACE/flutter-quill-ios.zip Runner.app
+
+      - name: "Archive macOS Build"
+        working-directory: ./example/build/macos/Build/Products/Release
+        run: zip -r $GITHUB_WORKSPACE/flutter-quill-macos.zip *.app
+
+      - name: "Upload iOS"
+        uses: actions/upload-artifact@v7
+        with:
+          name: ios-build
+          path: flutter-quill-ios.zip
+          retention-days: 1
+
+      - name: "Upload macOS"
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-build
+          path: flutter-quill-macos.zip
+          retention-days: 1
+
+  windows:
+    name: "Windows"
+    needs: validate
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.44.8'
+
+      - name: "Install dependencies"
+        run: |
+          flutter pub get
+          flutter pub get -C flutter_quill_extensions
+          flutter pub get -C example
+
+      - name: "Enable Windows Desktop"
+        run: flutter config --enable-windows-desktop
+
+      - name: "Build Windows"
+        working-directory: ./example
+        run: flutter build windows --release --dart-define=CI=true
+
+      - name: "Archive Windows Build"
+        shell: pwsh
+        run: |
+          Compress-Archive -Path example/build/windows/x64/runner/Release/* -DestinationPath flutter-quill-windows.zip
+
+      - name: "Upload Windows"
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-build
+          path: flutter-quill-windows.zip
+          retention-days: 1
+
+  # ┌─────────────────────────────────────────────────────────┐
+  # │  STEP 3 — Release (AFTER all builds on push to master)  │
+  # │  Extract version from pubspec.yaml → check tag exists → │
+  # │  download artifacts → create GitHub release              │
+  # └─────────────────────────────────────────────────────────┘
+  release:
+    name: "Create GitHub Release"
+    needs: [linux-web-android, macos, windows]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Extract version"
+        id: get_version
+        run: |
+          VERSION=$(grep '^version: ' pubspec.yaml | head -1 | sed 's/version: //')
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: "Check if tag already exists"
+        run: |
+          if git rev-parse "${{ steps.get_version.outputs.TAG }}" >/dev/null 2>&1; then
+            echo "::error::Tag ${{ steps.get_version.outputs.TAG }} already exists. Bump the version in pubspec.yaml."
+            exit 1
+          fi
+
+      - name: "Download artifacts"
+        uses: actions/download-artifact@v8
+        with:
+          path: release-artifacts
+
+      - name: "Prepare release files"
+        run: |
+          mkdir deploy
+          cp release-artifacts/web-build/flutter-quill-web.zip deploy/
+          cp release-artifacts/linux-build/flutter-quill-linux.tar.gz deploy/
+          cp release-artifacts/android-build/app-release.aab deploy/flutter-quill-android.aab
+          cp release-artifacts/ios-build/flutter-quill-ios.zip deploy/
+          cp release-artifacts/macos-build/flutter-quill-macos.zip deploy/
+          cp release-artifacts/windows-build/flutter-quill-windows.zip deploy/
+
+      - name: "Create GitHub Release"
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.get_version.outputs.TAG }}
+          name: "Flutter Quill Robust ${{ steps.get_version.outputs.TAG }}"
+          body: "Release ${{ steps.get_version.outputs.TAG }} of flutter_quill_robust."
+          files: deploy/*

@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-import '../../../document/attribute.dart';
-import '../../../document/style.dart';
-import '../../../toolbar/buttons/link_style/link_style2_button.dart';
-import '../../../toolbar/buttons/search/search_dialog.dart';
-import '../../editor.dart';
-import '../../widgets/link.dart';
-import '../raw_editor_state.dart';
-import '../raw_editor_text_boundaries.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/editor/editor.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor_state.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor_text_boundaries.dart';
+import 'package:flutter_quill/src/editor/widgets/link.dart';
+import 'package:flutter_quill/src/toolbar/buttons/link_style/link_style2_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/search/search_dialog.dart';
 
 // -------------------------------  Text Actions -------------------------------
-class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent>
-    extends ContextAction<T> {
+class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent> extends ContextAction<T> {
   QuillEditorDeleteTextAction(this.state, this.getTextBoundariesForIntent);
 
   final QuillRawEditorState state;
@@ -19,24 +19,35 @@ class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent>
 
   TextRange _expandNonCollapsedRange(TextEditingValue value) {
     final selection = value.selection;
-    assert(selection.isValid);
-    assert(!selection.isCollapsed);
+    if (!selection.isValid) {
+      debugPrint(
+        '_expandNonCollapsedRange — selection is invalid, returning empty range',
+      );
+      return TextRange.empty;
+    }
+    if (selection.isCollapsed) {
+      debugPrint(
+        '_expandNonCollapsedRange — selection is collapsed, returning selection as-is',
+      );
+      return selection;
+    }
     final atomicBoundary = QuillEditorCharacterBoundary(value);
 
     return TextRange(
-      start: atomicBoundary
-          .getLeadingTextBoundaryAt(TextPosition(offset: selection.start))
-          .offset,
-      end: atomicBoundary
-          .getTrailingTextBoundaryAt(TextPosition(offset: selection.end - 1))
-          .offset,
+      start: atomicBoundary.getLeadingTextBoundaryAt(TextPosition(offset: selection.start)).offset,
+      end: atomicBoundary.getTrailingTextBoundaryAt(TextPosition(offset: selection.end - 1)).offset,
     );
   }
 
   @override
   Object? invoke(T intent, [BuildContext? context]) {
     final selection = state.textEditingValue.selection;
-    assert(selection.isValid);
+    if (!selection.isValid) {
+      debugPrint(
+        'DeleteTextAction.invoke — selection is invalid, returning null',
+      );
+      return null;
+    }
 
     Object? execute() {
       if (!selection.isCollapsed) {
@@ -92,9 +103,16 @@ class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent>
       if (start > 0) {
         final style = state.controller.document.collectStyle(start - 1, 0);
         for (final key in style.attributes.keys) {
-          if (Attribute.inlineKeys.contains(key)) {
+          if (FormatAttribute.inlineKeys.contains(key)) {
             if (!target.containsKey(key)) {
-              target = target.put(Attribute(key, AttributeScope.inline, null));
+              target = target.put(
+                FormatAttribute(
+                  key: key,
+                  scope: FormatScope.inline,
+                  value: null,
+                  valueType: FormatValueType.nullableString,
+                ),
+              );
             }
           }
         }
@@ -103,12 +121,14 @@ class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent>
         final nextStyle = state.controller.getSelectionStyle();
         if (state.controller.document.getPlainText(start, 1) == '\n') {
           if (nextStyle.attributes.values.any(
-            (a) => a.scope == AttributeScope.block,
+            (a) => a.scope == FormatScope.block,
           )) {
             for (final attr in nextStyle.values.where(
-              (a) => a.scope == AttributeScope.block,
+              (a) => a.scope == FormatScope.block,
             )) {
-              state.controller.formatSelection(Attribute.clone(attr, null));
+              state.controller.formatSelection(
+                FormatAttribute.clone(attr, null),
+              );
               target.attributes.removeWhere((k, v) => k == attr.key);
             }
           }
@@ -125,14 +145,10 @@ class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent>
   }
 
   @override
-  bool get isActionEnabled =>
-      !state.widget.config.readOnly && state.textEditingValue.selection.isValid;
+  bool get isActionEnabled => !state.widget.config.readOnly && state.textEditingValue.selection.isValid;
 }
 
-class QuillEditorUpdateTextSelectionAction<
-  T extends DirectionalCaretMovementIntent
->
-    extends ContextAction<T> {
+class QuillEditorUpdateTextSelectionAction<T extends DirectionalCaretMovementIntent> extends ContextAction<T> {
   QuillEditorUpdateTextSelectionAction(
     this.state,
     this.ignoreNonCollapsedSelection,
@@ -146,23 +162,33 @@ class QuillEditorUpdateTextSelectionAction<
   @override
   Object? invoke(T intent, [BuildContext? context]) {
     final selection = state.textEditingValue.selection;
-    assert(selection.isValid);
+    if (!selection.isValid) {
+      debugPrint(
+        'ExtendSelectionByCharacterBoundaryAction.invoke — selection is invalid, returning null',
+      );
+      return null;
+    }
 
-    final collapseSelection =
-        intent.collapseSelection || !state.widget.config.selectionEnabled;
+    final collapseSelection = intent.collapseSelection || !state.widget.config.selectionEnabled;
     // Collapse to the logical start/end.
     TextSelection collapse(TextSelection selection) {
-      assert(selection.isValid);
-      assert(!selection.isCollapsed);
+      if (!selection.isValid) {
+        debugPrint('collapse — selection is invalid, returning as-is');
+        return selection;
+      }
+      if (selection.isCollapsed) {
+        debugPrint(
+          'collapse — selection is already collapsed, returning as-is',
+        );
+        return selection;
+      }
       return selection.copyWith(
         baseOffset: intent.forward ? selection.end : selection.start,
         extentOffset: intent.forward ? selection.end : selection.start,
       );
     }
 
-    if (!selection.isCollapsed &&
-        !ignoreNonCollapsedSelection &&
-        collapseSelection) {
+    if (!selection.isCollapsed && !ignoreNonCollapsedSelection && collapseSelection) {
       return Actions.invoke(
         context!,
         UpdateSelectionIntent(
@@ -178,9 +204,7 @@ class QuillEditorUpdateTextSelectionAction<
     if (!textBoundarySelection.isValid) {
       return null;
     }
-    if (!textBoundarySelection.isCollapsed &&
-        !ignoreNonCollapsedSelection &&
-        collapseSelection) {
+    if (!textBoundarySelection.isCollapsed && !ignoreNonCollapsedSelection && collapseSelection) {
       return Actions.invoke(
         context!,
         UpdateSelectionIntent(
@@ -192,19 +216,14 @@ class QuillEditorUpdateTextSelectionAction<
     }
 
     final extent = textBoundarySelection.extent;
-    final newExtent = intent.forward
-        ? textBoundary.getTrailingTextBoundaryAt(extent)
-        : textBoundary.getLeadingTextBoundaryAt(extent);
+    final newExtent = intent.forward ? textBoundary.getTrailingTextBoundaryAt(extent) : textBoundary.getLeadingTextBoundaryAt(extent);
 
-    final newSelection = collapseSelection
-        ? TextSelection.fromPosition(newExtent)
-        : textBoundarySelection.extendTo(newExtent);
+    final newSelection = collapseSelection ? TextSelection.fromPosition(newExtent) : textBoundarySelection.extendTo(newExtent);
 
     // If collapseAtReversal is true and would have an effect, collapse it.
     if (!selection.isCollapsed &&
         intent.collapseAtReversal &&
-        (selection.baseOffset < selection.extentOffset !=
-            newSelection.baseOffset < newSelection.extentOffset)) {
+        (selection.baseOffset < selection.extentOffset != newSelection.baseOffset < newSelection.extentOffset)) {
       return Actions.invoke(
         context!,
         UpdateSelectionIntent(
@@ -229,9 +248,7 @@ class QuillEditorUpdateTextSelectionAction<
   bool get isActionEnabled => state.textEditingValue.selection.isValid;
 }
 
-class QuillEditorExtendSelectionOrCaretPositionAction
-    extends
-        ContextAction<ExtendSelectionToNextWordBoundaryOrCaretLocationIntent> {
+class QuillEditorExtendSelectionOrCaretPositionAction extends ContextAction<ExtendSelectionToNextWordBoundaryOrCaretLocationIntent> {
   QuillEditorExtendSelectionOrCaretPositionAction(
     this.state,
     this.getTextBoundariesForIntent,
@@ -249,7 +266,12 @@ class QuillEditorExtendSelectionOrCaretPositionAction
     BuildContext? context,
   ]) {
     final selection = state.textEditingValue.selection;
-    assert(selection.isValid);
+    if (!selection.isValid) {
+      debugPrint(
+        'SelectionExtensionAction.invoke — selection is invalid, returning null',
+      );
+      return null;
+    }
 
     final textBoundary = getTextBoundariesForIntent(intent);
     final textBoundarySelection = textBoundary.textEditingValue.selection;
@@ -258,22 +280,13 @@ class QuillEditorExtendSelectionOrCaretPositionAction
     }
 
     final extent = textBoundarySelection.extent;
-    final newExtent = intent.forward
-        ? textBoundary.getTrailingTextBoundaryAt(extent)
-        : textBoundary.getLeadingTextBoundaryAt(extent);
+    final newExtent = intent.forward ? textBoundary.getTrailingTextBoundaryAt(extent) : textBoundary.getLeadingTextBoundaryAt(extent);
 
     final newSelection =
-        (newExtent.offset - textBoundarySelection.baseOffset) *
-                (textBoundarySelection.extentOffset -
-                    textBoundarySelection.baseOffset) <
-            0
+        (newExtent.offset - textBoundarySelection.baseOffset) * (textBoundarySelection.extentOffset - textBoundarySelection.baseOffset) < 0
         ? textBoundarySelection.copyWith(
             extentOffset: textBoundarySelection.baseOffset,
-            affinity:
-                textBoundarySelection.extentOffset >
-                    textBoundarySelection.baseOffset
-                ? TextAffinity.downstream
-                : TextAffinity.upstream,
+            affinity: textBoundarySelection.extentOffset > textBoundarySelection.baseOffset ? TextAffinity.downstream : TextAffinity.upstream,
           )
         : textBoundarySelection.extendTo(newExtent);
 
@@ -288,9 +301,7 @@ class QuillEditorExtendSelectionOrCaretPositionAction
   }
 
   @override
-  bool get isActionEnabled =>
-      state.widget.config.selectionEnabled &&
-      state.textEditingValue.selection.isValid;
+  bool get isActionEnabled => state.widget.config.selectionEnabled && state.textEditingValue.selection.isValid;
 }
 
 /// Expands the selection to the start/end of the document.
@@ -298,8 +309,7 @@ class QuillEditorExtendSelectionOrCaretPositionAction
 /// This matches macOS behavior and differs from [ExpandSelectionToLineBreakIntent].
 ///
 /// See: [ExpandSelectionToDocumentBoundaryIntent].
-class ExpandSelectionToDocumentBoundaryAction
-    extends ContextAction<ExpandSelectionToDocumentBoundaryIntent> {
+class ExpandSelectionToDocumentBoundaryAction extends ContextAction<ExpandSelectionToDocumentBoundaryIntent> {
   ExpandSelectionToDocumentBoundaryAction(this.state);
 
   final QuillRawEditorState state;
@@ -312,9 +322,7 @@ class ExpandSelectionToDocumentBoundaryAction
     final currentSelection = state.controller.selection;
     final documentLength = state.controller.document.length;
 
-    final newSelection = intent.forward
-        ? currentSelection.copyWith(extentOffset: documentLength)
-        : currentSelection.copyWith(extentOffset: 0);
+    final newSelection = intent.forward ? currentSelection.copyWith(extentOffset: documentLength) : currentSelection.copyWith(extentOffset: 0);
     return Actions.invoke(
       context ?? (throw StateError('BuildContext should not be null.')),
       UpdateSelectionIntent(
@@ -331,8 +339,7 @@ class ExpandSelectionToDocumentBoundaryAction
 /// This behavior is standard on macOS.
 ///
 /// See: [ExpandSelectionToLineBreakIntent]
-class ExpandSelectionToLineBreakAction
-    extends ContextAction<ExpandSelectionToLineBreakIntent> {
+class ExpandSelectionToLineBreakAction extends ContextAction<ExpandSelectionToLineBreakIntent> {
   ExpandSelectionToLineBreakAction(this.state);
 
   final QuillRawEditorState state;
@@ -359,9 +366,7 @@ class ExpandSelectionToLineBreakAction
       // Backward
 
       // Ensure (searchStartOffset - 1) is not negative to avoid [RangeError]
-      final safePreviousSearchOffset = (searchStartOffset > 0)
-          ? (searchStartOffset - 1)
-          : 0;
+      final safePreviousSearchOffset = (searchStartOffset > 0) ? (searchStartOffset - 1) : 0;
 
       final previousLineBreak = text.lastIndexOf(
         '\n',
@@ -388,10 +393,7 @@ class ExpandSelectionToLineBreakAction
   }
 }
 
-class QuillEditorUpdateTextSelectionToAdjacentLineAction<
-  T extends DirectionalCaretMovementIntent
->
-    extends ContextAction<T> {
+class QuillEditorUpdateTextSelectionToAdjacentLineAction<T extends DirectionalCaretMovementIntent> extends ContextAction<T> {
   QuillEditorUpdateTextSelectionToAdjacentLineAction(this.state);
 
   final QuillRawEditorState state;
@@ -402,7 +404,12 @@ class QuillEditorUpdateTextSelectionToAdjacentLineAction<
   void stopCurrentVerticalRunIfSelectionChanges() {
     final runSelection = _runSelection;
     if (runSelection == null) {
-      assert(_verticalMovementRun == null);
+      if (_verticalMovementRun != null) {
+        debugPrint(
+          '_verticalMovementRun is not null when runSelection is null, clearing',
+        );
+        _verticalMovementRun = null;
+      }
       return;
     }
     _runSelection = state.textEditingValue.selection;
@@ -420,10 +427,14 @@ class QuillEditorUpdateTextSelectionToAdjacentLineAction<
 
   @override
   void invoke(T intent, [BuildContext? context]) {
-    assert(state.textEditingValue.selection.isValid);
+    if (!state.textEditingValue.selection.isValid) {
+      debugPrint(
+        'DirectionalMovementAction.invoke — selection is invalid, skipping',
+      );
+      return;
+    }
 
-    final collapseSelection =
-        intent.collapseSelection || !state.widget.config.selectionEnabled;
+    final collapseSelection = intent.collapseSelection || !state.widget.config.selectionEnabled;
     final value = state.textEditingValue;
     if (!value.selection.isValid) {
       return;
@@ -435,17 +446,11 @@ class QuillEditorUpdateTextSelectionToAdjacentLineAction<
           state.renderEditor.selection.extent,
         );
 
-    final shouldMove = intent.forward
-        ? currentRun.moveNext()
-        : currentRun.movePrevious();
+    final shouldMove = intent.forward ? currentRun.moveNext() : currentRun.movePrevious();
     final newExtent = shouldMove
         ? currentRun.current
-        : (intent.forward
-              ? TextPosition(offset: state.textEditingValue.text.length)
-              : const TextPosition(offset: 0));
-    final newSelection = collapseSelection
-        ? TextSelection.fromPosition(newExtent)
-        : value.selection.extendTo(newExtent);
+        : (intent.forward ? TextPosition(offset: state.textEditingValue.text.length) : const TextPosition(offset: 0));
+    final newSelection = collapseSelection ? TextSelection.fromPosition(newExtent) : value.selection.extendTo(newExtent);
 
     Actions.invoke(
       context!,
@@ -489,8 +494,7 @@ class QuillEditorSelectAllAction extends ContextAction<SelectAllTextIntent> {
   bool get isActionEnabled => state.widget.config.selectionEnabled;
 }
 
-class QuillEditorCopySelectionAction
-    extends ContextAction<CopySelectionTextIntent> {
+class QuillEditorCopySelectionAction extends ContextAction<CopySelectionTextIntent> {
   QuillEditorCopySelectionAction(this.state);
 
   final QuillRawEditorState state;
@@ -505,9 +509,7 @@ class QuillEditorCopySelectionAction
   }
 
   @override
-  bool get isActionEnabled =>
-      state.textEditingValue.selection.isValid &&
-      !state.textEditingValue.selection.isCollapsed;
+  bool get isActionEnabled => state.textEditingValue.selection.isValid && !state.textEditingValue.selection.isCollapsed;
 }
 
 //Intent class for "escape" key to dismiss selection toolbar in Windows platform
@@ -515,8 +517,7 @@ class HideSelectionToolbarIntent extends Intent {
   const HideSelectionToolbarIntent();
 }
 
-class QuillEditorHideSelectionToolbarAction
-    extends ContextAction<HideSelectionToolbarIntent> {
+class QuillEditorHideSelectionToolbarAction extends ContextAction<HideSelectionToolbarIntent> {
   QuillEditorHideSelectionToolbarAction(this.state);
 
   final QuillRawEditorState state;
@@ -565,7 +566,7 @@ class QuillEditorRedoKeyboardAction extends ContextAction<RedoTextIntent> {
 class ToggleTextStyleIntent extends Intent {
   const ToggleTextStyleIntent(this.attribute);
 
-  final Attribute attribute;
+  final FormatAttribute attribute;
 }
 
 // Toggles a text style (underline, bold, italic, strikethrough) on, or off.
@@ -574,8 +575,11 @@ class QuillEditorToggleTextStyleAction extends Action<ToggleTextStyleIntent> {
 
   final QuillRawEditorState state;
 
-  bool _isStyleActive(Attribute styleAttr, Map<String, Attribute> attrs) {
-    if (styleAttr.key == Attribute.list.key) {
+  bool _isStyleActive(
+    FormatAttribute styleAttr,
+    Map<String, FormatAttribute> attrs,
+  ) {
+    if (styleAttr.key == FormatAttribute.list.key) {
       final attribute = attrs[styleAttr.key];
       if (attribute == null) {
         return false;
@@ -592,7 +596,7 @@ class QuillEditorToggleTextStyleAction extends Action<ToggleTextStyleIntent> {
       state.controller.getSelectionStyle().attributes,
     );
     state.controller.formatSelection(
-      isActive ? Attribute.clone(intent.attribute, null) : intent.attribute,
+      isActive ? FormatAttribute.clone(intent.attribute, null) : intent.attribute,
     );
   }
 
@@ -632,7 +636,7 @@ class QuillEditorOpenSearchAction extends ContextAction<OpenSearchIntent> {
   final QuillRawEditorState state;
 
   @override
-  Future invoke(OpenSearchIntent intent, [BuildContext? context]) async {
+  Future<void> invoke(OpenSearchIntent intent, [BuildContext? context]) async {
     if (context == null) {
       throw ArgumentError(
         'The context should not be null to use invoke() method',
@@ -652,28 +656,22 @@ class QuillEditorOpenSearchAction extends ContextAction<OpenSearchIntent> {
 class QuillEditorApplyHeaderIntent extends Intent {
   const QuillEditorApplyHeaderIntent(this.header);
 
-  final Attribute header;
+  final FormatAttribute header;
 }
 
 // Toggles a text style (underline, bold, italic, strikethrough) on, or off.
-class QuillEditorApplyHeaderAction
-    extends Action<QuillEditorApplyHeaderIntent> {
+class QuillEditorApplyHeaderAction extends Action<QuillEditorApplyHeaderIntent> {
   QuillEditorApplyHeaderAction(this.state);
 
   final QuillRawEditorState state;
 
-  Attribute<dynamic> _getHeaderValue() {
-    return state.controller
-            .getSelectionStyle()
-            .attributes[Attribute.header.key] ??
-        Attribute.header;
+  FormatAttribute _getHeaderValue() {
+    return state.controller.getSelectionStyle().attributes[FormatAttribute.header.key] ?? FormatAttribute.header;
   }
 
   @override
   void invoke(QuillEditorApplyHeaderIntent intent, [BuildContext? context]) {
-    final attribute = _getHeaderValue() == intent.header
-        ? Attribute.header
-        : intent.header;
+    final attribute = _getHeaderValue() == intent.header ? FormatAttribute.header : intent.header;
     state.controller.formatSelection(attribute);
   }
 
@@ -686,36 +684,32 @@ class QuillEditorApplyCheckListIntent extends Intent {
 }
 
 // Toggles a text style (underline, bold, italic, strikethrough) on, or off.
-class QuillEditorApplyCheckListAction
-    extends Action<QuillEditorApplyCheckListIntent> {
+class QuillEditorApplyCheckListAction extends Action<QuillEditorApplyCheckListIntent> {
   QuillEditorApplyCheckListAction(this.state);
 
   final QuillRawEditorState state;
 
   bool _getIsToggled() {
     final attrs = state.controller.getSelectionStyle().attributes;
-    var attribute = state.controller.toolbarButtonToggler[Attribute.list.key];
+    var attribute = state.controller.toolbarButtonToggler[FormatAttribute.list.key];
 
     if (attribute == null) {
-      attribute = attrs[Attribute.list.key];
+      attribute = attrs[FormatAttribute.list.key];
     } else {
       // checkbox tapping causes controller.selection to go to offset 0
-      state.controller.toolbarButtonToggler.remove(Attribute.list.key);
+      state.controller.toolbarButtonToggler.remove(FormatAttribute.list.key);
     }
 
     if (attribute == null) {
       return false;
     }
-    return attribute.value == Attribute.unchecked.value ||
-        attribute.value == Attribute.checked.value;
+    return attribute.value == FormatAttribute.unchecked.value || attribute.value == FormatAttribute.checked.value;
   }
 
   @override
   void invoke(QuillEditorApplyCheckListIntent intent, [BuildContext? context]) {
     state.controller.formatSelection(
-      _getIsToggled()
-          ? Attribute.clone(Attribute.unchecked, null)
-          : Attribute.unchecked,
+      _getIsToggled() ? FormatAttribute.clone(FormatAttribute.unchecked, null) : FormatAttribute.unchecked,
     );
   }
 
@@ -754,15 +748,8 @@ class QuillEditorApplyLinkAction extends Action<QuillEditorApplyLinkIntent> {
   }
 }
 
-class QuillEditorInsertEmbedIntent extends Intent {
-  const QuillEditorInsertEmbedIntent(this.type);
-
-  final Attribute type;
-}
-
 /// Navigate to the start or end of the document
-class NavigateToDocumentBoundaryAction
-    extends ContextAction<ScrollToDocumentBoundaryIntent> {
+class NavigateToDocumentBoundaryAction extends ContextAction<ScrollToDocumentBoundaryIntent> {
   NavigateToDocumentBoundaryAction(this.state);
 
   final QuillRawEditorState state;
@@ -805,11 +792,12 @@ class QuillEditorScrollAction extends ContextAction<ScrollIntent> {
       ScrollIncrementType.line => 50.0,
       ScrollIncrementType.page => 0.8 * sc.position.viewportDimension,
     };
-    sc.position.moveTo(
-      sc.position.pixels +
-          (intent.direction == AxisDirection.down ? increment : -increment),
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.easeInOut,
+    unawaited(
+      sc.position.moveTo(
+        sc.position.pixels + (intent.direction == AxisDirection.down ? increment : -increment),
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
+      ),
     );
   }
 }
@@ -818,10 +806,7 @@ class QuillEditorScrollAction extends ContextAction<ScrollIntent> {
 ///
 /// The default movement is 80% of the size of the scroll window.
 /// Modelled on 'class _UpdateTextSelectionVerticallyAction' in flutter's editable_text.dart
-class QuillEditorUpdateTextSelectionToAdjacentPageAction<
-  T extends DirectionalCaretMovementIntent
->
-    extends ContextAction<T> {
+class QuillEditorUpdateTextSelectionToAdjacentPageAction<T extends DirectionalCaretMovementIntent> extends ContextAction<T> {
   QuillEditorUpdateTextSelectionToAdjacentPageAction(this.state);
 
   final QuillRawEditorState state;
@@ -832,7 +817,12 @@ class QuillEditorUpdateTextSelectionToAdjacentPageAction<
   void stopCurrentVerticalRunIfSelectionChanges() {
     final runSelection = _runSelection;
     if (runSelection == null) {
-      assert(_verticalMovementRun == null);
+      if (_verticalMovementRun != null) {
+        debugPrint(
+          '_verticalMovementRun is not null when runSelection is null, clearing',
+        );
+        _verticalMovementRun = null;
+      }
       return;
     }
     _runSelection = state.textEditingValue.selection;
@@ -850,10 +840,14 @@ class QuillEditorUpdateTextSelectionToAdjacentPageAction<
 
   @override
   void invoke(T intent, [BuildContext? context]) {
-    assert(state.textEditingValue.selection.isValid);
+    if (!state.textEditingValue.selection.isValid) {
+      debugPrint(
+        'DirectionalMovementAction.invoke — selection is invalid, skipping',
+      );
+      return;
+    }
 
-    final collapseSelection =
-        intent.collapseSelection || !state.widget.config.selectionEnabled;
+    final collapseSelection = intent.collapseSelection || !state.widget.config.selectionEnabled;
     final value = state.textEditingValue;
     if (!value.selection.isValid) {
       return;
@@ -866,9 +860,7 @@ class QuillEditorUpdateTextSelectionToAdjacentPageAction<
     final pageOffset = 0.8 * state.scrollController.position.viewportDimension;
     currentRun.moveVertical(intent.forward ? pageOffset : -pageOffset);
     final newExtent = currentRun.current;
-    final newSelection = collapseSelection
-        ? TextSelection.fromPosition(newExtent)
-        : value.selection.extendTo(newExtent);
+    final newSelection = collapseSelection ? TextSelection.fromPosition(newExtent) : value.selection.extendTo(newExtent);
 
     Actions.invoke(
       context!,

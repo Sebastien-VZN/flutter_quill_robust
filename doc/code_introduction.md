@@ -1,13 +1,15 @@
 # Quill Overview
-This document describes the most important files and classes in Quill.
+This document describes the most important files and classes in this fork of flutter_quill.
+
+> **Fork note:** This fork has renamed `Attribute` → `FormatAttribute` and `AttributeScope` → `FormatScope` throughout. All media embed blocks (image, video, gif, camera) have been removed from the editor, extensions, and clipboard bridge. Only formula and custom embed types remain. HTML/Markdown converters have been ported to the native bridge and are no longer part of the fork's Dart codebase. Type-safe value access is provided by `DataCaster`.
 
 ## QUILL EDITOR, RENDER EDITOR, HANDLERS
 
 **editor.dart**
 
 `abstract EditorState extends State<RawEditor>`
-- RawEditorState can be reference from QuillEditorState. This interface details several methods that are available from the mixins added to the RawEditor class.
-- These methods are defined in the inherited classes from Flutter. So this Class helps us keep in mind several useful methods such as:
+- RawEditorState can be referenced from QuillEditorState. This interface details several methods that are available from the mixins added to the RawEditor class.
+- These methods are defined in the inherited classes from Flutter. So this class helps us keep in mind several useful methods such as:
 - showToolbar()
   - Triggers the mobile OS text selection toolbar.
 - requestKeyboard()
@@ -29,8 +31,9 @@ This document describes the most important files and classes in Quill.
 
 **defaultEmbedBuilder()**
 
-`BlockEmbed` &rarr; `Image, video or CustomEmbedBlock`
-- It could be replaced with a custom implementation that supports all sorts of embeds (VS data types)
+`BlockEmbed` &rarr; `Formula, CustomEmbedBlock`
+- In this fork, image and video embed blocks have been removed. Only formula and custom embed types are supported by `BlockEmbed`.
+- It could be replaced with a custom implementation that supports other embed types.
 - Provided as argument in the QuillEditor instance
 
 **QuillEditor**
@@ -39,7 +42,7 @@ This document describes the most important files and classes in Quill.
   - Almost all the props that QuillEditor receives are passed to RawEditor
   - Basically QuillEditor is a wrapper that handles gestures and styling for the RawEditor
 - Controller has the document, Controller will be passed to the RawEditor
-- customStyleBuilder - Can override the styles of each attribute type.
+- customStyleBuilder - Can override the styles of each `FormatAttribute` type.
 
 
 `_QuillEditorState` &rarr; `EditorTextSelectionGestureDetectorBuilderDelegate`
@@ -75,7 +78,8 @@ TextSelectionChangedHandler
 **RenderEditor**
 
 Contains some extremely useful methods for handling the coordinates of words inside of the rendered document.
-There methods are pivotal for synchronising the position of inline reactions to the quill editor
+These methods are pivotal for synchronising the position of inline reactions to the quill editor
+
 
 	class RenderEditor extends RenderEditableContainerBox
 	with RelayoutWhenSystemFontsChangeMixin
@@ -107,7 +111,7 @@ There methods are pivotal for synchronising the position of inline reactions to 
 
 **controller.dart**
 
-Embeds can be introduced as Embedabble via the controller, not only Quill. This method can be tracked to understand how to add topic from state store.
+Embeds can be introduced as Embeddable via the controller, not only Quill. This method can be tracked to understand how to add topic from state store.
 
 ### QuillController
 - updateSelection()
@@ -119,7 +123,7 @@ Embeds can be introduced as Embedabble via the controller, not only Quill. This 
 - 1 for scroll arrows (if to show them)
 - RawEditorState init and update listen _didChangeTextEditingValue &rarr; _onChangeTextEditingValue
 - updateRemoteValueIfNeeded - When apps are sent into the background, the view ref is lost, when restoring the java code loses the state of the input.
-- _showCaretOnScreen - Scrolls to show the carpet on screen
+- _showCaretOnScreen - Scrolls to show the caret on screen
 - start timer for blinking caret
 - addPostFrameCallback - To be able to account for new lines of text when rendering the selection overlay
   - _updateOrDisposeSelectionOverlayIfNeeded - Updates the mobile context menu. We can show here the text selection menu as well (ideally with middleware override).
@@ -139,7 +143,7 @@ Embeds can be introduced as Embedabble via the controller, not only Quill. This 
 
 Quill editors can have a Toolbar connected. The toolbar commands the controller which in turn commands the Document which commands the Renderer.
 The toolbar can be customized to show all or part of the editing controls/buttons.
-The Toolbar offers callbacks for reacting to adding images or videos.
+The toolbar no longer offers callbacks for adding images or videos — those media embed blocks have been removed from this fork.
 For our own custom embeds we don't have to define extra callback here on the Toolbar context. We can host the logic in our own custom embeds (they are part of our own codebase).
 
 
@@ -206,11 +210,11 @@ RawEditorStateTextInputClientMixin
       To address this issue we wrap the scroll view with [BaselineProxy] which mimics the editor's baseline.
       This implies that the first line has no styles applied to it.
       Why is computeDistanceToActualBaseline needed?
-      If my intuition is right this is needed to scroll the page the right amount to offset the scroll to match the off screen selected text line when the carpet is moved.
-      It computes the distance from top to the baseline of the first text. First text out of first editable text. I'll explain bellow, there are more lines of text in a Quill doc.
+      If my intuition is right this is needed to scroll the page the right amount to offset the scroll to match the off screen selected text line when the caret is moved.
+      It computes the distance from top to the baseline of the first text. First text out of first editable text. I'll explain below, there are more lines of text in a Quill doc.
 
     - Nested in the _Editor we have the _buildChildren(_doc, context)
-      This method loops trough the delta breaks it into text lines and text blocks and renders the corresponding children
+      This method loops through the delta breaks it into text lines and text blocks and renders the corresponding children
       From here on the works of rendering the text starts
 
     - Finally the whole thing is wrapped in QuillStyles, Actions, Focus, QuillKeyboardListener and returned for the build()
@@ -282,7 +286,7 @@ Now since our ArticlePage uses several stacked expanded editors (due to post top
 If we wanted to use the scroll behaviour from Quill that means we would have to make the entire post topic together with the article topic.
 It means one could copy paste the post topics to the bottom of the article which makes absolutely no sense. So therefore we have to handle this part ourselves.
 And since the Article and topics are scrolled together by a greater scroll controller we are force to render the article editor as well in the expanded mode.
-That make our situation a bit harder because we might have to redo some of the work needed to bring the selected text back into view when moving the carpet.
+That make our situation a bit harder because we might have to redo some of the work needed to bring the selected text back into view when moving the caret.
 This is a luxury item for the moment, we don't care of this feature missing in the MVP. So no panic if we don't use the QuillEditorScroll.
 
 
@@ -297,15 +301,15 @@ Callstack: `RawEditorState()` &rarr; `_buildChildren()` &rarr; `_getEditableText
 &rarr; `EditableTextLine()` &rarr; `_TextLineElement()` &rarr; `RenderEditableTextLine()` &rarr; `TextLine()` &rarr; `RichTextProxy()` &rarr; `RenderParagraphProxy` extends `RenderProxyBox` (we will talk proxy boxes separately)
 
 When the rawEditor builds the children it uses 2 types of widgets: lines and blocks.
-Bellow we will discuss how lines are renders. Blocks reuse lines.
+Below we will discuss how lines are rendered. Blocks reuse lines.
 Blocks are rendered for special graphical elements such as bullet lists.
 
 `TextLine`
 
 This is the actual line of text being rendered on screen. It uses editable text from flutter to render a basic text input.
-Renders the proper text styling based on the delta text styling attributes. Contains lost of methods to accomplish this job.
+Renders the proper text styling based on the delta text styling attributes (`FormatAttribute` instances). Contains lots of methods to accomplish this job.
 This widget is rendered inside of an EditableTextLine as a child by the _getEditableTextLineFromNode() from RawEditor.
-The widget itself renders a proxBox.
+The widget itself renders a proxyBox.
 The EditableTextLine uses RenderEditableTextLine to render the highlight and caret on top of the raw text field.
 
 `EditableTextLine`
@@ -317,7 +321,7 @@ The EditableTextLine uses RenderEditableTextLine to render the highlight and car
 
 Creates new editable paragraph render box.
 It contains many methods needed to coordinate imperatively how the text selection and caret sync with the document controller state.
-This is where the hardwork of rendering and simulating the text interactions mechanics is happening.
+This is where the hard work of rendering and simulating the text interactions mechanics is happening.
 
 Here's a list of methods to get a feeling of what happens in `RenderEditableTextLine`:
 
@@ -345,13 +349,13 @@ performLayout() &rarr; Flutter layouting
 
 For rendering custom highlights we are most interested in these methods:
 - paint()
-    - Draws the one of text and it's decorations. Custom decorations can be added.
-    - It uses the offset of the parent (based on layout constraints) and the ofset of the text selection
+    - Draws the line of text and its decorations. Custom decorations can be added.
+    - It uses the offset of the parent (based on layout constraints) and the offset of the text selection
 - _paintSelection()
   - Handles the rendering of the selection
-- Selection is rendered as new boxes in the paint area (RenderBox)- They can even have an offset
+- Selection is rendered as new boxes in the paint area (RenderBox) - They can even have an offset
 - Paints the _selectedRects
-- draw cursor (above and bellow)
+- draw cursor (above and below)
 - By default, the cursor should be painted on top for iOS platforms and underneath for Android platforms.
 - _selectedRects - The individual render boxes that compose a multiline selection
 - getBoxesForSelection() &rarr; local TextSelection - Converts TextSelection to boxes coordinates
@@ -362,7 +366,7 @@ For rendering custom highlights we are most interested in these methods:
 - The cursor controller is defined for text fields, it is a change notifier and can be listened to
 - When the text cursor changes position also the text selection will need to be repainted
 
-`_TextLineElement` extends `enderObjectElement`
+`_TextLineElement` extends `RenderObjectElement`
 contains methods needed to sync the renderObject in the widget tree
 
 
@@ -386,7 +390,7 @@ For render objects with children, there are four possible scenarios:
 `RenderBaselineProxy` - Renders the scrollable input
 `RenderEmbedProxy` - Renders embeds
 `RichTextProxy` - rich text
-`RenderParagraphProxy` - RenderProxyBox - Mimics it's children
+`RenderParagraphProxy` - RenderProxyBox - Mimics its children
 `getBoxesForSelection()` - This code is used from Flutter
 
 
@@ -412,7 +416,7 @@ For render objects with children, there are four possible scenarios:
 
 **document.dart**
 
-The Document contains the Delta which contains all the operations. Inside operations we can find attributes. The attributes are useful for examining the text.
+The Document contains the Delta which contains all the operations. Inside operations we can find `FormatAttribute` instances. The attributes are useful for examining the text.
 
 - These methods are extremely useful
   - insert &rarr; Can insert embeddable, Can replace selected text
@@ -426,7 +430,7 @@ The Document contains the Delta which contains all the operations. Inside operat
 - toDelta
 - setCustomRules -&rarr; Could be extremely useful because we can edit the text editor each time something outstanding happens
 
-**/rules**
+**/ rules**
 - Contain business logic for handling operations and delta modifications
   - PreserveLineStyleOnSplitRule - Preserves the style to the split line
 
@@ -435,3 +439,22 @@ The Document contains the Delta which contains all the operations. Inside operat
 An abstract node in a document tree.
 Represents a segment of a Quill document with specified offset and length. The offset property is relative to parent.
 See also documentOffset which provides absolute offset of this node within the document.
+
+## FormatAttribute and DataCaster
+
+This fork replaces the upstream `Attribute<T>` class hierarchy with a single `FormatAttribute` class (no generic type parameter). Each instance carries a `FormatValueType` enum that acts as a runtime type marker. Typed accessors (`intValue`, `stringValue`, `boolValue`, `numberValue`) delegate to `DataCaster` (`lib/src/document/data_caster.dart`), which performs safe casts and logs a `debugPrint` warning on type mismatch — no exceptions are thrown in production.
+
+See `doc/attribute_introduction.md` for full details on `FormatAttribute`, `FormatScope`, `FormatValueType`, `DataCaster`, and the built-in convenience constants.
+
+## BlockEmbed (media removed)
+
+In this fork, `BlockEmbed` no longer supports `imageType` or `videoType`. Only the following static embed types remain:
+
+- `BlockEmbed.formulaType` — formula embeds
+- `BlockEmbed.customType` — custom embed blocks
+
+All image, video, gif, and camera embed blocks have been removed from the editor, the extensions package, and the clipboard bridge. The `defaultEmbedBuilder` only handles formula and custom embed types. The `ClipboardService` interface has been cleaned to match the bridge (HTML, text, Markdown only — no media).
+
+## debugCheckHasMediaQuery
+
+The `debugCheckHasMediaQuery` assert has been replaced with a defensive guard plus `debugPrint`. No asserts are triggered in production mode, preventing crashes when the widget tree is accessed outside of a `MediaQuery` context.

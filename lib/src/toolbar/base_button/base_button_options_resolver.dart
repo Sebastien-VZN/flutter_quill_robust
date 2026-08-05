@@ -1,21 +1,20 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/quill_config.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 import 'package:meta/meta.dart';
 
-import '../../editor_toolbar_controller_shared/quill_config.dart';
-import '../theme/quill_icon_theme.dart';
-
 @internal
-class QuillToolbarButtonOptionsResolver {
+class QuillToolbarButtonOptionsResolver<T, I> {
   const QuillToolbarButtonOptionsResolver({
     required this.baseOptions,
     required this.specificOptions,
   });
 
   /// The default options for all buttons.
-  final QuillToolbarBaseButtonOptions? baseOptions;
+  final QuillToolbarBaseButtonOptions<T, I>? baseOptions;
 
   /// The options for a specific button; falls back to [baseOptions] if not set.
-  final QuillToolbarBaseButtonOptions? specificOptions;
+  final QuillToolbarBaseButtonOptions<T, I>? specificOptions;
 
   IconData? get iconData => specificOptions?.iconData ?? baseOptions?.iconData;
 
@@ -23,15 +22,11 @@ class QuillToolbarButtonOptionsResolver {
 
   double? get iconSize => specificOptions?.iconSize ?? baseOptions?.iconSize;
 
-  double? get iconButtonFactor =>
-      specificOptions?.iconButtonFactor ?? baseOptions?.iconButtonFactor;
+  double? get iconButtonFactor => specificOptions?.iconButtonFactor ?? baseOptions?.iconButtonFactor;
 
-  VoidCallback? get afterButtonPressed =>
-      specificOptions?.afterButtonPressed ?? baseOptions?.afterButtonPressed;
+  VoidCallback? get afterButtonPressed => specificOptions?.afterButtonPressed ?? baseOptions?.afterButtonPressed;
 
-  QuillIconTheme? get iconTheme =>
-      specificOptions?.iconTheme ?? baseOptions?.iconTheme;
+  QuillIconTheme? get iconTheme => specificOptions?.iconTheme ?? baseOptions?.iconTheme;
 
-  QuillToolbarButtonOptionsChildBuilder get childBuilder =>
-      specificOptions?.childBuilder ?? baseOptions?.childBuilder;
+  QuillToolbarButtonOptionsChildBuilder<T, I> get childBuilder => specificOptions?.childBuilder ?? baseOptions?.childBuilder;
 }

@@ -1,9 +1,8 @@
-import 'package:flutter/foundation.dart' show immutable;
-
-import '../../quill_delta.dart';
-import '../document/attribute.dart';
-import '../document/document.dart';
-import 'rule.dart';
+import 'package:flutter/foundation.dart' show debugPrint, immutable;
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/rules/rule.dart';
 
 /// A heuristic rule for format (retain) operations.
 @immutable
@@ -14,10 +13,20 @@ abstract class FormatRule extends Rule {
   RuleType get type => RuleType.format;
 
   @override
-  void validateArgs(int? len, Object? data, Attribute? attribute) {
-    assert(len != null);
-    assert(data == null);
-    assert(attribute != null);
+  void validateArgs(int? len, Object? data, FormatAttribute? attribute) {
+    if (len == null) {
+      debugPrint('FormatRule.validateArgs — len is null, expected non-null');
+    }
+    if (data != null) {
+      debugPrint(
+        'FormatRule.validateArgs — data is non-null, expected null: $data',
+      );
+    }
+    if (attribute == null) {
+      debugPrint(
+        'FormatRule.validateArgs — attribute is null, expected non-null',
+      );
+    }
   }
 }
 
@@ -33,9 +42,9 @@ class ResolveLineFormatRule extends FormatRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
-    if (attribute!.scope != AttributeScope.block) {
+    if (attribute!.scope != FormatScope.block) {
       return null;
     }
 
@@ -46,7 +55,7 @@ class ResolveLineFormatRule extends FormatRule {
     Operation op;
     for (var cur = 0; cur < len! && itr.hasNext; cur += op.length!) {
       op = itr.next(len - cur);
-      final opText = op.data is String ? op.data as String : '';
+      final opText = op.data is String ? op.data! as String : '';
       if (!opText.contains('\n')) {
         result.retain(op.length!);
         continue;
@@ -58,7 +67,7 @@ class ResolveLineFormatRule extends FormatRule {
     // And include extra newline after retain
     while (itr.hasNext) {
       op = itr.next();
-      final opText = op.data is String ? op.data as String : '';
+      final opText = op.data is String ? op.data! as String : '';
       final lf = opText.indexOf('\n');
       if (lf < 0) {
         result.retain(op.length!);
@@ -75,7 +84,7 @@ class ResolveLineFormatRule extends FormatRule {
   Delta _applyAttribute(
     String text,
     Operation op,
-    Attribute attribute, {
+    FormatAttribute attribute, {
     bool firstOnly = false,
   }) {
     final result = Delta();
@@ -101,20 +110,17 @@ class ResolveLineFormatRule extends FormatRule {
   }
 
   Iterable<MapEntry<String, dynamic>> _getRemovedBlocks(
-    Attribute<dynamic> attribute,
+    FormatAttribute attribute,
     Operation op,
   ) {
     // Enforce Block Format exclusivity by rule
-    if (!Attribute.exclusiveBlockKeys.contains(attribute.key)) {
+    if (!FormatAttribute.exclusiveBlockKeys.contains(attribute.key)) {
       return <MapEntry<String, dynamic>>[];
     }
 
     return op.attributes?.keys
             .where(
-              (key) =>
-                  Attribute.exclusiveBlockKeys.contains(key) &&
-                  attribute.key != key &&
-                  attribute.value != null,
+              (key) => FormatAttribute.exclusiveBlockKeys.contains(key) && attribute.key != key && attribute.value != null,
             )
             .map((key) => MapEntry<String, dynamic>(key, null)) ??
         [];
@@ -132,15 +138,16 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
-    if (attribute!.key != Attribute.link.key || len! > 0) {
+    if (attribute!.key != FormatAttribute.link.key || len! > 0) {
       return null;
     }
 
     final delta = Delta();
     final itr = DeltaIterator(document.toDelta());
-    final before = itr.skip(index), after = itr.next();
+    final before = itr.skip(index);
+    final after = itr.next();
     var beg = index;
     var retain = 0;
     if (before != null && before.hasAttribute(attribute.key)) {
@@ -173,9 +180,9 @@ class ResolveInlineFormatRule extends FormatRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
-    if (attribute!.scope != AttributeScope.inline) {
+    if (attribute!.scope != FormatScope.inline) {
       return null;
     }
 
@@ -219,13 +226,18 @@ class ResolveImageFormatRule extends FormatRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
-    if (attribute == null || attribute.key != Attribute.style.key) {
+    if (attribute == null || attribute.key != FormatAttribute.style.key) {
       return null;
     }
 
-    assert(len == 1 && data == null);
+    if (len != 1 || data != null) {
+      debugPrint(
+        'FormatRule.applyRule — unexpected args (len=$len, data=$data), expected len=1 and data=null',
+      );
+      return null;
+    }
 
     final delta = Delta()
       ..retain(index)

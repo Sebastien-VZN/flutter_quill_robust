@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../document/attribute.dart';
-import '../../../document/nodes/node.dart';
-import '../../style_widgets/checkbox_point.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
 
 typedef LeadingBlockNodeBuilder = Widget? Function(Node, LeadingConfig);
 
@@ -27,11 +26,10 @@ class LeadingConfig {
     this.index,
     this.lineSize,
     this.enabled,
-    this.uiBuilder,
   });
 
-  final Attribute attribute;
-  final Map<String, Attribute> attrs;
+  final FormatAttribute attribute;
+  final Map<String, FormatAttribute> attrs;
   final bool withDot;
   final Map<int, int> indentLevelCounts;
   // if is a list that contains a number as its leading then this is non null
@@ -42,7 +40,6 @@ class LeadingConfig {
   final double? padding;
 
   // these values are used if the leading is from a check list
-  final QuillCheckboxBuilder? uiBuilder;
   final double? lineSize;
   final bool? enabled;
   final bool value;
@@ -52,13 +49,14 @@ class LeadingConfig {
     if (index == null) return null;
     var s = index.toString();
     var level = 0;
-    if (!attrs.containsKey(Attribute.indent.key) && indentLevelCounts.isEmpty) {
+    if (!attrs.containsKey(FormatAttribute.indent.key) && indentLevelCounts.isEmpty) {
       indentLevelCounts.clear();
       indentLevelCounts[0] = 1;
       return s;
     }
-    if (attrs.containsKey(Attribute.indent.key)) {
-      level = attrs[Attribute.indent.key]!.value;
+    final key = FormatAttribute.indent.key;
+    if (attrs.containsKey(key) && attrs[key] != null && attrs[key]!.intValue != null) {
+      level = attrs[key]!.intValue!;
     } else if (!indentLevelCounts.containsKey(0)) {
       // first level but is back from previous indent level
       // supposed to be "2."
@@ -82,12 +80,13 @@ class LeadingConfig {
     return s;
   }
 
-  String _toExcelSheetColumnTitle(int n) {
+  String _toExcelSheetColumnTitle(int val) {
+    var node = val;
     final result = StringBuffer();
-    while (n > 0) {
-      n--;
-      result.write(String.fromCharCode((n % 26).floor() + 97));
-      n = (n / 26).floor();
+    while (node > 0) {
+      node--;
+      result.write(String.fromCharCode((node % 26) + 97));
+      node = (node / 26).floor();
     }
 
     return result.toString().split('').reversed.join();
@@ -104,14 +103,11 @@ class LeadingConfig {
 
     final builder = StringBuffer();
     for (var a = 0; a < _arabianRomanNumbers.length; a++) {
-      final times = (num / _arabianRomanNumbers[a])
-          .truncate(); // equals 1 only when arabianRomanNumbers[a] = num
+      final times = (num / _arabianRomanNumbers[a]).truncate(); // equals 1 only when arabianRomanNumbers[a] = num
       // executes n times where n is the number of times you have to add
       // the current roman number value to reach current num.
       builder.write(_romanNumbers[a] * times);
-      num -=
-          times *
-          _arabianRomanNumbers[a]; // subtract previous roman number value from num
+      num -= times * _arabianRomanNumbers[a]; // subtract previous roman number value from num
     }
 
     return builder.toString().toLowerCase();

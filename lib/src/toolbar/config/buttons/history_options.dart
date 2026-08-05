@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart' show immutable;
-
-import '../simple_toolbar_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/simple_toolbar_button_options.dart';
 
 @immutable
-class QuillToolbarHistoryButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarHistoryButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarHistoryButtonExtraOptions({
     required this.canPressed,
     required super.controller,
@@ -18,11 +16,7 @@ class QuillToolbarHistoryButtonExtraOptions
 
 @immutable
 class QuillToolbarHistoryButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarHistoryButtonOptions,
-          QuillToolbarHistoryButtonExtraOptions
-        > {
+    extends QuillToolbarBaseButtonOptions<QuillToolbarHistoryButtonOptions, QuillToolbarHistoryButtonExtraOptions> {
   const QuillToolbarHistoryButtonOptions({
     super.iconData,
     super.iconTheme,

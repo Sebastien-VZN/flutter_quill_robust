@@ -1,6 +1,7 @@
+import 'package:flutter_quill/flutter_quill.dart' show EmbedBuilder;
+import 'package:flutter_quill/src/editor/embed/embed_editor_builder.dart' show EmbedBuilder;
 import 'package:meta/meta.dart';
 
-@experimental
 enum SearchEmbedMode {
   /// No search within Embed nodes.
   none,
@@ -13,7 +14,6 @@ enum SearchEmbedMode {
 
 /// The configurations for the quill editor widget of flutter quill
 @immutable
-@experimental
 class QuillSearchConfig {
   const QuillSearchConfig({this.searchEmbedMode = SearchEmbedMode.none});
 

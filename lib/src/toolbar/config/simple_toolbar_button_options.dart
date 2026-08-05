@@ -1,23 +1,22 @@
+import 'package:flutter_quill/src/toolbar/config/base_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/clear_format_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/clipboard_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/color_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/custom_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/font_family_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/font_size_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/history_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/indent_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/link_style2_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/link_style_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/search_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/select_alignment_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/select_header_style_buttons_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/select_header_style_dropdown_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/select_line_height_style_dropdown_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/toggle_check_list_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/toggle_style_options.dart';
 import 'package:meta/meta.dart';
-
-import 'base_button_options.dart';
-import 'buttons/clear_format_options.dart';
-import 'buttons/clipboard_button_options.dart';
-import 'buttons/color_options.dart';
-import 'buttons/custom_button_options.dart';
-import 'buttons/font_family_options.dart';
-import 'buttons/font_size_options.dart';
-import 'buttons/history_options.dart';
-import 'buttons/indent_options.dart';
-import 'buttons/link_style2_options.dart';
-import 'buttons/link_style_options.dart';
-import 'buttons/search_options.dart';
-import 'buttons/select_alignment_options.dart';
-import 'buttons/select_header_style_buttons_options.dart';
-import 'buttons/select_header_style_dropdown_button_options.dart';
-import 'buttons/select_line_height_style_dropdown_button_options.dart';
-import 'buttons/toggle_check_list_options.dart';
-import 'buttons/toggle_style_options.dart';
 
 export '../buttons/search/search_dialog.dart';
 export 'base_button_options.dart';
@@ -66,29 +65,25 @@ class QuillSimpleToolbarButtonOptions {
     this.color = const QuillToolbarColorButtonOptions(),
     this.backgroundColor = const QuillToolbarColorButtonOptions(),
     this.clearFormat = const QuillToolbarClearFormatButtonOptions(),
-    this.selectAlignmentButtons =
-        const QuillToolbarSelectAlignmentButtonOptions(),
+    this.selectAlignmentButtons = const QuillToolbarSelectAlignmentButtonOptions(),
     this.search = const QuillToolbarSearchButtonOptions(),
-    this.selectHeaderStyleButtons =
-        const QuillToolbarSelectHeaderStyleButtonsOptions(),
-    this.selectHeaderStyleDropdownButton =
-        const QuillToolbarSelectHeaderStyleDropdownButtonOptions(),
-    this.selectLineHeightStyleDropdownButton =
-        const QuillToolbarSelectLineHeightStyleDropdownButtonOptions(),
+    this.selectHeaderStyleButtons = const QuillToolbarSelectHeaderStyleButtonsOptions(),
+    this.selectHeaderStyleDropdownButton = const QuillToolbarSelectHeaderStyleDropdownButtonOptions(),
+    this.selectLineHeightStyleDropdownButton = const QuillToolbarSelectLineHeightStyleDropdownButtonOptions(),
     this.linkStyle = const QuillToolbarLinkStyleButtonOptions(),
     this.linkStyle2 = const QuillToolbarLinkStyleButton2Options(),
     this.customButtons = const QuillToolbarCustomButtonOptions(),
-    @experimental
+
     this.clipboardCut = const QuillToolbarClipboardButtonOptions(),
-    @experimental
+
     this.clipboardCopy = const QuillToolbarClipboardButtonOptions(),
-    @experimental
+
     this.clipboardPaste = const QuillToolbarClipboardButtonOptions(),
   });
 
   /// The base options that will apply to all buttons,
   /// will prefer the specific button options if set over the base.
-  final QuillToolbarBaseButtonOptions base;
+  final QuillToolbarBaseButtonOptions<dynamic, dynamic> base;
 
   final QuillToolbarHistoryButtonOptions undoHistory;
   final QuillToolbarHistoryButtonOptions redoHistory;
@@ -118,20 +113,17 @@ class QuillSimpleToolbarButtonOptions {
 
   final QuillToolbarSearchButtonOptions search;
 
-  @experimental
   final QuillToolbarClipboardButtonOptions clipboardCut;
-  @experimental
+
   final QuillToolbarClipboardButtonOptions clipboardCopy;
-  @experimental
+
   final QuillToolbarClipboardButtonOptions clipboardPaste;
 
   final QuillToolbarSelectHeaderStyleButtonsOptions selectHeaderStyleButtons;
 
-  final QuillToolbarSelectHeaderStyleDropdownButtonOptions
-  selectHeaderStyleDropdownButton;
+  final QuillToolbarSelectHeaderStyleDropdownButtonOptions selectHeaderStyleDropdownButton;
 
-  final QuillToolbarSelectLineHeightStyleDropdownButtonOptions
-  selectLineHeightStyleDropdownButton;
+  final QuillToolbarSelectLineHeightStyleDropdownButtonOptions selectLineHeightStyleDropdownButton;
 
   final QuillToolbarLinkStyleButtonOptions linkStyle;
   final QuillToolbarLinkStyleButton2Options linkStyle2;

@@ -1,9 +1,7 @@
 import 'dart:ui';
-
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-
-import 'box.dart';
+import 'package:flutter_quill/src/editor/widgets/box.dart';
 
 class BaselineProxy extends SingleChildRenderObjectWidget {
   const BaselineProxy({super.key, super.child, this.textStyle, this.padding});
@@ -13,7 +11,7 @@ class BaselineProxy extends SingleChildRenderObjectWidget {
 
   @override
   RenderBaselineProxy createRenderObject(BuildContext context) {
-    return RenderBaselineProxy(null, textStyle!, padding);
+    return RenderBaselineProxy(null, textStyle!)..padding(padding ?? EdgeInsets.zero);
   }
 
   @override
@@ -22,17 +20,14 @@ class BaselineProxy extends SingleChildRenderObjectWidget {
     covariant RenderBaselineProxy renderObject,
   ) {
     renderObject
-      ..textStyle = textStyle!
-      ..padding = padding!;
+      ..textStyle(textStyle!)
+      ..padding(padding!);
   }
 }
 
 class RenderBaselineProxy extends RenderProxyBox {
-  RenderBaselineProxy(
-    RenderParagraph? super.child,
-    TextStyle textStyle,
-    EdgeInsets? padding,
-  ) : _prototypePainter = TextPainter(
+  RenderBaselineProxy(RenderParagraph? super.child, TextStyle textStyle)
+    : _prototypePainter = TextPainter(
         text: TextSpan(text: ' ', style: textStyle),
         textDirection: TextDirection.ltr,
         strutStyle: StrutStyle.fromTextStyle(textStyle, forceStrutHeight: true),
@@ -40,7 +35,7 @@ class RenderBaselineProxy extends RenderProxyBox {
 
   final TextPainter _prototypePainter;
 
-  set textStyle(TextStyle value) {
+  void textStyle(TextStyle value) {
     if (_prototypePainter.text!.style == value) {
       return;
     }
@@ -50,7 +45,7 @@ class RenderBaselineProxy extends RenderProxyBox {
 
   EdgeInsets? _padding;
 
-  set padding(EdgeInsets value) {
+  void padding(EdgeInsets value) {
     if (_padding == value) {
       return;
     }
@@ -59,8 +54,7 @@ class RenderBaselineProxy extends RenderProxyBox {
   }
 
   @override
-  double computeDistanceToActualBaseline(TextBaseline baseline) =>
-      _prototypePainter.computeDistanceToActualBaseline(baseline);
+  double computeDistanceToActualBaseline(TextBaseline baseline) => _prototypePainter.computeDistanceToActualBaseline(baseline);
   // SEE What happens + _padding?.top;
 
   @override
@@ -80,8 +74,7 @@ class EmbedProxy extends SingleChildRenderObjectWidget {
   const EmbedProxy(Widget child, {super.key}) : super(child: child);
 
   @override
-  RenderEmbedProxy createRenderObject(BuildContext context) =>
-      RenderEmbedProxy(null);
+  RenderEmbedProxy createRenderObject(BuildContext context) => RenderEmbedProxy(null);
 }
 
 class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
@@ -107,21 +100,19 @@ class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
 
   @override
   Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) {
-    assert(
-      position.offset == 1 || position.offset == 0 || position.offset == -1,
-    );
-    return position.offset <= 0
-        ? Offset.zero
-        : Offset(size.width - caretPrototype.width, 0);
+    if (position.offset != 1 && position.offset != 0 && position.offset != -1) {
+      debugPrint(
+        'ProxyRenderEditor.getOffsetForCaret — unexpected offset=${position.offset}, expected 1, 0 or -1',
+      );
+    }
+    return position.offset <= 0 ? Offset.zero : Offset(size.width - caretPrototype.width, 0);
   }
 
   @override
-  TextPosition getPositionForOffset(Offset offset) =>
-      TextPosition(offset: offset.dx > size.width / 2 ? 1 : 0);
+  TextPosition getPositionForOffset(Offset offset) => TextPosition(offset: offset.dx > size.width / 2 ? 1 : 0);
 
   @override
-  TextRange getWordBoundary(TextPosition position) =>
-      const TextRange(start: 0, end: 1);
+  TextRange getWordBoundary(TextPosition position) => const TextRange(start: 0, end: 1);
 
   @override
   double get preferredLineHeight => size.height;
@@ -172,19 +163,18 @@ class RichTextProxy extends SingleChildRenderObjectWidget {
     covariant RenderParagraphProxy renderObject,
   ) {
     renderObject
-      ..textStyle = textStyle
-      ..textAlign = textAlign
-      ..textDirection = textDirection
-      ..textScaler = textScaler
-      ..locale = locale
-      ..strutStyle = strutStyle
-      ..textWidthBasis = textWidthBasis
-      ..textHeightBehavior = textHeightBehavior;
+      ..textStyle(textStyle)
+      ..textAlign(textAlign)
+      ..textDirection(textDirection)
+      ..textScaler(textScaler)
+      ..locale(locale)
+      ..strutStyle(strutStyle)
+      ..textWidthBasis(textWidthBasis)
+      ..textHeightBehavior(textHeightBehavior);
   }
 }
 
-class RenderParagraphProxy extends RenderProxyBox
-    implements RenderContentProxyBox {
+class RenderParagraphProxy extends RenderProxyBox implements RenderContentProxyBox {
   RenderParagraphProxy(
     RenderParagraph? super.child,
     TextStyle textStyle,
@@ -208,7 +198,7 @@ class RenderParagraphProxy extends RenderProxyBox
 
   final TextPainter _prototypePainter;
 
-  set textStyle(TextStyle value) {
+  void textStyle(TextStyle value) {
     if (_prototypePainter.text!.style == value) {
       return;
     }
@@ -216,7 +206,7 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set textAlign(TextAlign value) {
+  void textAlign(TextAlign value) {
     if (_prototypePainter.textAlign == value) {
       return;
     }
@@ -224,7 +214,7 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set textDirection(TextDirection value) {
+  void textDirection(TextDirection value) {
     if (_prototypePainter.textDirection == value) {
       return;
     }
@@ -232,7 +222,7 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set textScaler(TextScaler value) {
+  void textScaler(TextScaler value) {
     if (_prototypePainter.textScaler == value) {
       return;
     }
@@ -240,7 +230,7 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set strutStyle(StrutStyle value) {
+  void strutStyle(StrutStyle value) {
     if (_prototypePainter.strutStyle == value) {
       return;
     }
@@ -248,7 +238,7 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set locale(Locale value) {
+  void locale(Locale value) {
     if (_prototypePainter.locale == value) {
       return;
     }
@@ -256,7 +246,7 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set textWidthBasis(TextWidthBasis value) {
+  void textWidthBasis(TextWidthBasis value) {
     if (_prototypePainter.textWidthBasis == value) {
       return;
     }
@@ -264,7 +254,7 @@ class RenderParagraphProxy extends RenderProxyBox
     markNeedsLayout();
   }
 
-  set textHeightBehavior(TextHeightBehavior? value) {
+  void textHeightBehavior(TextHeightBehavior? value) {
     if (_prototypePainter.textHeightBehavior == value) {
       return;
     }
@@ -279,24 +269,19 @@ class RenderParagraphProxy extends RenderProxyBox
   double get preferredLineHeight => _prototypePainter.preferredLineHeight;
 
   @override
-  Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) =>
-      child!.getOffsetForCaret(position, caretPrototype);
+  Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) => child!.getOffsetForCaret(position, caretPrototype);
 
   @override
-  TextPosition getPositionForOffset(Offset offset) =>
-      child!.getPositionForOffset(offset);
+  TextPosition getPositionForOffset(Offset offset) => child!.getPositionForOffset(offset);
 
   @override
-  double? getFullHeightForCaret(TextPosition position) =>
-      child!.getFullHeightForCaret(position);
+  double? getFullHeightForCaret(TextPosition position) => child!.getFullHeightForCaret(position);
 
   @override
-  TextRange getWordBoundary(TextPosition position) =>
-      child!.getWordBoundary(position);
+  TextRange getWordBoundary(TextPosition position) => child!.getWordBoundary(position);
 
   @override
-  List<TextBox> getBoxesForSelection(TextSelection selection) => child!
-      .getBoxesForSelection(selection, boxHeightStyle: BoxHeightStyle.max);
+  List<TextBox> getBoxesForSelection(TextSelection selection) => child!.getBoxesForSelection(selection, boxHeightStyle: BoxHeightStyle.max);
 
   @override
   void performLayout() {

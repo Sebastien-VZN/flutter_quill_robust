@@ -1,10 +1,10 @@
-import 'package:flutter/foundation.dart' show immutable;
-
-import '../../quill_delta.dart';
-import '../document/attribute.dart';
-import '../document/document.dart';
-import '../document/nodes/embeddable.dart';
-import 'rule.dart';
+import 'package:flutter/foundation.dart' show debugPrint, immutable;
+import 'package:flutter_quill/internal.dart' show InsertEmbedsRule;
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/rules/insert.dart' show InsertEmbedsRule;
+import 'package:flutter_quill/src/rules/rule.dart';
 
 /// A heuristic rule for delete operations.
 @immutable
@@ -15,10 +15,20 @@ abstract class DeleteRule extends Rule {
   RuleType get type => RuleType.delete;
 
   @override
-  void validateArgs(int? len, Object? data, Attribute? attribute) {
-    assert(len != null);
-    assert(data == null);
-    assert(attribute == null);
+  void validateArgs(int? len, Object? data, FormatAttribute? attribute) {
+    if (len == null) {
+      debugPrint('DeleteRule.validateArgs — len is null, expected non-null');
+    }
+    if (data != null) {
+      debugPrint(
+        'DeleteRule.validateArgs — data is non-null, expected null: $data',
+      );
+    }
+    if (attribute != null) {
+      debugPrint(
+        'DeleteRule.validateArgs — attribute is non-null, expected null: $attribute',
+      );
+    }
   }
 }
 
@@ -32,7 +42,7 @@ class EnsureLastLineBreakDeleteRule extends DeleteRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     final itr = DeltaIterator(document.toDelta())..skip(index + len!);
 
@@ -54,7 +64,7 @@ class CatchAllDeleteRule extends DeleteRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     final itr = DeltaIterator(document.toDelta())..skip(index + len!);
 
@@ -80,7 +90,7 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     final itr = DeltaIterator(document.toDelta())..skip(index);
     var op = itr.next(1);
@@ -116,12 +126,10 @@ class PreserveLineStyleOnMergeRule extends DeleteRule {
 
       while (currentBlockItr.hasNext) {
         currentBlockOp = currentBlockItr.next();
-        if (currentBlockOp.data is String &&
-            (currentBlockOp.data as String).contains('\n')) {
+        if (currentBlockOp.data is String && (currentBlockOp.data! as String).contains('\n')) {
           break;
         }
-        if (currentBlockOp.data is String &&
-            (currentBlockOp.data as String).trim().isNotEmpty) {
+        if (currentBlockOp.data is String && (currentBlockOp.data! as String).trim().isNotEmpty) {
           isBlockNotEmpty = true;
         }
       }
@@ -171,7 +179,7 @@ class EnsureEmbedLineRule extends DeleteRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     final itr = DeltaIterator(document.toDelta());
 
@@ -183,10 +191,11 @@ class EnsureEmbedLineRule extends DeleteRule {
       return null;
     }
 
-    int? indexDelta = 0, lengthDelta = 0, remain = len;
+    int? indexDelta = 0;
+    int? lengthDelta = 0;
+    var remain = len;
     var embedFound = op != null && op.data is! String;
-    final hasLineBreakBefore =
-        !embedFound && (op == null || (op.data as String).endsWith('\n'));
+    final hasLineBreakBefore = !embedFound && (op == null || (op.data! as String).endsWith('\n'));
     if (embedFound) {
       var candidate = itr.next(1);
       if (remain != null) {
@@ -205,8 +214,7 @@ class EnsureEmbedLineRule extends DeleteRule {
     }
 
     op = itr.skip(remain!);
-    if (op != null &&
-        (op.data is String ? op.data as String? : '')!.endsWith('\n')) {
+    if (op != null && (op.data is String ? op.data as String? : '')!.endsWith('\n')) {
       final candidate = itr.next(1);
       if (candidate.data is! String && !hasLineBreakBefore) {
         embedFound = true;
@@ -223,9 +231,7 @@ class EnsureEmbedLineRule extends DeleteRule {
       ..delete(len! + lengthDelta);
   }
 
-  bool _isVideo(op) {
-    return op != null &&
-        op.data is! String &&
-        !(op.data as Map).containsKey(BlockEmbed.videoType);
+  bool _isVideo(Operation? op) {
+    return op != null && op.data is! String && !(op.data! as Map).containsKey('video');
   }
 }

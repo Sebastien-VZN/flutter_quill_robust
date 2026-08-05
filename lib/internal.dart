@@ -5,10 +5,7 @@
 /// WARNING: This file is for internal use for related packages.
 /// Breaking changes can be introduced in minor versions.
 ///
-@experimental
 library;
-
-import 'package:meta/meta.dart' show experimental;
 
 export 'src/common/utils/platform.dart';
 export 'src/common/utils/quill_native_provider.dart';

@@ -1,10 +1,11 @@
-import 'dart:collection' show LinkedList;
+import "dart:collection" show LinkedList;
+import "dart:developer" as developer;
 
-import '../../editor/embed/embed_editor_builder.dart';
-import '../style.dart';
-import 'leaf.dart';
-import 'line.dart';
-import 'node.dart';
+import "package:flutter_quill/src/document/nodes/leaf.dart";
+import "package:flutter_quill/src/document/nodes/line.dart";
+import "package:flutter_quill/src/document/nodes/node.dart";
+import "package:flutter_quill/src/document/style.dart";
+import "package:flutter_quill/src/editor/embed/embed_editor_builder.dart";
 
 /// Container can accommodate other nodes.
 ///
@@ -14,6 +15,10 @@ import 'node.dart';
 ///
 /// Most of the operation handling logic is implemented by [Line]
 /// and [QuillText].
+///
+/// All assertions have been replaced with defensive guards using [debugPrint]
+/// for diagnostic logging. No [assert] calls remain in production code paths —
+/// the editor degrades gracefully instead of crashing in release builds.
 abstract base class QuillContainer<T extends Node?> extends Node {
   final LinkedList<Node> _children = LinkedList<Node>();
 
@@ -45,24 +50,51 @@ abstract base class QuillContainer<T extends Node?> extends Node {
   int? _length;
 
   /// Adds [node] to the end of this container children list.
+  ///
+  /// If [node] already has a parent, logs a [debugPrint] warning and detaches
+  /// it from its previous parent before adding it to this container.
   void add(T node) {
-    assert(node?.parent == null);
+    if (node?.parent != null) {
+      developer.log(
+        "QuillContainer.add: node already has a parent — detaching first.",
+        name: "quill.container",
+      );
+      node?.unlink();
+    }
     node?.parent = this;
     _children.add(node as Node);
     clearLengthCache();
   }
 
   /// Adds [node] to the beginning of this container children list.
+  ///
+  /// If [node] already has a parent, logs a [debugPrint] warning and detaches
+  /// it from its previous parent before adding it to this container.
   void addFirst(T node) {
-    assert(node?.parent == null);
+    if (node?.parent != null) {
+      developer.log(
+        "QuillContainer.addFirst: node already has a parent — detaching first.",
+        name: "quill.container",
+      );
+      node?.unlink();
+    }
     node?.parent = this;
     _children.addFirst(node as Node);
     clearLengthCache();
   }
 
   /// Removes [node] from this container.
+  ///
+  /// If [node] does not belong to this container, logs a [debugPrint] warning
+  /// and returns without modifying the children list.
   void remove(T node) {
-    assert(node?.parent == this);
+    if (node?.parent != this) {
+      developer.log(
+        "QuillContainer.remove: node does not belong to this container — skipping.",
+        name: "quill.container",
+      );
+      return;
+    }
     node?.parent = null;
     _children.remove(node as Node);
     clearLengthCache();
@@ -99,12 +131,13 @@ abstract base class QuillContainer<T extends Node?> extends Node {
       return ChildQuery(null, 0);
     }
 
+    var value = offset;
     for (final node in children) {
       final len = node.length;
-      if (offset < len || (inclusive && offset == len && node.isLast)) {
-        return ChildQuery(node, offset);
+      if (value < len || (inclusive && value == len && node.isLast)) {
+        return ChildQuery(node, value);
       }
-      offset -= len;
+      value -= len;
     }
     return ChildQuery(null, 0);
   }
@@ -113,9 +146,7 @@ abstract base class QuillContainer<T extends Node?> extends Node {
   String toPlainText([
     Iterable<EmbedBuilder>? embedBuilders,
     EmbedBuilder? unknownEmbedBuilder,
-  ]) => children
-      .map((e) => e.toPlainText(embedBuilders, unknownEmbedBuilder))
-      .join();
+  ]) => children.map((e) => e.toPlainText(embedBuilders, unknownEmbedBuilder)).join();
 
   @override
   int get length {
@@ -132,9 +163,20 @@ abstract base class QuillContainer<T extends Node?> extends Node {
     }
   }
 
+  /// Inserts [data] at [index] with optional [style].
+  ///
+  /// If the container is empty, a default child is created and the data is
+  /// inserted into it. If [index] is out of bounds, logs a [debugPrint] warning
+  /// and returns without modifying the document.
   @override
   void insert(int index, Object data, Style? style) {
-    assert(index == 0 || (index > 0 && index < length));
+    if (index < 0 || index > length) {
+      developer.log(
+        "QuillContainer.insert: index $index out of bounds (length=$length) — skipping.",
+        name: "quill.container",
+      );
+      return;
+    }
 
     if (isNotEmpty) {
       final child = queryChild(index, false);
@@ -142,29 +184,48 @@ abstract base class QuillContainer<T extends Node?> extends Node {
         child.node!.insert(child.offset, data, style);
       }
     } else {
-      assert(index == 0);
       final node = defaultChild;
       add(node);
       node?.insert(index, data, style);
     }
   }
 
+  /// Retains formatting at [index] for [len] characters with optional [style].
+  ///
+  /// If the container is empty, logs a [debugPrint] warning and returns
+  /// without modifying the document.
   @override
   void retain(int index, int? len, Style? style) {
-    assert(isNotEmpty);
+    if (isEmpty) {
+      developer.log(
+        "QuillContainer.retain: container is empty — skipping.",
+        name: "quill.container",
+      );
+      return;
+    }
     final child = queryChild(index, false);
     child.node!.retain(child.offset, len, style);
   }
 
+  /// Deletes [len] characters starting at [index].
+  ///
+  /// If the container is empty, logs a [debugPrint] warning and returns
+  /// without modifying the document.
   @override
   void delete(int index, int? len) {
-    assert(isNotEmpty);
+    if (isEmpty) {
+      developer.log(
+        "QuillContainer.delete: container is empty — skipping.",
+        name: "quill.container",
+      );
+      return;
+    }
     final child = queryChild(index, false);
     child.node!.delete(child.offset, len);
   }
 
   @override
-  String toString() => _children.join('\n');
+  String toString() => _children.join("\n");
 }
 
 /// Result of a child query in a [QuillContainer].

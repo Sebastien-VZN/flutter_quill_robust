@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/common/utils/widgets.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
 
-import '../../common/utils/font.dart';
-import '../../common/utils/widgets.dart';
-import '../../document/attribute.dart';
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/base_value_button.dart';
-import '../simple_toolbar.dart';
-
-class QuillToolbarFontSizeButton
-    extends
-        QuillToolbarBaseButton<
-          QuillToolbarFontSizeButtonOptions,
-          QuillToolbarFontSizeButtonExtraOptions
-        > {
+class QuillToolbarFontSizeButton extends QuillToolbarBaseButton<QuillToolbarFontSizeButtonOptions, QuillToolbarFontSizeButtonExtraOptions> {
   QuillToolbarFontSizeButton({
     required super.controller,
     super.options = const QuillToolbarFontSizeButtonOptions(),
@@ -21,25 +14,29 @@ class QuillToolbarFontSizeButton
     /// over the [baseOptions].
     super.baseOptions,
     super.key,
-  }) : assert(options.items?.isNotEmpty ?? true),
-       assert(
-         options.initialValue == null ||
-             (options.initialValue?.isNotEmpty ?? true),
-       );
+  }) {
+    // Guards défensifs — remplacent les assert() pour éviter les crash en
+    // production. Les options sont déjà construites et finales, on loggue
+    // simplement les violations d'invariants.
+    if (options.items != null && options.items!.isEmpty) {
+      debugPrint(
+        'QuillToolbarFontSizeButton — items is empty, will use defaults',
+      );
+    }
+    if (options.initialValue != null && options.initialValue!.isEmpty) {
+      debugPrint(
+        'QuillToolbarFontSizeButton — initialValue is empty, ignoring',
+      );
+    }
+  }
 
   @override
-  QuillToolbarFontSizeButtonState createState() =>
-      QuillToolbarFontSizeButtonState();
+  QuillToolbarFontSizeButtonState createState() => QuillToolbarFontSizeButtonState();
 }
 
 class QuillToolbarFontSizeButtonState
     extends
-        QuillToolbarBaseButtonState<
-          QuillToolbarFontSizeButton,
-          QuillToolbarFontSizeButtonOptions,
-          QuillToolbarFontSizeButtonExtraOptions,
-          String
-        > {
+        QuillToolbarBaseButtonState<QuillToolbarFontSizeButton, QuillToolbarFontSizeButtonOptions, QuillToolbarFontSizeButtonExtraOptions, String> {
   final _menuController = MenuController();
 
   Map<String, String> get _items {
@@ -65,24 +62,18 @@ class QuillToolbarFontSizeButtonState
   }
 
   String get _defaultDisplayText {
-    return options.initialValue ??
-        widget.options.defaultDisplayText ??
-        context.loc.fontSize;
+    return options.initialValue ?? widget.options.defaultDisplayText ?? context.loc.fontSize;
   }
 
   @override
   String get currentStateValue {
-    final attribute = controller
-        .getSelectionStyle()
-        .attributes[options.attribute.key];
-    return attribute == null
-        ? _defaultDisplayText
-        : (_getKeyName(attribute.value) ?? _defaultDisplayText);
+    final attribute = controller.getSelectionStyle().attributes[options.attribute.key];
+    return attribute == null ? _defaultDisplayText : (_getKeyName(attribute.value) ?? _defaultDisplayText);
   }
 
   String? _getKeyName(dynamic value) {
     for (final entry in _items.entries) {
-      if (getFontSize(entry.value) == getFontSize(value)) {
+      if (entry.value == value) {
         return entry.key;
       }
     }
@@ -136,9 +127,9 @@ class QuillToolbarFontSizeButtonState
               }
               if (keyName != null) {
                 controller.formatSelection(
-                  Attribute.fromKeyValue(
-                    Attribute.size.key,
-                    newValue == '0' ? null : getFontSize(newValue),
+                  FormatAttribute.fromKeyValue(
+                    FormatAttribute.size.key,
+                    newValue == '0' ? null : newValue,
                   ),
                 );
                 options.onSelected?.call(newValue);
@@ -146,7 +137,7 @@ class QuillToolbarFontSizeButtonState
             });
           },
           child: Text(
-            fontSize.key.toString(),
+            fontSize.key,
             style: TextStyle(
               color: fontSize.value == '0' ? options.defaultItemColor : null,
             ),

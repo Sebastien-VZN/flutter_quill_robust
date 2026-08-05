@@ -1,7 +1,6 @@
-// ignore_for_file: avoid_print
-
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 // NOTE for project authors: If this script causing issues, consider alternatives
@@ -44,17 +43,19 @@ void updateChangelogVersion({
   required String changelogFilePath,
 }) {
   if (newVersion.isEmpty) {
-    print('The version is empty.');
+    debugPrint('The version is empty.');
     exit(1);
   }
 
   if (changelogFilePath.isEmpty) {
-    print('The CHANGELOG file path is empty.');
+    debugPrint('The CHANGELOG file path is empty.');
     exit(1);
   }
   final changelogFile = File(changelogFilePath);
   if (!changelogFile.existsSync()) {
-    print('The CHANGELOG file does not exist: ${changelogFile.absolute.path}');
+    debugPrint(
+      'The CHANGELOG file does not exist: ${changelogFile.absolute.path}',
+    );
     exit(1);
   }
   _updateChangelogFile(changelogFile: changelogFile, newVersion: newVersion);
@@ -73,12 +74,11 @@ void _updateChangelogFile({
     changeLog: changelog,
     newVersion: newVersion,
   );
-  final changelogWithUnreleasedReplacedByNewVersion =
-      _replaceUnreleasedWithNewVersion(
-        changeLog: changelogWithUpdateLinks,
-        newVersion: newVersion,
-        newVersionFormattedDate: newVersionFormattedDate,
-      );
+  final changelogWithUnreleasedReplacedByNewVersion = _replaceUnreleasedWithNewVersion(
+    changeLog: changelogWithUpdateLinks,
+    newVersion: newVersion,
+    newVersionFormattedDate: newVersionFormattedDate,
+  );
   final changelogWithNewUnreleased = _addNewUnreleasedEntry(
     changelog: changelogWithUnreleasedReplacedByNewVersion,
     newVersion: newVersion,
@@ -194,7 +194,7 @@ String _updateVersionLinks({
 /// ```dart
 /// String versionRefLinkLine = '[11.0.0-dev.5]: https://github.com/singerdmx/flutter-quill/compare/v11.0.0-dev.4...v11.0.0-dev.5';
 /// String version = getVersionFromVersionRefLinkLine(versionRefLinkLine);
-/// print(version);  // Output: '11.0.0-dev.5'
+/// debugPrint(version);  // Output: '11.0.0-dev.5'
 /// ```
 String _getVersionFromVersionRefLinkLine(String versionRefLinkLine) {
   final version = versionRefLinkLine.substring(
@@ -241,8 +241,7 @@ String _replaceUnreleasedWithNewVersion({
 
   final unreleasedVersionEntry = lines[unreleasedVersionEntryIndex];
 
-  final newReleaseEntry =
-      '${unreleasedVersionEntry.replaceFirst(kUnreleasedVersionEntryName, newVersion)} - $newVersionFormattedDate';
+  final newReleaseEntry = '${unreleasedVersionEntry.replaceFirst(kUnreleasedVersionEntryName, newVersion)} - $newVersionFormattedDate';
   lines[unreleasedVersionEntryIndex] = newReleaseEntry;
 
   return lines.join('\n');
@@ -272,6 +271,6 @@ String _addNewUnreleasedEntry({
   final changelogFromVersionEntryOnward = changelog.substring(
     newVersionEntryIndex,
   );
-  // ignore: unnecessary_brace_in_string_interps
-  return '${changelogBeforeNewVersionEntry}${newUnreleasedEntry}${changelogFromVersionEntryOnward}';
+
+  return '$changelogBeforeNewVersionEntry$newUnreleasedEntry$changelogFromVersionEntryOnward';
 }

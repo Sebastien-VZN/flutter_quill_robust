@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show immutable;
 
-import '../../../quill_delta.dart';
-import '../document.dart';
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/document/document.dart';
 
 @immutable
 class DocChange {

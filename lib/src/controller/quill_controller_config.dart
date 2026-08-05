@@ -1,16 +1,13 @@
-import 'package:meta/meta.dart';
-
-import 'clipboard/quill_clipboard_config.dart';
+import 'package:flutter_quill/src/controller/clipboard/quill_clipboard_config.dart';
 
 export 'clipboard/quill_clipboard_config.dart';
 
 class QuillControllerConfig {
   const QuillControllerConfig({
     this.requireScriptFontFeatures = false,
-    @experimental this.clipboardConfig,
+    this.clipboardConfig,
   });
 
-  @experimental
   final QuillClipboardConfig? clipboardConfig;
 
   /// Render subscript and superscript text using Open Type FontFeatures

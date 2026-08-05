@@ -3,12 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../delta/delta_diff.dart';
-import '../../document/document.dart';
-import 'raw_editor.dart';
+import 'package:flutter_quill/src/delta/delta_diff.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor.dart';
 
-mixin RawEditorStateSelectionDelegateMixin on EditorState
-    implements TextSelectionDelegate {
+mixin RawEditorStateSelectionDelegateMixin on EditorState implements TextSelectionDelegate {
   @override
   TextEditingValue get textEditingValue {
     return widget.controller.plainTextEditingValue;
@@ -59,8 +58,7 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
   // calculated.
   RevealedOffset _getOffsetToRevealCaret(Rect rect, TextPosition position) {
     // Make sure scrollController is attached
-    if (scrollController.hasClients &&
-        !scrollController.position.allowImplicitScrolling) {
+    if (scrollController.hasClients && !scrollController.position.allowImplicitScrolling) {
       return RevealedOffset(offset: scrollController.offset, rect: rect);
     }
 
@@ -95,9 +93,7 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
       );
     }
 
-    final offsetDelta =
-        (scrollController.hasClients ? scrollController.offset : 0) -
-        targetOffset;
+    final offsetDelta = (scrollController.hasClients ? scrollController.offset : 0) - targetOffset;
     return RevealedOffset(
       rect: rect.shift(unitOffset * offsetDelta),
       offset: targetOffset,
@@ -121,15 +117,13 @@ mixin RawEditorStateSelectionDelegateMixin on EditorState
   }
 
   @override
-  bool get cutEnabled =>
-      widget.config.contextMenuBuilder != null && !widget.config.readOnly;
+  bool get cutEnabled => widget.config.contextMenuBuilder != null && !widget.config.readOnly;
 
   @override
   bool get copyEnabled => widget.config.contextMenuBuilder != null;
 
   @override
-  bool get pasteEnabled =>
-      widget.config.contextMenuBuilder != null && !widget.config.readOnly;
+  bool get pasteEnabled => widget.config.contextMenuBuilder != null && !widget.config.readOnly;
 
   @override
   bool get selectAllEnabled => widget.config.contextMenuBuilder != null;

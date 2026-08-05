@@ -1,6 +1,7 @@
 import 'package:flutter/rendering.dart';
 
-import '../../document/nodes/container.dart';
+import 'package:flutter_quill/src/document/nodes/container.dart';
+import 'package:flutter_quill/src/editor/widgets/proxy.dart' show RenderEmbedProxy, RenderParagraphProxy;
 
 /// A common interface to render boxes which represent a piece of rich text
 /// content.

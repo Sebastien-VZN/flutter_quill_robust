@@ -1,27 +1,22 @@
-import 'package:flutter/widgets.dart'
-    show IconData, TextStyle, ValueChanged, VoidCallback;
+import 'package:flutter/widgets.dart' show IconData, TextStyle, ValueChanged, VoidCallback;
 
-import '../../../document/attribute.dart';
-import '../../simple_toolbar.dart';
-import '../../theme/quill_icon_theme.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 
-class QuillToolbarSelectHeaderStyleDropdownButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarSelectHeaderStyleDropdownButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarSelectHeaderStyleDropdownButtonExtraOptions({
     required super.controller,
     required super.context,
     required super.onPressed,
     required this.currentValue,
   });
-  final Attribute currentValue;
+  final FormatAttribute currentValue;
 }
 
 class QuillToolbarSelectHeaderStyleDropdownButtonOptions
     extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarSelectHeaderStyleDropdownButtonOptions,
-          QuillToolbarSelectHeaderStyleDropdownButtonExtraOptions
-        > {
+        QuillToolbarBaseButtonOptions<QuillToolbarSelectHeaderStyleDropdownButtonOptions, QuillToolbarSelectHeaderStyleDropdownButtonExtraOptions> {
   const QuillToolbarSelectHeaderStyleDropdownButtonOptions({
     super.afterButtonPressed,
     super.childBuilder,
@@ -41,23 +36,23 @@ class QuillToolbarSelectHeaderStyleDropdownButtonOptions
   /// Header attributes, defaults to:
   /// ```dart
   /// [
-  ///   Attribute.h1,
-  ///   Attribute.h2,
-  ///   Attribute.h3,
-  ///   Attribute.h4,
-  ///   Attribute.h5,
-  ///   Attribute.h6,
-  ///   Attribute.header,
+  ///   FormatAttribute.h1,
+  ///   FormatAttribute.h2,
+  ///   FormatAttribute.h3,
+  ///   FormatAttribute.h4,
+  ///   FormatAttribute.h5,
+  ///   FormatAttribute.h6,
+  ///   FormatAttribute.header,
   /// ]
   /// ```
-  final List<Attribute<int?>>? attributes;
+  final List<FormatAttribute>? attributes;
   final double? width;
 
   final String? defaultDisplayText;
 
   QuillToolbarSelectHeaderStyleDropdownButtonOptions copyWith({
     ValueChanged<String>? onSelected,
-    List<Attribute<int>>? attributes,
+    List<FormatAttribute>? attributes,
     TextStyle? style,
     double? iconSize,
     double? iconButtonFactor,

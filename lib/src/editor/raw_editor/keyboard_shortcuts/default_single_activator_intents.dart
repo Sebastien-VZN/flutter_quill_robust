@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/editor/raw_editor/keyboard_shortcuts/editor_keyboard_shortcut_actions.dart';
 import 'package:meta/meta.dart';
 
-import '../../../common/utils/platform.dart';
-import '../../../document/attribute.dart';
-import 'editor_keyboard_shortcut_actions.dart';
-
-final _isDesktopMacOS = isMacOS;
+final bool _isDesktopMacOS = isMacOS;
 
 @internal
 Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
   return {
-    const SingleActivator(LogicalKeyboardKey.escape):
-        const HideSelectionToolbarIntent(),
+    const SingleActivator(LogicalKeyboardKey.escape): const HideSelectionToolbarIntent(),
     SingleActivator(
       LogicalKeyboardKey.keyZ,
       control: !_isDesktopMacOS,
@@ -34,21 +32,21 @@ Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const ToggleTextStyleIntent(
-      Attribute.bold,
+      FormatAttribute.bold,
     ),
     SingleActivator(
       LogicalKeyboardKey.keyU,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const ToggleTextStyleIntent(
-      Attribute.underline,
+      FormatAttribute.underline,
     ),
     SingleActivator(
       LogicalKeyboardKey.keyI,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const ToggleTextStyleIntent(
-      Attribute.italic,
+      FormatAttribute.italic,
     ),
     SingleActivator(
       LogicalKeyboardKey.keyS,
@@ -56,14 +54,14 @@ Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
       meta: _isDesktopMacOS,
       shift: true,
     ): const ToggleTextStyleIntent(
-      Attribute.strikeThrough,
+      FormatAttribute.strikeThrough,
     ),
     SingleActivator(
       LogicalKeyboardKey.backquote,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const ToggleTextStyleIntent(
-      Attribute.inlineCode,
+      FormatAttribute.inlineCode,
     ),
     SingleActivator(
       LogicalKeyboardKey.tilde,
@@ -71,7 +69,7 @@ Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
       meta: _isDesktopMacOS,
       shift: true,
     ): const ToggleTextStyleIntent(
-      Attribute.codeBlock,
+      FormatAttribute.codeBlock,
     ),
     SingleActivator(
       LogicalKeyboardKey.keyB,
@@ -79,7 +77,7 @@ Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
       meta: _isDesktopMacOS,
       shift: true,
     ): const ToggleTextStyleIntent(
-      Attribute.blockQuote,
+      FormatAttribute.blockQuote,
     ),
     SingleActivator(
       LogicalKeyboardKey.keyK,
@@ -94,7 +92,7 @@ Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
       meta: _isDesktopMacOS,
       shift: true,
     ): const ToggleTextStyleIntent(
-      Attribute.ul,
+      FormatAttribute.ul,
     ),
     SingleActivator(
       LogicalKeyboardKey.keyO,
@@ -102,7 +100,7 @@ Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
       meta: _isDesktopMacOS,
       shift: true,
     ): const ToggleTextStyleIntent(
-      Attribute.ol,
+      FormatAttribute.ol,
     ),
     SingleActivator(
       LogicalKeyboardKey.keyC,
@@ -134,57 +132,49 @@ Map<SingleActivator, Intent> defaultSinlgeActivatorIntents() {
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const QuillEditorApplyHeaderIntent(
-      Attribute.h1,
+      FormatAttribute.h1,
     ),
     SingleActivator(
       LogicalKeyboardKey.digit2,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const QuillEditorApplyHeaderIntent(
-      Attribute.h2,
+      FormatAttribute.h2,
     ),
     SingleActivator(
       LogicalKeyboardKey.digit3,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const QuillEditorApplyHeaderIntent(
-      Attribute.h3,
+      FormatAttribute.h3,
     ),
     SingleActivator(
       LogicalKeyboardKey.digit4,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const QuillEditorApplyHeaderIntent(
-      Attribute.h4,
+      FormatAttribute.h4,
     ),
     SingleActivator(
       LogicalKeyboardKey.digit5,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const QuillEditorApplyHeaderIntent(
-      Attribute.h5,
+      FormatAttribute.h5,
     ),
     SingleActivator(
       LogicalKeyboardKey.digit6,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const QuillEditorApplyHeaderIntent(
-      Attribute.h6,
+      FormatAttribute.h6,
     ),
     SingleActivator(
       LogicalKeyboardKey.digit0,
       control: !_isDesktopMacOS,
       meta: _isDesktopMacOS,
     ): const QuillEditorApplyHeaderIntent(
-      Attribute.header,
-    ),
-
-    SingleActivator(
-      LogicalKeyboardKey.keyG,
-      control: !_isDesktopMacOS,
-      meta: _isDesktopMacOS,
-    ): const QuillEditorInsertEmbedIntent(
-      Attribute.image,
+      FormatAttribute.header,
     ),
 
     SingleActivator(

@@ -16,10 +16,11 @@ void main() {
           final colorHex = colorToHex(exampleColor);
 
           final selectionStyle = const Style().put(
-            Attribute(
-              isBackground ? Attribute.background.key : Attribute.color.key,
-              AttributeScope.inline,
-              colorHex,
+            FormatAttribute(
+              key: isBackground ? FormatAttribute.background.key : FormatAttribute.color.key,
+              scope: FormatScope.inline,
+              value: colorHex,
+              valueType: FormatValueType.nullableString,
             ),
           );
           final widget = ColorPickerDialog(
@@ -33,9 +34,7 @@ void main() {
 
           expect(find.widgetWithText(TextFormField, colorHex), findsOneWidget);
 
-          final state =
-              tester.state(find.byType(ColorPickerDialog))
-                  as ColorPickerDialogState;
+          final state = tester.state(find.byType(ColorPickerDialog)) as ColorPickerDialogState;
 
           final selectedColor = hexToColor(state.hexController.text);
 

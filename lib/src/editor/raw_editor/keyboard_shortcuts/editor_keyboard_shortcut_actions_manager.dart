@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/src/editor/raw_editor/keyboard_shortcuts/editor_keyboard_shortcut_actions.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor_state.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor_text_boundaries.dart';
 import 'package:meta/meta.dart';
-
-import '../raw_editor_state.dart';
-import '../raw_editor_text_boundaries.dart';
-import 'editor_keyboard_shortcut_actions.dart';
 
 @internal
 class EditorKeyboardShortcutsActionsManager {
@@ -102,8 +101,7 @@ class EditorKeyboardShortcutsActionsManager {
     );
   }
 
-  late final Action<ReplaceTextIntent> _replaceTextAction =
-      CallbackAction<ReplaceTextIntent>(onInvoke: _replaceText);
+  late final Action<ReplaceTextIntent> _replaceTextAction = CallbackAction<ReplaceTextIntent>(onInvoke: _replaceText);
 
   QuillEditorTextBoundary _documentBoundary(
     DirectionalTextEditingIntent intent,
@@ -116,34 +114,20 @@ class EditorKeyboardShortcutsActionsManager {
     );
   }
 
-  late final Action<UpdateSelectionIntent> _updateSelectionAction =
-      CallbackAction<UpdateSelectionIntent>(onInvoke: _updateSelection);
+  late final Action<UpdateSelectionIntent> _updateSelectionAction = CallbackAction<UpdateSelectionIntent>(onInvoke: _updateSelection);
 
-  late final QuillEditorUpdateTextSelectionToAdjacentLineAction<
-    ExtendSelectionVerticallyToAdjacentLineIntent
-  >
-  adjacentLineAction =
-      QuillEditorUpdateTextSelectionToAdjacentLineAction<
-        ExtendSelectionVerticallyToAdjacentLineIntent
-      >(rawEditorState);
+  late final QuillEditorUpdateTextSelectionToAdjacentLineAction<ExtendSelectionVerticallyToAdjacentLineIntent> adjacentLineAction =
+      QuillEditorUpdateTextSelectionToAdjacentLineAction<ExtendSelectionVerticallyToAdjacentLineIntent>(rawEditorState);
 
-  late final _adjacentPageAction =
-      QuillEditorUpdateTextSelectionToAdjacentPageAction<
-        ExtendSelectionVerticallyToAdjacentPageIntent
-      >(rawEditorState);
+  late final _adjacentPageAction = QuillEditorUpdateTextSelectionToAdjacentPageAction<ExtendSelectionVerticallyToAdjacentPageIntent>(rawEditorState);
 
-  late final QuillEditorToggleTextStyleAction _formatSelectionAction =
-      QuillEditorToggleTextStyleAction(rawEditorState);
+  late final QuillEditorToggleTextStyleAction _formatSelectionAction = QuillEditorToggleTextStyleAction(rawEditorState);
 
-  late final QuillEditorIndentSelectionAction _indentSelectionAction =
-      QuillEditorIndentSelectionAction(rawEditorState);
+  late final QuillEditorIndentSelectionAction _indentSelectionAction = QuillEditorIndentSelectionAction(rawEditorState);
 
-  late final QuillEditorOpenSearchAction _openSearchAction =
-      QuillEditorOpenSearchAction(rawEditorState);
-  late final QuillEditorApplyHeaderAction _applyHeaderAction =
-      QuillEditorApplyHeaderAction(rawEditorState);
-  late final QuillEditorApplyCheckListAction _applyCheckListAction =
-      QuillEditorApplyCheckListAction(rawEditorState);
+  late final QuillEditorOpenSearchAction _openSearchAction = QuillEditorOpenSearchAction(rawEditorState);
+  late final QuillEditorApplyHeaderAction _applyHeaderAction = QuillEditorApplyHeaderAction(rawEditorState);
+  late final QuillEditorApplyCheckListAction _applyCheckListAction = QuillEditorApplyCheckListAction(rawEditorState);
 
   late final Map<Type, Action<Intent>> _actions = <Type, Action<Intent>>{
     DoNothingAndStopPropagationTextIntent: DoNothingAction(consumesKey: false),
@@ -180,9 +164,7 @@ class EditorKeyboardShortcutsActionsManager {
       ),
     ),
     ExtendSelectionToNextWordBoundaryIntent: _makeOverridable(
-      QuillEditorUpdateTextSelectionAction<
-        ExtendSelectionToNextWordBoundaryIntent
-      >(rawEditorState, true, _nextWordBoundary),
+      QuillEditorUpdateTextSelectionAction<ExtendSelectionToNextWordBoundaryIntent>(rawEditorState, true, _nextWordBoundary),
     ),
     ExtendSelectionToLineBreakIntent: _makeOverridable(
       QuillEditorUpdateTextSelectionAction<ExtendSelectionToLineBreakIntent>(
@@ -195,9 +177,7 @@ class EditorKeyboardShortcutsActionsManager {
       adjacentLineAction,
     ),
     ExtendSelectionToDocumentBoundaryIntent: _makeOverridable(
-      QuillEditorUpdateTextSelectionAction<
-        ExtendSelectionToDocumentBoundaryIntent
-      >(rawEditorState, true, _documentBoundary),
+      QuillEditorUpdateTextSelectionAction<ExtendSelectionToDocumentBoundaryIntent>(rawEditorState, true, _documentBoundary),
     ),
     ExtendSelectionToNextWordBoundaryOrCaretLocationIntent: _makeOverridable(
       QuillEditorExtendSelectionOrCaretPositionAction(

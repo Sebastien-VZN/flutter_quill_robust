@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_button_options_resolver.dart';
 import 'package:meta/meta.dart';
-
-import '../../../flutter_quill.dart';
-import 'base_button_options_resolver.dart';
 
 /// The [T] is the options for the button
 /// The [E] is the extra options for the button
 @internal
-abstract class QuillToolbarBaseButton<
-  T extends QuillToolbarBaseButtonOptions<T, E>,
-  E extends QuillToolbarBaseButtonExtraOptions
->
+abstract class QuillToolbarBaseButton<T extends QuillToolbarBaseButtonOptions<T, E>, E extends QuillToolbarBaseButtonExtraOptions>
     extends StatefulWidget {
   const QuillToolbarBaseButton({
     required this.controller,
@@ -23,7 +19,7 @@ abstract class QuillToolbarBaseButton<
 
   /// Shares common options between all buttons, prefer the [options]
   /// over the [baseOptions].
-  final QuillToolbarBaseButtonOptions? baseOptions;
+  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
 
   final QuillController controller;
 }
@@ -49,21 +45,18 @@ abstract class QuillToolbarCommonButtonState<
 
   double get iconSize => _optionsResolver.iconSize ?? kDefaultIconSize;
 
-  double get iconButtonFactor =>
-      _optionsResolver.iconButtonFactor ?? kDefaultIconButtonFactor;
+  double get iconButtonFactor => _optionsResolver.iconButtonFactor ?? kDefaultIconButtonFactor;
 
   QuillIconTheme? get iconTheme => _optionsResolver.iconTheme;
 
   VoidCallback? get afterButtonPressed => _optionsResolver.afterButtonPressed;
 
-  QuillToolbarButtonOptionsChildBuilder get childBuilder =>
-      _optionsResolver.childBuilder;
+  QuillToolbarButtonOptionsChildBuilder<T, E> get childBuilder => _optionsResolver.childBuilder;
 
-  QuillToolbarButtonOptionsResolver get _optionsResolver =>
-      QuillToolbarButtonOptionsResolver(
-        baseOptions: widget.baseOptions,
-        specificOptions: options,
-      );
+  QuillToolbarButtonOptionsResolver<T, E> get _optionsResolver => QuillToolbarButtonOptionsResolver<T, E>(
+    baseOptions: widget.baseOptions as QuillToolbarBaseButtonOptions<T, E>?,
+    specificOptions: options,
+  );
 }
 
 /// The [W] is the widget that creates this State
@@ -124,18 +117,7 @@ abstract class QuillToolbarBaseButtonState<
   void removeExtraListener(covariant W oldWidget) {}
 }
 
-typedef QuillToolbarToggleStyleBaseButton =
-    QuillToolbarBaseButton<
-      QuillToolbarToggleStyleButtonOptions,
-      QuillToolbarToggleStyleButtonExtraOptions
-    >;
+typedef QuillToolbarToggleStyleBaseButton = QuillToolbarBaseButton<QuillToolbarToggleStyleButtonOptions, QuillToolbarToggleStyleButtonExtraOptions>;
 
-typedef QuillToolbarToggleStyleBaseButtonState<
-  W extends QuillToolbarToggleStyleBaseButton
-> =
-    QuillToolbarBaseButtonState<
-      W,
-      QuillToolbarToggleStyleButtonOptions,
-      QuillToolbarToggleStyleButtonExtraOptions,
-      bool
-    >;
+typedef QuillToolbarToggleStyleBaseButtonState<W extends QuillToolbarToggleStyleBaseButton> =
+    QuillToolbarBaseButtonState<W, QuillToolbarToggleStyleButtonOptions, QuillToolbarToggleStyleButtonExtraOptions, bool>;

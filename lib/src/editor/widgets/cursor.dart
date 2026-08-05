@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
-import '../../common/utils/platform.dart';
-import 'box.dart';
+import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/editor/widgets/box.dart';
 
 /// Style properties of editing cursor.
 class CursorStyle {
@@ -133,15 +133,10 @@ class CursorCont extends ChangeNotifier {
   Timer? _cursorTimer;
   bool _targetCursorVisibility = false;
 
-  final ValueNotifier<TextPosition?> _floatingCursorTextPosition =
-      ValueNotifier(null);
+  final ValueNotifier<TextPosition?> _floatingCursorTextPosition = ValueNotifier(null);
 
-  ValueNotifier<TextPosition?> get floatingCursorTextPosition =>
-      _floatingCursorTextPosition;
-
-  void setFloatingCursorTextPosition(TextPosition? position) =>
-      _floatingCursorTextPosition.value = position;
-
+  ValueNotifier<TextPosition?> get floatingCursorTextPosition => _floatingCursorTextPosition;
+  set floatingCursorTextPosition(TextPosition? position) => _floatingCursorTextPosition.value = position;
   bool get isFloatingCursorActive => floatingCursorTextPosition.value != null;
 
   CursorStyle _style;
@@ -168,11 +163,15 @@ class CursorCont extends ChangeNotifier {
     show.dispose();
     blink.dispose();
     color.dispose();
-    assert(_cursorTimer == null);
+    if (_cursorTimer != null) {
+      debugPrint('Cursor._cursorTimer is not null in dispose, cancelling it');
+      _cursorTimer!.cancel();
+      _cursorTimer = null;
+    }
     super.dispose();
   }
 
-  void _cursorTick(Timer timer) {
+  Future<void> _cursorTick(Timer timer) async {
     _targetCursorVisibility = !_targetCursorVisibility;
     final targetOpacity = _targetCursorVisibility ? 1.0 : 0.0;
     if (style.opacityAnimates) {
@@ -183,7 +182,10 @@ class CursorCont extends ChangeNotifier {
       //
       // These values and curves have been obtained through eyeballing, so are
       // likely not exactly the same as the values for native iOS.
-      _blinkOpacityController.animateTo(targetOpacity, curve: Curves.easeOut);
+      await _blinkOpacityController.animateTo(
+        targetOpacity,
+        curve: Curves.easeOut,
+      );
     } else {
       _blinkOpacityController.value = targetOpacity;
     }
@@ -223,10 +225,7 @@ class CursorCont extends ChangeNotifier {
   }
 
   void startOrStopCursorTimerIfNeeded(bool hasFocus, TextSelection selection) {
-    if (show.value &&
-        _cursorTimer == null &&
-        hasFocus &&
-        selection.isCollapsed) {
+    if (show.value && _cursorTimer == null && hasFocus && selection.isCollapsed) {
       startCursorTimer();
     } else if (_cursorTimer != null && (!hasFocus || !selection.isCollapsed)) {
       stopCursorTimer();
@@ -336,12 +335,10 @@ class CursorPainter {
     final pixelMultiple = 1.0 / devicePixelRatio;
 
     final pixelPerfectOffsetX = caretPosition.dx.isFinite
-        ? (caretPosition.dx / pixelMultiple).round() * pixelMultiple -
-              caretPosition.dx
+        ? (caretPosition.dx / pixelMultiple).round() * pixelMultiple - caretPosition.dx
         : caretPosition.dx;
     final pixelPerfectOffsetY = caretPosition.dy.isFinite
-        ? (caretPosition.dy / pixelMultiple).round() * pixelMultiple -
-              caretPosition.dy
+        ? (caretPosition.dy / pixelMultiple).round() * pixelMultiple - caretPosition.dy
         : caretPosition.dy;
 
     return Offset(pixelPerfectOffsetX, pixelPerfectOffsetY);

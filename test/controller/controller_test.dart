@@ -11,9 +11,9 @@ void main() {
   setUp(() {
     controller = QuillController.basic()
       ..compose(
-        Delta()..insert(testDocumentContents),
-        const TextSelection.collapsed(offset: 0),
-        ChangeSource.local,
+        delta: Delta()..insert(testDocumentContents),
+        textSelection: const TextSelection.collapsed(offset: 0),
+        source: ChangeSource.local,
       );
   });
 
@@ -35,13 +35,13 @@ void main() {
 
     test('getSelectionStyle', () {
       controller
-        ..formatText(0, 5, Attribute.h1)
+        ..formatText(0, 5, FormatAttribute.h1)
         ..updateSelection(
           const TextSelection(baseOffset: 0, extentOffset: 4),
           ChangeSource.local,
         );
 
-      expect(controller.getSelectionStyle().values, [Attribute.h1]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.h1]);
     });
 
     test('indentSelection with single line document', () {
@@ -57,13 +57,13 @@ void main() {
         })
         ..indentSelection(true);
       expect(listenerCalled, isTrue);
-      expect(controller.getSelectionStyle().values, [Attribute.indentL1]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.indentL1]);
       controller.indentSelection(true);
-      expect(controller.getSelectionStyle().values, [Attribute.indentL2]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.indentL2]);
       controller.indentSelection(false);
-      expect(controller.getSelectionStyle().values, [Attribute.indentL1]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.indentL1]);
       controller.indentSelection(false);
-      expect(controller.getSelectionStyle().values, []);
+      expect(controller.getSelectionStyle().values, isEmpty);
 
       // With collapsed selection
       controller
@@ -72,26 +72,26 @@ void main() {
           ChangeSource.local,
         )
         ..indentSelection(true);
-      expect(controller.getSelectionStyle().values, [Attribute.indentL1]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.indentL1]);
       controller
         ..updateSelection(
           const TextSelection.collapsed(offset: 0),
           ChangeSource.local,
         )
         ..indentSelection(true);
-      expect(controller.getSelectionStyle().values, [Attribute.indentL2]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.indentL2]);
       controller.indentSelection(false);
-      expect(controller.getSelectionStyle().values, [Attribute.indentL1]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.indentL1]);
       controller.indentSelection(false);
-      expect(controller.getSelectionStyle().values, []);
+      expect(controller.getSelectionStyle().values, isEmpty);
     });
 
     test('indentSelection with multiline document', () {
       controller
         ..compose(
-          Delta()..insert('line1\nline2\nline3\n'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('line1\nline2\nline3\n'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
         // Indent first line
         ..updateSelection(
@@ -99,7 +99,7 @@ void main() {
           ChangeSource.local,
         )
         ..indentSelection(true);
-      expect(controller.getSelectionStyle().values, [Attribute.indentL1]);
+      expect(controller.getSelectionStyle().values, [FormatAttribute.indentL1]);
 
       // Indent first two lines
       controller
@@ -112,7 +112,9 @@ void main() {
       // Should have both L1 and L2 indent attributes in selection.
       expect(
         controller.getAllSelectionStyles(),
-        contains(const Style().put(Attribute.indentL1).put(Attribute.indentL2)),
+        contains(
+          const Style().put(FormatAttribute.indentL1).put(FormatAttribute.indentL2),
+        ),
       );
 
       // Remaining lines should have no attributes.
@@ -128,8 +130,8 @@ void main() {
 
     test('getAllIndividualSelectionStylesAndEmbed', () {
       controller
-        ..formatText(0, 2, Attribute.bold)
-        ..replaceText(2, 2, BlockEmbed.image('/test'), null)
+        ..formatText(0, 2, FormatAttribute.bold)
+        ..replaceText(2, 2, const Embeddable('custom', 'test-data'), null)
         ..updateSelection(
           const TextSelection(baseOffset: 0, extentOffset: 4),
           ChangeSource.remote,
@@ -137,15 +139,26 @@ void main() {
       final result = controller.getAllIndividualSelectionStylesAndEmbed();
       expect(result.length, 2);
       expect(result[0].offset, 0);
-      expect(result[0].value, const Style().put(Attribute.bold));
-      expect((result[1].value as Embeddable).type, BlockEmbed.imageType);
+      switch (result[0]) {
+        case StyleEntry(:final style):
+          expect(style, const Style().put(FormatAttribute.bold));
+        case EmbedEntry():
+          fail('Expected StyleEntry, got EmbedEntry');
+      }
+      expect(result[1].offset, 2);
+      switch (result[1]) {
+        case EmbedEntry(:final embed):
+          expect(embed.type, 'custom');
+        case StyleEntry():
+          fail('Expected EmbedEntry, got StyleEntry');
+      }
     });
 
     test('getAllIndividualSelectionStylesAndEmbed mixed', () {
       controller
         ..replaceText(0, 4, 'bold plain italic', null)
-        ..formatText(0, 4, Attribute.bold)
-        ..formatText(11, 17, Attribute.italic)
+        ..formatText(0, 4, FormatAttribute.bold)
+        ..formatText(11, 17, FormatAttribute.italic)
         ..updateSelection(
           const TextSelection(baseOffset: 2, extentOffset: 14),
           ChangeSource.local,
@@ -160,10 +173,20 @@ void main() {
       expect(result.length, 2);
       expect(result[0].offset, 0);
       expect(result[0].length, 2, reason: 'First style is 2 characters bold');
-      expect(result[0].value, const Style().put(Attribute.bold));
+      switch (result[0]) {
+        case StyleEntry(:final style):
+          expect(style, const Style().put(FormatAttribute.bold));
+        case EmbedEntry():
+          fail('Expected StyleEntry, got EmbedEntry');
+      }
       expect(result[1].offset, 9);
       expect(result[1].length, 3, reason: 'Last style is 3 characters italic');
-      expect(result[1].value, const Style().put(Attribute.italic));
+      switch (result[1]) {
+        case StyleEntry(:final style):
+          expect(style, const Style().put(FormatAttribute.italic));
+        case EmbedEntry():
+          fail('Expected StyleEntry, got EmbedEntry');
+      }
     });
 
     test('getPlainText', () {
@@ -176,10 +199,10 @@ void main() {
     });
 
     test('getAllSelectionStyles', () {
-      controller.formatText(0, 2, Attribute.bold);
+      controller.formatText(0, 2, FormatAttribute.bold);
       expect(
         controller.getAllSelectionStyles(),
-        contains(const Style().put(Attribute.bold)),
+        contains(const Style().put(FormatAttribute.bold)),
       );
     });
 
@@ -244,7 +267,7 @@ void main() {
 
     test('formatTextStyle', () {
       var listenerCalled = false;
-      final style = const Style().put(Attribute.bold).put(Attribute.italic);
+      final style = const Style().put(FormatAttribute.bold).put(FormatAttribute.italic);
       controller
         ..addListener(() {
           listenerCalled = true;
@@ -264,11 +287,11 @@ void main() {
         ..addListener(() {
           listenerCalled = true;
         })
-        ..formatText(0, 2, Attribute.bold);
+        ..formatText(0, 2, FormatAttribute.bold);
       expect(listenerCalled, isTrue);
       expect(
         controller.document.collectAllStyles(0, 2),
-        contains(const Style().put(Attribute.bold)),
+        contains(const Style().put(FormatAttribute.bold)),
       );
       expect(
         controller.document.collectAllStyles(2, 4),
@@ -286,11 +309,11 @@ void main() {
         ..addListener(() {
           listenerCalled = true;
         })
-        ..formatSelection(Attribute.bold);
+        ..formatSelection(FormatAttribute.bold);
       expect(listenerCalled, isTrue);
       expect(
         controller.document.collectAllStyles(0, 2),
-        contains(const Style().put(Attribute.bold)),
+        contains(const Style().put(FormatAttribute.bold)),
       );
       expect(
         controller.document.collectAllStyles(2, 4),
@@ -363,9 +386,9 @@ void main() {
           listenerCalled = true;
         })
         ..compose(
-          Delta()..insert('test '),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('test '),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         );
 
       expect(listenerCalled, isTrue);
@@ -384,19 +407,19 @@ void main() {
         return controller.getSelectionStyle();
       }
 
-      Attribute fromKey(String key) => switch (key) {
-        'header' => Attribute.h1,
-        'list' => Attribute.ol,
-        'align' => Attribute.centerAlignment,
-        'code-block' => Attribute.codeBlock,
-        'blockquote' => Attribute.blockQuote,
-        'indent' => Attribute.indentL2,
-        'direction' => Attribute.rtl,
-        'line-height' => LineHeightAttribute.lineHeightNormal,
+      FormatAttribute fromKey(String key) => switch (key) {
+        'header' => FormatAttribute.h1,
+        'list' => FormatAttribute.ol,
+        'align' => FormatAttribute.centerAlignment,
+        'code-block' => FormatAttribute.codeBlock,
+        'blockquote' => FormatAttribute.blockQuote,
+        'indent' => FormatAttribute.indentL2,
+        'direction' => FormatAttribute.rtl,
+        'line-height' => FormatAttribute.lineHeightNormal,
         String() => throw UnimplementedError(key),
       };
 
-      for (final blockKey in Attribute.blockKeys) {
+      for (final blockKey in FormatAttribute.blockKeys) {
         final blockAttribute = fromKey(blockKey);
         controller
           ..clear()
@@ -405,7 +428,7 @@ void main() {
           ..formatText(
             4,
             6,
-            Attribute.bold,
+            FormatAttribute.bold,
           ) // spans end of line 1 and start of line 2
           ..formatText(7, 0, blockAttribute);
 
@@ -416,12 +439,12 @@ void main() {
         );
         expect(
           select(5, 6),
-          const Style().put(Attribute.bold).put(blockAttribute),
+          const Style().put(FormatAttribute.bold).put(blockAttribute),
           reason: 'line 1 block, bold',
         );
         expect(
           select(4, 8),
-          const Style().put(Attribute.bold).put(blockAttribute),
+          const Style().put(FormatAttribute.bold).put(blockAttribute),
           reason: 'spans line1 and 2, selection is all bold',
         );
         expect(
@@ -432,19 +455,17 @@ void main() {
         expect(
           select(2, 11),
           const Style().put(blockAttribute),
-          reason:
-              'selection starts in non-bold text extends into plain on next line',
+          reason: 'selection starts in non-bold text extends into plain on next line',
         );
         expect(
           select(2, 8),
           const Style().put(blockAttribute),
-          reason:
-              'selection starts in non-bold text, extends into bold on next line',
+          reason: 'selection starts in non-bold text, extends into bold on next line',
         );
 
         expect(
           select(7, 8),
-          const Style().put(Attribute.bold).put(blockAttribute),
+          const Style().put(FormatAttribute.bold).put(blockAttribute),
           reason: 'line 2 block, bold',
         );
         expect(

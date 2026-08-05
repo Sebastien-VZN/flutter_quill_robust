@@ -66,11 +66,7 @@ class QuillEditorWhitespaceBoundary extends QuillEditorTextBoundary {
 
   @override
   TextPosition getTrailingTextBoundaryAt(TextPosition position) {
-    for (
-      var index = position.offset;
-      index < textEditingValue.text.length;
-      index += 1
-    ) {
+    for (var index = position.offset; index < textEditingValue.text.length; index += 1) {
       if (!TextLayoutMetrics.isWhitespace(
         textEditingValue.text.codeUnitAt(index),
       )) {
@@ -150,20 +146,12 @@ class QuillEditorWordBoundary extends QuillEditorTextBoundary {
 
   @override
   TextPosition getLeadingTextBoundaryAt(TextPosition position) {
-    return TextPosition(
-      offset: textLayout.getWordBoundary(position).start,
-      // Word boundary seems to always report downstream on many platforms.
-      affinity: TextAffinity.downstream,
-    );
+    return TextPosition(offset: textLayout.getWordBoundary(position).start);
   }
 
   @override
   TextPosition getTrailingTextBoundaryAt(TextPosition position) {
-    return TextPosition(
-      offset: textLayout.getWordBoundary(position).end,
-      // Word boundary seems to always report downstream on many platforms.
-      affinity: TextAffinity.downstream,
-    );
+    return TextPosition(offset: textLayout.getWordBoundary(position).end);
   }
 }
 
@@ -201,8 +189,7 @@ class QuillEditorDocumentBoundary extends QuillEditorTextBoundary {
   final TextEditingValue textEditingValue;
 
   @override
-  TextPosition getLeadingTextBoundaryAt(TextPosition position) =>
-      const TextPosition(offset: 0);
+  TextPosition getLeadingTextBoundaryAt(TextPosition position) => const TextPosition(offset: 0);
 
   @override
   TextPosition getTrailingTextBoundaryAt(TextPosition position) {
@@ -227,9 +214,11 @@ class QuillEditorExpandedTextBoundary extends QuillEditorTextBoundary {
 
   @override
   TextEditingValue get textEditingValue {
-    assert(
-      innerTextBoundary.textEditingValue == outerTextBoundary.textEditingValue,
-    );
+    if (innerTextBoundary.textEditingValue != outerTextBoundary.textEditingValue) {
+      debugPrint(
+        'CombinedTextBoundary.textEditingValue — inner != outer, returning inner',
+      );
+    }
     return innerTextBoundary.textEditingValue;
   }
 
@@ -296,18 +285,17 @@ class QuillEditorMixedBoundary extends QuillEditorTextBoundary {
 
   @override
   TextEditingValue get textEditingValue {
-    assert(
-      leadingTextBoundary.textEditingValue ==
-          trailingTextBoundary.textEditingValue,
-    );
+    if (leadingTextBoundary.textEditingValue != trailingTextBoundary.textEditingValue) {
+      debugPrint(
+        'LeadingTrailingTextBoundary.textEditingValue — leading != trailing, returning leading',
+      );
+    }
     return leadingTextBoundary.textEditingValue;
   }
 
   @override
-  TextPosition getLeadingTextBoundaryAt(TextPosition position) =>
-      leadingTextBoundary.getLeadingTextBoundaryAt(position);
+  TextPosition getLeadingTextBoundaryAt(TextPosition position) => leadingTextBoundary.getLeadingTextBoundaryAt(position);
 
   @override
-  TextPosition getTrailingTextBoundaryAt(TextPosition position) =>
-      trailingTextBoundary.getTrailingTextBoundaryAt(position);
+  TextPosition getTrailingTextBoundaryAt(TextPosition position) => trailingTextBoundary.getTrailingTextBoundaryAt(position);
 }

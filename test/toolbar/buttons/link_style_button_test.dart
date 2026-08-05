@@ -20,8 +20,7 @@ void main() {
     await tester.pumpWidget(
       QuillTestApp.withScaffold(
         QuillToolbarLinkStyleButton(controller: controller),
-        onLocalizationsAvailable: (quillLocalizations) =>
-            loc = quillLocalizations,
+        onLocalizationsAvailable: (quillLocalizations) => loc = quillLocalizations,
       ),
     );
     expect(find.byType(QuillToolbarLinkStyleButton), findsOneWidget);
@@ -66,8 +65,7 @@ void main() {
     await tester.pumpWidget(
       QuillTestApp.withScaffold(
         QuillToolbarLinkStyleButton(controller: controller),
-        onLocalizationsAvailable: (quillLocalizations) =>
-            loc = quillLocalizations,
+        onLocalizationsAvailable: (quillLocalizations) => loc = quillLocalizations,
       ),
     );
     expect(find.byType(QuillToolbarLinkStyleButton), findsOneWidget);

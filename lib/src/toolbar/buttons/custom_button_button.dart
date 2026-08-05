@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-
-import '../../controller/quill_controller.dart';
-import '../base_button/base_button_options_resolver.dart';
-import '../config/base_button_options.dart';
-import '../config/buttons/custom_button_options.dart';
-import 'quill_icon_button.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_button_options_resolver.dart';
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/base_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/custom_button_options.dart';
 
 class QuillToolbarCustomButton extends StatelessWidget {
   const QuillToolbarCustomButton({
@@ -19,13 +18,13 @@ class QuillToolbarCustomButton extends StatelessWidget {
 
   final QuillController controller;
   final QuillToolbarCustomButtonOptions options;
-  final QuillToolbarBaseButtonOptions? baseOptions;
+  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
 
   void _onPressed(BuildContext context) => options.onPressed?.call();
 
-  QuillToolbarButtonOptionsResolver get _optionsResolver =>
-      QuillToolbarButtonOptionsResolver(
-        baseOptions: baseOptions,
+  QuillToolbarButtonOptionsResolver<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions> get _optionsResolver =>
+      QuillToolbarButtonOptionsResolver<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions>(
+        baseOptions: baseOptions as QuillToolbarBaseButtonOptions<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions>?,
         specificOptions: options,
       );
 

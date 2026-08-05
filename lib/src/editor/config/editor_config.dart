@@ -2,24 +2,21 @@
 library;
 
 import 'dart:ui' as ui;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart' show experimental;
-
-import '../../document/nodes/node.dart';
-import '../../toolbar/theme/quill_dialog_theme.dart';
-import '../embed/embed_editor_builder.dart';
-import '../raw_editor/builders/leading_block_builder.dart';
-import '../raw_editor/config/events/events.dart';
-import '../raw_editor/config/raw_editor_config.dart';
-import '../raw_editor/raw_editor.dart';
-import '../widgets/default_styles.dart';
-import '../widgets/delegate.dart';
-import '../widgets/link.dart' hide linkPrefixes;
-import '../widgets/text/magnifier.dart';
-import '../widgets/text/utils/text_block_utils.dart';
-import 'search_config.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
+import 'package:flutter_quill/src/editor/config/search_config.dart';
+import 'package:flutter_quill/src/editor/embed/embed_editor_builder.dart';
+import 'package:flutter_quill/src/editor/raw_editor/builders/leading_block_builder.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/events/events.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/raw_editor_config.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor.dart';
+import 'package:flutter_quill/src/editor/widgets/default_styles.dart';
+import 'package:flutter_quill/src/editor/widgets/delegate.dart';
+import 'package:flutter_quill/src/editor/widgets/link.dart';
+import 'package:flutter_quill/src/editor/widgets/text/magnifier.dart';
+import 'package:flutter_quill/src/editor/widgets/text/utils/text_block_utils.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_dialog_theme.dart';
 
 // IMPORTANT For project authors: The QuillEditorConfig.copyWith()
 // should be manually updated each time we add or remove a property
@@ -30,8 +27,8 @@ class QuillEditorConfig {
   const QuillEditorConfig({
     this.scrollable = true,
     this.padding = EdgeInsets.zero,
-    @experimental this.characterShortcutEvents = const [],
-    @experimental this.spaceShortcutEvents = const [],
+    this.characterShortcutEvents = const [],
+    this.spaceShortcutEvents = const [],
     this.autoFocus = false,
     this.expands = false,
     this.placeholder,
@@ -56,13 +53,13 @@ class QuillEditorConfig {
     this.onSingleLongTapStart,
     this.onSingleLongTapMoveUpdate,
     this.onSingleLongTapEnd,
-    @experimental this.onKeyPressed,
+    this.onKeyPressed,
     this.enableAlwaysIndentOnTab = false,
     this.embedBuilders,
     this.textSpanBuilder = defaultSpanBuilder,
     this.quillMagnifierBuilder,
     this.unknownEmbedBuilder,
-    @experimental this.searchConfig = const QuillSearchConfig(),
+    this.searchConfig = const QuillSearchConfig(),
     this.linkActionPickerDelegate = defaultLinkActionPickerDelegate,
     this.customStyleBuilder,
     this.customRecognizerBuilder,
@@ -85,10 +82,9 @@ class QuillEditorConfig {
     this.scribbleAreaInsets,
     this.readOnlyMouseCursor = SystemMouseCursors.text,
     this.onPerformAction,
-    @experimental this.customLeadingBlockBuilder,
+    this.customLeadingBlockBuilder,
   });
 
-  @experimental
   final LeadingBlockNodeBuilder? customLeadingBlockBuilder;
 
   /// The text placeholder in the quill editor
@@ -116,7 +112,7 @@ class QuillEditorConfig {
   ///   handler: (controller) {...your implementation}
   ///);
   ///```
-  @experimental
+
   final List<CharacterShortcutEvent> characterShortcutEvents;
 
   /// Contains all the events that will be handled when
@@ -139,7 +135,7 @@ class QuillEditorConfig {
   ///   handler: (QuillText textNode, controller) {...your implementation}
   ///);
   ///```
-  @experimental
+
   final List<SpaceShortcutEvent> spaceShortcutEvents;
 
   /// A handler for keys that are pressed when the editor is focused.
@@ -170,7 +166,7 @@ class QuillEditorConfig {
   ///   return null;
   ///},
   ///```
-  @experimental
+
   final KeyEventResult? Function(KeyEvent event, Node? node)? onKeyPressed;
 
   /// Override [readOnly] for checkbox.
@@ -240,7 +236,7 @@ class QuillEditorConfig {
   /// By passing a non-null value, you will override the default behavior.
   ///
   /// See also: [onTapOutsideEnabled] and [QuillRawEditorConfig.onTapOutside].
-  final Function(PointerDownEvent event, FocusNode focusNode)? onTapOutside;
+  final void Function(PointerDownEvent event, FocusNode focusNode)? onTapOutside;
 
   /// Whether to show cursor.
   ///
@@ -395,7 +391,7 @@ class QuillEditorConfig {
 
   /// See [search](https://github.com/singerdmx/flutter-quill/blob/master/doc/configurations/search.md)
   /// page for docs.
-  @experimental
+
   final QuillSearchConfig searchConfig;
 
   /// Delegate function responsible for showing menu with link actions on
@@ -459,9 +455,8 @@ class QuillEditorConfig {
   final GlobalKey<EditorState>? editorKey;
 
   /// By default we will use
-  /// ```
+  ///
   /// TextSelectionTheme.of(context)
-  /// ```
   /// to change it please pass a different value
   final TextSelectionThemeData? textSelectionThemeData;
 
@@ -500,7 +495,7 @@ class QuillEditorConfig {
     EdgeInsetsGeometry? padding,
     bool? autoFocus,
     bool? onTapOutsideEnabled,
-    Function(PointerDownEvent event, FocusNode focusNode)? onTapOutside,
+    void Function(PointerDownEvent event, FocusNode focusNode)? onTapOutside,
     KeyEventResult? Function(KeyEvent event, Node? node)? onKeyPressed,
     bool? showCursor,
     bool? paintCursorAboveText,
@@ -516,10 +511,8 @@ class QuillEditorConfig {
     Brightness? keyboardAppearance,
     ScrollPhysics? scrollPhysics,
     ValueChanged<String>? onLaunchUrl,
-    bool Function(TapDownDetails details, TextPosition Function(Offset offset))?
-    onTapDown,
-    bool Function(TapUpDetails details, TextPosition Function(Offset offset))?
-    onTapUp,
+    bool Function(TapDownDetails details, TextPosition Function(Offset offset))? onTapDown,
+    bool Function(TapUpDetails details, TextPosition Function(Offset offset))? onTapUp,
     Iterable<EmbedBuilder>? embedBuilders,
     TextSpanBuilder? textSpanBuilder,
     EmbedBuilder? unknownEmbedBuilder,
@@ -546,19 +539,16 @@ class QuillEditorConfig {
     void Function(TextInputAction action)? onPerformAction,
   }) {
     return QuillEditorConfig(
-      customLeadingBlockBuilder:
-          customLeadingBlockBuilder ?? this.customLeadingBlockBuilder,
+      customLeadingBlockBuilder: customLeadingBlockBuilder ?? this.customLeadingBlockBuilder,
       placeholder: placeholder ?? this.placeholder,
-      characterShortcutEvents:
-          characterShortcutEvents ?? this.characterShortcutEvents,
+      characterShortcutEvents: characterShortcutEvents ?? this.characterShortcutEvents,
       spaceShortcutEvents: spaceShortcutEvents ?? this.spaceShortcutEvents,
       checkBoxReadOnly: checkBoxReadOnly ?? this.checkBoxReadOnly,
       disableClipboard: disableClipboard ?? this.disableClipboard,
       scrollable: scrollable ?? this.scrollable,
       onKeyPressed: onKeyPressed ?? this.onKeyPressed,
       scrollBottomInset: scrollBottomInset ?? this.scrollBottomInset,
-      enableAlwaysIndentOnTab:
-          enableAlwaysIndentOnTab ?? this.enableAlwaysIndentOnTab,
+      enableAlwaysIndentOnTab: enableAlwaysIndentOnTab ?? this.enableAlwaysIndentOnTab,
       padding: padding ?? this.padding,
       autoFocus: autoFocus ?? this.autoFocus,
       onTapOutsideEnabled: onTapOutsideEnabled ?? this.onTapOutsideEnabled,
@@ -566,10 +556,8 @@ class QuillEditorConfig {
       showCursor: showCursor ?? this.showCursor,
       paintCursorAboveText: paintCursorAboveText ?? this.paintCursorAboveText,
       readOnlyMouseCursor: readOnlyMouseCursor ?? this.readOnlyMouseCursor,
-      enableInteractiveSelection:
-          enableInteractiveSelection ?? this.enableInteractiveSelection,
-      enableSelectionToolbar:
-          enableSelectionToolbar ?? this.enableSelectionToolbar,
+      enableInteractiveSelection: enableInteractiveSelection ?? this.enableInteractiveSelection,
+      enableSelectionToolbar: enableSelectionToolbar ?? this.enableSelectionToolbar,
       minHeight: minHeight ?? this.minHeight,
       maxHeight: maxHeight ?? this.maxHeight,
       maxContentWidth: maxContentWidth ?? this.maxContentWidth,
@@ -585,29 +573,21 @@ class QuillEditorConfig {
       textSpanBuilder: textSpanBuilder ?? this.textSpanBuilder,
       unknownEmbedBuilder: unknownEmbedBuilder ?? this.unknownEmbedBuilder,
       customStyleBuilder: customStyleBuilder ?? this.customStyleBuilder,
-      customRecognizerBuilder:
-          customRecognizerBuilder ?? this.customRecognizerBuilder,
+      customRecognizerBuilder: customRecognizerBuilder ?? this.customRecognizerBuilder,
       searchConfig: searchConfig ?? this.searchConfig,
-      linkActionPickerDelegate:
-          linkActionPickerDelegate ?? this.linkActionPickerDelegate,
-      floatingCursorDisabled:
-          floatingCursorDisabled ?? this.floatingCursorDisabled,
-      textSelectionControls:
-          textSelectionControls ?? this.textSelectionControls,
+      linkActionPickerDelegate: linkActionPickerDelegate ?? this.linkActionPickerDelegate,
+      floatingCursorDisabled: floatingCursorDisabled ?? this.floatingCursorDisabled,
+      textSelectionControls: textSelectionControls ?? this.textSelectionControls,
       customShortcuts: customShortcuts ?? this.customShortcuts,
       customActions: customActions ?? this.customActions,
       detectWordBoundary: detectWordBoundary ?? this.detectWordBoundary,
       customLinkPrefixes: customLinkPrefixes ?? this.customLinkPrefixes,
       dialogTheme: dialogTheme ?? this.dialogTheme,
       contextMenuBuilder: contextMenuBuilder ?? this.contextMenuBuilder,
-      contentInsertionConfiguration:
-          contentInsertionConfiguration ?? this.contentInsertionConfiguration,
+      contentInsertionConfiguration: contentInsertionConfiguration ?? this.contentInsertionConfiguration,
       editorKey: editorKey ?? this.editorKey,
-      textSelectionThemeData:
-          textSelectionThemeData ?? this.textSelectionThemeData,
-      requestKeyboardFocusOnCheckListChanged:
-          requestKeyboardFocusOnCheckListChanged ??
-          this.requestKeyboardFocusOnCheckListChanged,
+      textSelectionThemeData: textSelectionThemeData ?? this.textSelectionThemeData,
+      requestKeyboardFocusOnCheckListChanged: requestKeyboardFocusOnCheckListChanged ?? this.requestKeyboardFocusOnCheckListChanged,
       textInputAction: textInputAction ?? this.textInputAction,
       enableScribble: enableScribble ?? this.enableScribble,
       onScribbleActivated: onScribbleActivated ?? this.onScribbleActivated,

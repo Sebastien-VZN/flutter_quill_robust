@@ -14,6 +14,5 @@ abstract final class QuillNativeProvider {
   /// Allows overriding the instance for testing.
   /// Pass `null` to restore the default instance.
   @visibleForTesting
-  static set instance(QuillNativeBridge? newInstance) =>
-      _instance = newInstance ?? DefaultQuillNativeBridge();
+  static set instance(QuillNativeBridge? newInstance) => _instance = newInstance ?? DefaultQuillNativeBridge();
 }

@@ -1,6 +1,6 @@
 import 'package:flutter_quill_example/assets.dart';
 
-const kQuillDefaultSample = [
+const List<Map<String, Object>> kQuillDefaultSample = [
   {
     'insert': {'image': kScreenshot2},
     'attributes': {
@@ -16,14 +16,12 @@ const kQuillDefaultSample = [
   },
   {
     'insert': {
-      'video':
-          'https://www.youtube.com/watch?v=V4hgdKhIqtc&list=PLbhaS_83B97s78HsDTtplRTEhcFsqSqIK&index=1',
+      'video': 'https://www.youtube.com/watch?v=V4hgdKhIqtc&list=PLbhaS_83B97s78HsDTtplRTEhcFsqSqIK&index=1',
     },
   },
   {
     'insert': {
-      'video':
-          'https://user-images.githubusercontent.com/122956/126238875-22e42501-ad41-4266-b1d6-3f89b5e3b79b.mp4',
+      'video': 'https://user-images.githubusercontent.com/122956/126238875-22e42501-ad41-4266-b1d6-3f89b5e3b79b.mp4',
     },
   },
   {'insert': '\nRich text editor for Flutter'},
@@ -41,16 +39,14 @@ const kQuillDefaultSample = [
     'insert': 'Bullet Journal',
   },
   {
-    'insert':
-        ':\nTrack personal and group journals (ToDo, Note, Ledger) from multiple views with timely reminders',
+    'insert': ':\nTrack personal and group journals (ToDo, Note, Ledger) from multiple views with timely reminders',
   },
   {
     'attributes': {'list': 'ordered'},
     'insert': '\n',
   },
   {
-    'insert':
-        'Share your tasks and notes with teammates, and see changes as they happen in real-time, across all devices',
+    'insert': 'Share your tasks and notes with teammates, and see changes as they happen in real-time, across all devices',
   },
   {
     'attributes': {'list': 'ordered'},
@@ -77,8 +73,7 @@ const kQuillDefaultSample = [
     'insert': '\n',
   },
   {
-    'insert':
-        '\nAttach one or multiple labels to tasks, notes or transactions. Later you can track them just using the label(s).',
+    'insert': '\nAttach one or multiple labels to tasks, notes or transactions. Later you can track them just using the label(s).',
   },
   {
     'attributes': {'blockquote': true},
@@ -283,8 +278,7 @@ const kQuillDefaultSample = [
   },
   {
     'insert': {
-      'image':
-          'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg',
+      'image': 'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg',
     },
     'attributes': {
       'width': '230',

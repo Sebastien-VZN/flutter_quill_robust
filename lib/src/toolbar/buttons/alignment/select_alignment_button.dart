@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../controller/quill_controller.dart';
-import '../../../document/attribute.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
 
 enum _AlignmentOptions {
-  left(attribute: Attribute.leftAlignment),
-  center(attribute: Attribute.centerAlignment),
-  right(attribute: Attribute.rightAlignment),
-  justifyMinWidth(attribute: Attribute.justifyAlignment);
+  left(attribute: FormatAttribute.leftAlignment),
+  center(attribute: FormatAttribute.centerAlignment),
+  right(attribute: FormatAttribute.rightAlignment),
+  justifyMinWidth(attribute: FormatAttribute.justifyAlignment);
 
   const _AlignmentOptions({required this.attribute});
 
-  final Attribute attribute;
+  final FormatAttribute attribute;
 }
 
 /// Dropdown button

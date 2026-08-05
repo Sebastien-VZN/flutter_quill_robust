@@ -14,9 +14,7 @@ class VerticalSpacing {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is VerticalSpacing && top == other.top && bottom == other.bottom;
+  bool operator ==(Object other) => identical(this, other) || other is VerticalSpacing && top == other.top && bottom == other.bottom;
 
   @override
   int get hashCode => Object.hash(top, bottom);

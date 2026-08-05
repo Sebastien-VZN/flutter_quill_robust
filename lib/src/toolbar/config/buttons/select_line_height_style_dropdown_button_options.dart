@@ -1,20 +1,18 @@
-import 'package:flutter/widgets.dart'
-    show IconData, TextStyle, ValueChanged, VoidCallback;
+import 'package:flutter/widgets.dart' show IconData, TextStyle, ValueChanged, VoidCallback;
 
-import '../../../document/attribute.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
 
-import '../../simple_toolbar.dart';
-import '../../theme/quill_icon_theme.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 
-class QuillToolbarSelectLineHeightStyleDropdownButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarSelectLineHeightStyleDropdownButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarSelectLineHeightStyleDropdownButtonExtraOptions({
     required super.controller,
     required super.context,
     required super.onPressed,
     required this.currentValue,
   });
-  final Attribute currentValue;
+  final FormatAttribute currentValue;
 }
 
 class QuillToolbarSelectLineHeightStyleDropdownButtonOptions
@@ -42,20 +40,20 @@ class QuillToolbarSelectLineHeightStyleDropdownButtonOptions
   /// Line-height attributes, defaults to:
   /// ```dart
   /// [
-  ///   Attribute.lineHeightNormal,
-  ///   Attribute.lineHeightTight,
-  ///   Attribute.lineHeightOneAndHalf,
-  ///   Attribute.lineHeightDouble,
+  ///   FormatAttribute.lineHeightNormal,
+  ///   FormatAttribute.lineHeightTight,
+  ///   FormatAttribute.lineHeightOneAndHalf,
+  ///   FormatAttribute.lineHeightDouble,
   /// ]
   /// ```
-  final List<Attribute<double?>>? attributes;
+  final List<FormatAttribute>? attributes;
   final double? width;
 
   final String? defaultDisplayText;
 
   QuillToolbarSelectLineHeightStyleDropdownButtonOptions copyWith({
     ValueChanged<String>? onSelected,
-    List<Attribute<double>>? attributes,
+    List<FormatAttribute>? attributes,
     TextStyle? style,
     double? iconSize,
     double? iconButtonFactor,

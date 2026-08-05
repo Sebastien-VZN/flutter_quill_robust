@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../controller/quill_controller.dart';
-import '../document/attribute.dart';
-import 'buttons/alignment/select_alignment_buttons.dart';
-import 'buttons/arrow_indicated_list_button.dart';
-import 'embed/embed_button_builder.dart';
-import 'simple_toolbar.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/toolbar/buttons/alignment/select_alignment_buttons.dart';
+import 'package:flutter_quill/src/toolbar/buttons/arrow_indicated_list_button.dart';
+import 'package:flutter_quill/src/toolbar/embed/embed_button_builder.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
 
 export 'buttons/alignment/select_alignment_button.dart';
 export 'buttons/clear_format_button.dart';
@@ -28,8 +28,7 @@ export 'buttons/toggle_style_button.dart';
 export 'config/base_button_options.dart';
 export 'config/simple_toolbar_config.dart';
 
-class QuillSimpleToolbar extends StatelessWidget
-    implements PreferredSizeWidget {
+class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget {
   const QuillSimpleToolbar({
     required this.controller,
     this.config = const QuillSimpleToolbarConfig(),
@@ -88,56 +87,56 @@ class QuillSimpleToolbar extends StatelessWidget
             ),
           if (config.showBoldButton)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.bold,
+              attribute: FormatAttribute.bold,
               options: config.buttonOptions.bold,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showItalicButton)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.italic,
+              attribute: FormatAttribute.italic,
               options: config.buttonOptions.italic,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showUnderLineButton)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.underline,
+              attribute: FormatAttribute.underline,
               options: config.buttonOptions.underLine,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showStrikeThrough)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.strikeThrough,
+              attribute: FormatAttribute.strikeThrough,
               options: config.buttonOptions.strikeThrough,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showInlineCode)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.inlineCode,
+              attribute: FormatAttribute.inlineCode,
               options: config.buttonOptions.inlineCode,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showSubscript)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.subscript,
+              attribute: FormatAttribute.subscript,
               options: config.buttonOptions.subscript,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showSuperscript)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.superscript,
+              attribute: FormatAttribute.superscript,
               options: config.buttonOptions.superscript,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showSmallButton)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.small,
+              attribute: FormatAttribute.small,
               options: config.buttonOptions.small,
               controller: controller,
               baseOptions: config.buttonOptions.base,
@@ -189,7 +188,7 @@ class QuillSimpleToolbar extends StatelessWidget
             ),
           if (config.showDirection)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.rtl,
+              attribute: FormatAttribute.rtl,
               options: config.buttonOptions.direction,
               controller: controller,
               baseOptions: config.buttonOptions.base,
@@ -220,14 +219,14 @@ class QuillSimpleToolbar extends StatelessWidget
         [
           if (config.showListNumbers)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.ol,
+              attribute: FormatAttribute.ol,
               options: config.buttonOptions.listNumbers,
               controller: controller,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showListBullets)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.ul,
+              attribute: FormatAttribute.ul,
               options: config.buttonOptions.listBullets,
               controller: controller,
               baseOptions: config.buttonOptions.base,
@@ -240,7 +239,7 @@ class QuillSimpleToolbar extends StatelessWidget
             ),
           if (config.showCodeBlock)
             QuillToolbarToggleStyleButton(
-              attribute: Attribute.codeBlock,
+              attribute: FormatAttribute.codeBlock,
               options: config.buttonOptions.codeBlock,
               controller: controller,
               baseOptions: config.buttonOptions.base,
@@ -251,7 +250,7 @@ class QuillSimpleToolbar extends StatelessWidget
             QuillToolbarToggleStyleButton(
               options: config.buttonOptions.quote,
               controller: controller,
-              attribute: Attribute.blockQuote,
+              attribute: FormatAttribute.blockQuote,
               baseOptions: config.buttonOptions.base,
             ),
           if (config.showIndent)
@@ -284,7 +283,6 @@ class QuillSimpleToolbar extends StatelessWidget
                   ),
           if (config.showSearchButton)
             QuillToolbarSearchButton(
-              baseOptions: config.buttonOptions.base,
               controller: controller,
               options: config.buttonOptions.search,
             ),
@@ -368,9 +366,7 @@ class QuillSimpleToolbar extends StatelessWidget
   }
 
   @override
-  Size get preferredSize => config.axis == Axis.horizontal
-      ? const Size.fromHeight(kDefaultToolbarSize)
-      : const Size.fromWidth(kDefaultToolbarSize);
+  Size get preferredSize => config.axis == Axis.horizontal ? const Size.fromHeight(kDefaultToolbarSize) : const Size.fromWidth(kDefaultToolbarSize);
 }
 
 /// The divider which is used for separation of buttons in the toolbar.
@@ -381,12 +377,10 @@ class QuillToolbarDivider extends StatelessWidget {
   const QuillToolbarDivider(this.axis, {super.key, this.color, this.space});
 
   /// Provides a horizontal divider for vertical toolbar.
-  const QuillToolbarDivider.horizontal({Key? key, Color? color, double? space})
-    : this(Axis.horizontal, color: color, space: space, key: key);
+  const QuillToolbarDivider.horizontal({Key? key, Color? color, double? space}) : this(Axis.horizontal, color: color, space: space, key: key);
 
   /// Provides a horizontal divider for horizontal toolbar.
-  const QuillToolbarDivider.vertical({Key? key, Color? color, double? space})
-    : this(Axis.vertical, color: color, space: space, key: key);
+  const QuillToolbarDivider.vertical({Key? key, Color? color, double? space}) : this(Axis.vertical, color: color, space: space, key: key);
 
   /// The axis along which the toolbar is.
   final Axis axis;

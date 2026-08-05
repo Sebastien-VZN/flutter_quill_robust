@@ -1,7 +1,8 @@
-import '../../../../../../quill_delta.dart';
-import '../../../../../controller/quill_controller.dart';
-import '../../../../../document/attribute.dart';
-import '../../../../../document/document.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
 
 // We currently have only one format style is triggered by double characters.
 // **abc** or __abc__ -> bold abc
@@ -16,7 +17,12 @@ bool handleFormatByWrappingWithDoubleCharacter({
   required String character,
   required DoubleCharacterFormatStyle formatStyle,
 }) {
-  assert(character.length == 1, 'Expected 1 char, got ${character.length}');
+  if (character.length != 1) {
+    debugPrint(
+      'handleFormatByWrappingWithDoubleCharacter — Expected 1 char, got ${character.length}',
+    );
+    return false;
+  }
   final selection = controller.selection;
   // if the selection is not collapsed or the cursor is at the first three index range, we don't need to format it.
   if (!selection.isCollapsed || selection.end < 4) {
@@ -63,8 +69,7 @@ bool handleFormatByWrappingWithDoubleCharacter({
   final lastCharIndex = charIndexList[charIndexList.length - 1];
   // make sure the third *[char] and second *[char] are connected
   // make sure the second *[char] and last *[char] are split by at least one character
-  if (secondLastCharIndex != thirdLastCharIndex + 1 ||
-      lastCharIndex == secondLastCharIndex + 1) {
+  if (secondLastCharIndex != thirdLastCharIndex + 1 || lastCharIndex == secondLastCharIndex + 1) {
     return false;
   }
 
@@ -72,12 +77,12 @@ bool handleFormatByWrappingWithDoubleCharacter({
   // final offsetOfTextInsideWrapperCharsLeft = thirdLastCharIndex + (secondLastCharIndex - (thirdLastCharIndex - 1));
   // final offsetOfTextInsideWrapperCharsRight = lastCharIndex - 1;
 
-  late final Attribute? style;
+  late final FormatAttribute? style;
 
   if (formatStyle case DoubleCharacterFormatStyle.bold) {
-    style = const BoldAttribute();
+    style = FormatAttribute.bold;
   } else if (formatStyle case DoubleCharacterFormatStyle.strikethrough) {
-    style = const StrikeThroughAttribute();
+    style = FormatAttribute.strikeThrough;
   }
   // 1. delete all the *[char]
   // 2. update the style of the text surrounded by the double *[char] to formatted text style
@@ -85,15 +90,17 @@ bool handleFormatByWrappingWithDoubleCharacter({
     ..retain(thirdLastCharIndex) // get all text before double chars
     ..delete(2) // delete both start double char
     ..retain(
-      lastCharIndex -
-          (thirdLastCharIndex +
-              (secondLastCharIndex - (thirdLastCharIndex - 1))),
+      lastCharIndex - (thirdLastCharIndex + (secondLastCharIndex - (thirdLastCharIndex - 1))),
       style == null ? null : {style.key: style.value},
     ) // retain the text before last double chars and apply the styles
     ..delete(1); // delete last char
 
   controller
-    ..compose(deletionDelta, selection, ChangeSource.local)
+    ..compose(
+      delta: deletionDelta,
+      textSelection: selection,
+      source: ChangeSource.local,
+    )
     ..moveCursorToPosition(selection.end - 3);
   return true;
 }

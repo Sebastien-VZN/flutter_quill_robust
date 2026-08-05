@@ -1,21 +1,18 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
-
-import '../../../document/nodes/node.dart';
-import '../../../editor/embed/embed_editor_builder.dart';
-import '../../../editor/raw_editor/raw_editor.dart';
-import '../../../editor/raw_editor/raw_editor_state.dart';
-import '../../../editor/widgets/cursor.dart';
-import '../../../editor/widgets/default_styles.dart';
-import '../../../editor/widgets/delegate.dart';
-import '../../../editor/widgets/link.dart';
-import '../../../toolbar/theme/quill_dialog_theme.dart';
-import '../../widgets/text/magnifier.dart';
-import '../../widgets/text/utils/text_block_utils.dart';
-import '../builders/leading_block_builder.dart';
-import 'events/events.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
+import 'package:flutter_quill/src/editor/raw_editor/builders/leading_block_builder.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/events/events.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor_state.dart';
+import 'package:flutter_quill/src/editor/widgets/cursor.dart';
+import 'package:flutter_quill/src/editor/widgets/default_styles.dart';
+import 'package:flutter_quill/src/editor/widgets/delegate.dart';
+import 'package:flutter_quill/src/editor/widgets/link.dart';
+import 'package:flutter_quill/src/editor/widgets/text/magnifier.dart';
+import 'package:flutter_quill/src/editor/widgets/text/utils/text_block_utils.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_dialog_theme.dart';
 
 @immutable
 class QuillRawEditorConfig {
@@ -26,12 +23,11 @@ class QuillRawEditorConfig {
     required this.cursorStyle,
     required this.selectionColor,
     required this.selectionCtrls,
-    required this.embedBuilder,
     required this.textSpanBuilder,
     required this.autoFocus,
     this.characterShortcutEvents = const [],
     this.spaceShortcutEvents = const [],
-    @experimental this.onKeyPressed,
+    this.onKeyPressed,
     this.showCursor = true,
     this.scrollable = true,
     this.padding = EdgeInsets.zero,
@@ -70,7 +66,7 @@ class QuillRawEditorConfig {
     this.scribbleAreaInsets,
     this.readOnlyMouseCursor = SystemMouseCursors.text,
     this.onPerformAction,
-    @experimental this.customLeadingBuilder,
+    this.customLeadingBuilder,
     this.quillMagnifierBuilder,
   });
 
@@ -79,7 +75,7 @@ class QuillRawEditorConfig {
   final ScrollController scrollController;
   final bool scrollable;
   final double scrollBottomInset;
-  @experimental
+
   final LeadingBlockNodeBuilder? customLeadingBuilder;
 
   /// Contains all the events that will be handled when
@@ -155,7 +151,7 @@ class QuillRawEditorConfig {
   ///   return null;
   ///},
   ///```
-  @experimental
+
   final KeyEventResult? Function(KeyEvent event, Node? node)? onKeyPressed;
 
   /// Additional space around the editor contents.
@@ -188,7 +184,7 @@ class QuillRawEditorConfig {
   /// Defaults to null.
   final bool? checkBoxReadOnly;
 
-  // TODO: (11.0.0) Should move this property to QuillClipboardConfig? Also exist in QuillEditorConfig
+  // (11.0.0) Should move this property to QuillClipboardConfig? Also exist in QuillEditorConfig
   /// Disable Clipboard features
   ///
   /// when this is set to true clipboard can not be used
@@ -357,7 +353,6 @@ class QuillRawEditorConfig {
   final Map<Type, Action<Intent>>? customActions;
 
   /// Builder function for embeddable objects.
-  final EmbedsBuilder embedBuilder;
   final LinkActionPickerDelegate linkActionPickerDelegate;
   final CustomStyleBuilder? customStyleBuilder;
   final CustomRecognizerBuilder? customRecognizerBuilder;
@@ -391,7 +386,7 @@ class QuillRawEditorConfig {
   /// By passing a non-null value, you will override the default behavior.
   ///
   /// See also: [onTapOutsideEnabled].
-  final Function(PointerDownEvent event, FocusNode focusNode)? onTapOutside;
+  final void Function(PointerDownEvent event, FocusNode focusNode)? onTapOutside;
 
   /// When there is a change the check list values
   /// should we request keyboard focus??

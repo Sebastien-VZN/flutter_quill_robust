@@ -1,6 +1,6 @@
-// ignore_for_file: avoid_print
-
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 
 void main() async {
   await runCommand('flutter', ['analyze']);
@@ -25,13 +25,13 @@ void main() async {
     '--dart-define=CI=true',
   ], workingDirectory: 'example');
 
-  print('');
+  debugPrint('');
 
   await runCommand('dart', ['./scripts/translations_check.dart']);
 
-  print('');
+  debugPrint('');
 
-  print('Checks completed.');
+  debugPrint('Checks completed.');
 }
 
 Future<void> runCommand(
@@ -39,7 +39,7 @@ Future<void> runCommand(
   List<String> arguments, {
   String? workingDirectory,
 }) async {
-  print(
+  debugPrint(
     "Running '$executable ${arguments.join(' ')}' in directory '${workingDirectory ?? 'root'}'...",
   );
   final result = await Process.run(
@@ -47,6 +47,6 @@ Future<void> runCommand(
     arguments,
     workingDirectory: workingDirectory,
   );
-  print(result.stdout);
-  print(result.stderr);
+  debugPrint(result.stdout.toString());
+  debugPrint(result.stderr.toString());
 }

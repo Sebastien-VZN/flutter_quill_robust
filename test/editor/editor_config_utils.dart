@@ -9,9 +9,6 @@ QuillRawEditorConfig createFakeRawEditorConfig({
   scrollController: ScrollController(),
   selectionColor: Colors.transparent,
   selectionCtrls: cupertinoTextSelectionControls,
-  embedBuilder: (node) {
-    throw UnimplementedError();
-  },
   textSpanBuilder: (context, node, nodeOffset, text, style, recognizer) {
     throw UnimplementedError();
   },

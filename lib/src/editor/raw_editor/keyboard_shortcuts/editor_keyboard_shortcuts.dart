@@ -1,20 +1,19 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_quill/src/common/utils/cast.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/nodes/block.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart' as leaf;
+import 'package:flutter_quill/src/document/nodes/line.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/events/character_shortcuts_events.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/events/space_shortcut_events.dart';
+import 'package:flutter_quill/src/editor/raw_editor/keyboard_shortcuts/default_single_activator_intents.dart';
+import 'package:flutter_quill/src/editor/widgets/keyboard_listener.dart';
 import 'package:meta/meta.dart';
-
-import '../../../common/utils/cast.dart';
-import '../../../controller/quill_controller.dart';
-import '../../../document/attribute.dart';
-import '../../../document/document.dart';
-import '../../../document/nodes/block.dart';
-import '../../../document/nodes/leaf.dart' as leaf;
-import '../../../document/nodes/line.dart';
-import '../../../document/nodes/node.dart';
-import '../../widgets/keyboard_listener.dart';
-import '../config/events/character_shortcuts_events.dart';
-import '../config/events/space_shortcut_events.dart';
-import 'default_single_activator_intents.dart';
 
 @internal
 class EditorKeyboardShortcuts extends StatelessWidget {
@@ -37,7 +36,7 @@ class EditorKeyboardShortcuts extends StatelessWidget {
   final bool readOnly;
   final bool enableAlwaysIndentOnTab;
   final QuillController controller;
-  @experimental
+
   final KeyEventResult? Function(KeyEvent event, Node? node)? onKeyPressed;
   final List<CharacterShortcutEvent> characterEvents;
   final List<SpaceShortcutEvent> spaceEvents;
@@ -71,31 +70,25 @@ class EditorKeyboardShortcuts extends StatelessWidget {
     );
   }
 
-  KeyEventResult _onKeyEvent(node, KeyEvent event) {
+  KeyEventResult _onKeyEvent(FocusNode? node, KeyEvent event) {
     final onKey = onKeyPressed;
     if (onKey != null) {
       // Find the current node the user is on.
-      final node = controller.document
-          .queryChild(controller.selection.baseOffset)
-          .node;
+      final node = controller.document.queryChild(controller.selection.baseOffset).node;
       final result = onKey.call(event, node);
       if (result != null) return result;
     }
     // Don't handle key if there is a meta key pressed.
-    if (HardwareKeyboard.instance.isAltPressed ||
-        HardwareKeyboard.instance.isControlPressed ||
-        HardwareKeyboard.instance.isMetaPressed) {
+    if (HardwareKeyboard.instance.isAltPressed || HardwareKeyboard.instance.isControlPressed || HardwareKeyboard.instance.isMetaPressed) {
       return KeyEventResult.ignored;
     }
 
     final isTab = event.logicalKey == LogicalKeyboardKey.tab;
     final isSpace = event.logicalKey == LogicalKeyboardKey.space;
-    final containsSelection =
-        controller.selection.baseOffset != controller.selection.extentOffset;
+    final containsSelection = controller.selection.baseOffset != controller.selection.extentOffset;
     if (!isTab && !isSpace && event.character != '\n' && !containsSelection) {
       for (final charEvents in characterEvents) {
-        if (event.character != null &&
-            event.character == charEvents.character) {
+        if (event.character != null && event.character == charEvents.character) {
           final executed = charEvents.execute(controller);
           if (executed) {
             return KeyEventResult.handled;
@@ -189,9 +182,9 @@ class EditorKeyboardShortcuts extends StatelessWidget {
         return KeyEventResult.handled;
       }
       final parentBlock = child.node!.parent!;
-      if (parentBlock.style.containsKey(Attribute.ol.key) ||
-          parentBlock.style.containsKey(Attribute.ul.key) ||
-          parentBlock.style.containsKey(Attribute.checked.key)) {
+      if (parentBlock.style.containsKey(FormatAttribute.ol.key) ||
+          parentBlock.style.containsKey(FormatAttribute.ul.key) ||
+          parentBlock.style.containsKey(FormatAttribute.checked.key)) {
         controller.indentSelection(!HardwareKeyboard.instance.isShiftPressed);
       }
       return KeyEventResult.handled;
@@ -213,19 +206,17 @@ class EditorKeyboardShortcuts extends StatelessWidget {
     }
 
     final parentBlock = parent;
-    if (parentBlock.style.containsKey(Attribute.ol.key) ||
-        parentBlock.style.containsKey(Attribute.ul.key) ||
-        parentBlock.style.containsKey(Attribute.checked.key)) {
-      if (node.isNotEmpty &&
-          (node.first as leaf.QuillText).value.isNotEmpty &&
-          controller.selection.base.offset > node.documentOffset) {
+    if (parentBlock.style.containsKey(FormatAttribute.ol.key) ||
+        parentBlock.style.containsKey(FormatAttribute.ul.key) ||
+        parentBlock.style.containsKey(FormatAttribute.checked.key)) {
+      if (node.isNotEmpty && (node.first! as leaf.QuillText).value.isNotEmpty && controller.selection.base.offset > node.documentOffset) {
         return insertTabCharacter();
       }
       controller.indentSelection(!HardwareKeyboard.instance.isShiftPressed);
       return KeyEventResult.handled;
     }
 
-    if (node.isNotEmpty && (node.first as leaf.QuillText).value.isNotEmpty) {
+    if (node.isNotEmpty && (node.first! as leaf.QuillText).value.isNotEmpty) {
       return insertTabCharacter();
     }
 

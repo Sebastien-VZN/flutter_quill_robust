@@ -1,47 +1,51 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show immutable;
+import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:quiver/core.dart';
-
-import 'attribute.dart';
 
 /* Collection of style attributes */
 @immutable
 class Style {
-  const Style() : _attributes = const <String, Attribute>{};
+  const Style() : _attributes = const <String, FormatAttribute>{};
 
-  const Style.attr(this._attributes);
-
-  final Map<String, Attribute> _attributes;
-
-  static Style fromJson(Map<String, dynamic>? attributes) {
+  factory Style.fromJson(Map<String, dynamic>? attributes) {
     if (attributes == null) {
       return const Style();
     }
 
     final result = attributes.map((key, dynamic value) {
-      final attr = Attribute.fromKeyValue(key, value);
-      return MapEntry<String, Attribute>(
+      final attr = FormatAttribute.fromKeyValue(key, value);
+      return MapEntry<String, FormatAttribute>(
         key,
-        attr ?? Attribute(key, AttributeScope.ignore, value),
+        attr ??
+            FormatAttribute(
+              key: key,
+              scope: FormatScope.metadata,
+              value: value,
+              valueType: FormatAttribute.inferValueType(value),
+            ),
       );
     });
     return Style.attr(result);
   }
 
+  const Style.attr(this._attributes);
+
+  final Map<String, FormatAttribute> _attributes;
+
   Map<String, dynamic>? toJson() => _attributes.isEmpty
       ? null
       : _attributes.map<String, dynamic>(
-          (_, attribute) =>
-              MapEntry<String, dynamic>(attribute.key, attribute.value),
+          (_, attribute) => MapEntry<String, dynamic>(attribute.key, attribute.value),
         );
 
   Iterable<String> get keys => _attributes.keys;
 
-  Iterable<Attribute> get values => _attributes.values.sorted(
-    (a, b) => Attribute.getRegistryOrder(a) - Attribute.getRegistryOrder(b),
+  Iterable<FormatAttribute> get values => _attributes.values.sorted(
+    (a, b) => FormatAttribute.getRegistryOrder(a) - FormatAttribute.getRegistryOrder(b),
   );
 
-  Map<String, Attribute> get attributes => _attributes;
+  Map<String, FormatAttribute> get attributes => _attributes;
 
   bool get isEmpty => _attributes.isEmpty;
 
@@ -49,17 +53,15 @@ class Style {
 
   bool get isInline => isNotEmpty && values.every((item) => item.isInline);
 
-  bool get isBlock =>
-      isNotEmpty && values.every((item) => item.scope == AttributeScope.block);
+  bool get isBlock => isNotEmpty && values.every((item) => item.scope == FormatScope.block);
 
-  bool get isIgnored =>
-      isNotEmpty && values.every((item) => item.scope == AttributeScope.ignore);
+  bool get isIgnored => isNotEmpty && values.every((item) => item.scope == FormatScope.metadata);
 
-  Attribute get single => _attributes.values.single;
+  FormatAttribute get single => _attributes.values.single;
 
   bool containsKey(String key) => _attributes.containsKey(key);
 
-  Attribute? getBlockExceptHeader() {
+  FormatAttribute? getBlockExceptHeader() {
     for (final val in values) {
       if (val.isBlockExceptHeader && val.value != null) {
         return val;
@@ -73,18 +75,18 @@ class Style {
     return null;
   }
 
-  Map<String, Attribute> getBlocksExceptHeader() {
-    final m = <String, Attribute>{};
+  Map<String, FormatAttribute> getBlocksExceptHeader() {
+    final m = <String, FormatAttribute>{};
     attributes.forEach((key, value) {
-      if (Attribute.blockKeysExceptHeader.contains(key)) {
+      if (FormatAttribute.blockKeysExceptHeader.contains(key)) {
         m[key] = value;
       }
     });
     return m;
   }
 
-  Style merge(Attribute attribute) {
-    final merged = Map<String, Attribute>.from(_attributes);
+  Style merge(FormatAttribute attribute) {
+    final merged = Map<String, FormatAttribute>.from(_attributes);
     if (attribute.value == null) {
       merged.remove(attribute.key);
     } else {
@@ -101,14 +103,14 @@ class Style {
     return result;
   }
 
-  Style removeAll(Set<Attribute> attributes) {
-    final merged = Map<String, Attribute>.from(_attributes);
+  Style removeAll(Set<FormatAttribute> attributes) {
+    final merged = Map<String, FormatAttribute>.from(_attributes);
     attributes.map((item) => item.key).forEach(merged.remove);
     return Style.attr(merged);
   }
 
-  Style put(Attribute attribute) {
-    final m = Map<String, Attribute>.from(attributes);
+  Style put(FormatAttribute attribute) {
+    final m = Map<String, FormatAttribute>.from(attributes);
     m[attribute.key] = attribute;
     return Style.attr(m);
   }
@@ -122,7 +124,7 @@ class Style {
       return false;
     }
     final typedOther = other;
-    const eq = MapEquality<String, Attribute>();
+    const eq = MapEquality<String, FormatAttribute>();
     return eq.equals(_attributes, typedOther._attributes);
   }
 

@@ -1,11 +1,12 @@
 import 'dart:collection';
 
-import '../../../../quill_delta.dart';
-import '../../editor/embed/embed_editor_builder.dart';
-import '../attribute.dart';
-import '../style.dart';
-import 'container.dart';
-import 'line.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/nodes/container.dart';
+import 'package:flutter_quill/src/document/nodes/line.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/editor/embed/embed_editor_builder.dart';
 
 /// An abstract node in a document tree.
 ///
@@ -100,7 +101,7 @@ abstract base class Node extends LinkedListEntry<Node> {
     return o <= offset && offset < o + length;
   }
 
-  void applyAttribute(Attribute attribute) {
+  void applyAttribute(FormatAttribute attribute) {
     _style = _style.merge(attribute);
   }
 
@@ -114,7 +115,12 @@ abstract base class Node extends LinkedListEntry<Node> {
 
   @override
   void insertBefore(Node entry) {
-    assert(entry.parent == null && parent != null);
+    if (entry.parent != null || parent == null) {
+      debugPrint(
+        'Node.insertBefore — invalid state (entry.parent=${entry.parent}, parent=$parent), aborting',
+      );
+      return;
+    }
     entry.parent = parent;
     super.insertBefore(entry);
     clearLengthCache();
@@ -122,7 +128,12 @@ abstract base class Node extends LinkedListEntry<Node> {
 
   @override
   void insertAfter(Node entry) {
-    assert(entry.parent == null && parent != null);
+    if (entry.parent != null || parent == null) {
+      debugPrint(
+        'Node.insertAfter — invalid state (entry.parent=${entry.parent}, parent=$parent), aborting',
+      );
+      return;
+    }
     entry.parent = parent;
     super.insertAfter(entry);
     clearLengthCache();
@@ -130,7 +141,10 @@ abstract base class Node extends LinkedListEntry<Node> {
 
   @override
   void unlink() {
-    assert(parent != null);
+    if (parent == null) {
+      debugPrint('Node.unlink — parent is already null, aborting');
+      return;
+    }
     clearLengthCache();
     parent = null;
     super.unlink();
@@ -169,7 +183,5 @@ base class Root extends QuillContainer<QuillContainer<Node?>> {
   QuillContainer<Node?> get defaultChild => Line();
 
   @override
-  Delta toDelta() => children
-      .map((child) => child.toDelta())
-      .fold(Delta(), (a, b) => a.concat(b));
+  Delta toDelta() => children.map((child) => child.toDelta()).fold(Delta(), (a, b) => a.concat(b));
 }

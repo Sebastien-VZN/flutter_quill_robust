@@ -1,11 +1,10 @@
 import 'package:flutter/widgets.dart';
-
-import '../../common/structs/offset_value.dart';
-import '../../controller/quill_controller.dart';
-import '../editor.dart';
-import '../widgets/text/text_selection.dart';
-import 'config/raw_editor_config.dart';
-import 'raw_editor_state.dart';
+import 'package:flutter_quill/src/common/structs/offset_value.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/editor/editor.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/raw_editor_config.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor_state.dart';
+import 'package:flutter_quill/src/editor/widgets/text/text_selection.dart';
 
 class QuillRawEditor extends StatefulWidget {
   QuillRawEditor({
@@ -13,20 +12,21 @@ class QuillRawEditor extends StatefulWidget {
     required this.controller,
     this.dragOffsetNotifier,
     super.key,
-  }) : assert(
-         config.maxHeight == null || config.maxHeight! > 0,
-         'maxHeight cannot be null',
-       ),
-       assert(
-         config.minHeight == null || config.minHeight! >= 0,
-         'minHeight cannot be null',
-       ),
-       assert(
-         config.maxHeight == null ||
-             config.minHeight == null ||
-             config.maxHeight! >= config.minHeight!,
-         'maxHeight cannot be null',
-       );
+  }) {
+    if (config.maxHeight != null && config.maxHeight! <= 0) {
+      debugPrint('QuillRawEditor — maxHeight must be greater than 0');
+    }
+    if (config.minHeight != null && config.minHeight! < 0) {
+      debugPrint(
+        'QuillRawEditor — minHeight must be greater than or equal to 0',
+      );
+    }
+    if (config.maxHeight != null && config.minHeight != null && config.maxHeight! < config.minHeight!) {
+      debugPrint(
+        'QuillRawEditor — maxHeight must be greater than or equal to minHeight',
+      );
+    }
+  }
 
   final QuillController controller;
   final QuillRawEditorConfig config;
@@ -64,8 +64,7 @@ class QuillRawEditor extends StatefulWidget {
 ///
 ///  * [EditableTextContextMenuBuilder], which performs the same role for
 ///    [EditableText]
-typedef QuillEditorContextMenuBuilder =
-    Widget Function(BuildContext context, QuillRawEditorState rawEditorState);
+typedef QuillEditorContextMenuBuilder = Widget Function(BuildContext context, QuillRawEditorState rawEditorState);
 
 @immutable
 class QuillEditorGlyphHeights {
@@ -77,15 +76,14 @@ class QuillEditorGlyphHeights {
 
 /// Base interface for the editor state which defines contract used by
 /// various mixins.
-abstract class EditorState extends State<QuillRawEditor>
-    implements TextSelectionDelegate {
+abstract class EditorState extends State<QuillRawEditor> implements TextSelectionDelegate {
   ScrollController get scrollController;
 
   RenderEditor get renderEditor;
 
   EditorTextSelectionOverlay? get selectionOverlay;
 
-  List<OffsetValue> get pasteStyleAndEmbed;
+  List<StyledNodeEntry> get pasteStyleAndEmbed;
 
   String get pastePlainText;
 

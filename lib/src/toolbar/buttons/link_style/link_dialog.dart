@@ -2,14 +2,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/common/utils/link_validator.dart';
+import 'package:flutter_quill/src/editor/widgets/link.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/rules/insert.dart';
+import 'package:flutter_quill/src/toolbar/structs/link_dialog_action.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_dialog_theme.dart';
 import 'package:meta/meta.dart';
-
-import '../../../common/utils/link_validator.dart';
-import '../../../editor/widgets/link.dart';
-import '../../../l10n/extensions/localizations_ext.dart';
-import '../../../rules/insert.dart';
-import '../../structs/link_dialog_action.dart';
-import '../../theme/quill_dialog_theme.dart';
 
 class LinkDialog extends StatefulWidget {
   const LinkDialog({
@@ -41,8 +40,7 @@ class LinkDialogState extends State<LinkDialog> {
     'Will be removed in future-releases, please migrate to QuillToolbarLinkStyleButtonOptions.validateLink.',
   )
   RegExp get linkRegExp {
-    return widget.legacyLinkRegExp ??
-        AutoFormatMultipleLinksRule.singleLineUrlRegExp;
+    return widget.legacyLinkRegExp ?? AutoFormatMultipleLinksRule.singleLineUrlRegExp;
   }
 
   late TextEditingController _linkController;

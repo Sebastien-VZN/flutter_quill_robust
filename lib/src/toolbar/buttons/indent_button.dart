@@ -1,22 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/simple_toolbar_config.dart';
 
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/base_value_button.dart';
-import '../config/simple_toolbar_config.dart';
-import 'quill_icon_button.dart';
-
-typedef QuillToolbarIndentBaseButton =
-    QuillToolbarBaseButton<
-      QuillToolbarIndentButtonOptions,
-      QuillToolbarIndentButtonExtraOptions
-    >;
+typedef QuillToolbarIndentBaseButton = QuillToolbarBaseButton<QuillToolbarIndentButtonOptions, QuillToolbarIndentButtonExtraOptions>;
 
 typedef QuillToolbarIndentBaseButtonState<W extends QuillToolbarIndentButton> =
-    QuillToolbarCommonButtonState<
-      W,
-      QuillToolbarIndentButtonOptions,
-      QuillToolbarIndentButtonExtraOptions
-    >;
+    QuillToolbarCommonButtonState<W, QuillToolbarIndentButtonOptions, QuillToolbarIndentButtonExtraOptions>;
 
 class QuillToolbarIndentButton extends QuillToolbarIndentBaseButton {
   const QuillToolbarIndentButton({
@@ -33,20 +24,15 @@ class QuillToolbarIndentButton extends QuillToolbarIndentBaseButton {
   final bool isIncrease;
 
   @override
-  QuillToolbarIndentButtonState createState() =>
-      QuillToolbarIndentButtonState();
+  QuillToolbarIndentButtonState createState() => QuillToolbarIndentButtonState();
 }
 
 class QuillToolbarIndentButtonState extends QuillToolbarIndentBaseButtonState {
   @override
-  String get defaultTooltip => widget.isIncrease
-      ? context.loc.increaseIndent
-      : context.loc.decreaseIndent;
+  String get defaultTooltip => widget.isIncrease ? context.loc.increaseIndent : context.loc.decreaseIndent;
 
   @override
-  IconData get defaultIconData => widget.isIncrease
-      ? Icons.format_indent_increase
-      : Icons.format_indent_decrease;
+  IconData get defaultIconData => widget.isIncrease ? Icons.format_indent_increase : Icons.format_indent_decrease;
 
   void _sharedOnPressed() {
     widget.controller.indentSelection(widget.isIncrease);

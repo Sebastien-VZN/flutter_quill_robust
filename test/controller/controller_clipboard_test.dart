@@ -15,9 +15,9 @@ void main() {
     setUp(() {
       controller = QuillController.basic()
         ..compose(
-          Delta()..insert(testDocumentContents),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert(testDocumentContents),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         );
     });
 
@@ -54,32 +54,32 @@ void main() {
       },
     );
 
-    test('clipboardSelection empty', () {
+    test('clipboardSelection empty', () async {
       expect(
-        controller.clipboardSelection(true),
+        await controller.clipboardSelection(true),
         false,
         reason: 'No effect when no selection',
       );
-      expect(controller.clipboardSelection(false), false);
+      expect(await controller.clipboardSelection(false), false);
     });
 
-    test('clipboardSelection', () {
+    test('clipboardSelection', () async {
       controller
         ..replaceText(0, 4, 'bold plain italic', null)
-        ..formatText(0, 4, Attribute.bold)
-        ..formatText(11, 17, Attribute.italic)
+        ..formatText(0, 4, FormatAttribute.bold)
+        ..formatText(11, 17, FormatAttribute.italic)
         ..updateSelection(
           const TextSelection(baseOffset: 2, extentOffset: 14),
           ChangeSource.local,
         );
       //
-      expect(controller.clipboardSelection(true), true);
+      expect(await controller.clipboardSelection(true), true);
       expect(
         controller.document.length,
         18,
         reason: 'Copy does not change the document',
       );
-      expect(controller.clipboardSelection(false), true);
+      expect(await controller.clipboardSelection(false), true);
       expect(controller.document.length, 6, reason: 'Cut changes the document');
       //
       controller
@@ -89,9 +89,9 @@ void main() {
           ChangeSource.local,
         );
       expect(controller.selection.isCollapsed, false);
-      expect(controller.clipboardSelection(true), true);
+      expect(await controller.clipboardSelection(true), true);
       expect(controller.document.length, 6);
-      expect(controller.clipboardSelection(false), false);
+      expect(await controller.clipboardSelection(false), false);
       expect(
         controller.document.length,
         6,
@@ -113,9 +113,9 @@ void main() {
     test('Plain', () async {
       final controller = QuillController.basic()
         ..compose(
-          Delta()..insert('[]'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('[]'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
         ..updateSelection(
           const TextSelection.collapsed(offset: 1),
@@ -130,9 +130,9 @@ void main() {
     test('Plain lines', () async {
       final controller = QuillController.basic()
         ..compose(
-          Delta()..insert('[]'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('[]'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
         ..updateSelection(
           const TextSelection.collapsed(offset: 1),
@@ -147,22 +147,23 @@ void main() {
     test('Paste from external', () async {
       final source = QuillController.basic()
         ..compose(
-          Delta()..insert('Plain text'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('Plain text'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
         ..updateSelection(
           const TextSelection(baseOffset: 4, extentOffset: 8),
           ChangeSource.local,
         );
-      assert(source.clipboardSelection(true));
+
+      await source.clipboardSelection(true);
       expect(source.pastePlainText, 'n te');
       //
       final controller = QuillController.basic()
         ..compose(
-          Delta()..insert('[]'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('[]'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
         ..updateSelection(
           const TextSelection.collapsed(offset: 1),
@@ -180,16 +181,16 @@ void main() {
     test('Delta simple', () async {
       final source = QuillController.basic()
         ..compose(
-          Delta()..insert('Plain text'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('Plain text'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
-        ..formatText(6, 8, Attribute.bold)
+        ..formatText(6, 8, FormatAttribute.bold)
         ..updateSelection(
           const TextSelection(baseOffset: 4, extentOffset: 8),
           ChangeSource.local,
         );
-      assert(source.clipboardSelection(true));
+      await source.clipboardSelection(true);
       expect(source.pastePlainText, 'n te');
       expect(
         source.pasteDelta,
@@ -200,9 +201,9 @@ void main() {
       //
       final controller = QuillController.basic()
         ..compose(
-          Delta()..insert('[]'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('[]'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
         ..updateSelection(
           const TextSelection.collapsed(offset: 1),
@@ -226,26 +227,30 @@ void main() {
     });
 
     test('Delta multi line', () async {
-      const blockAttribute = Attribute.ol;
+      const blockAttribute = FormatAttribute.ol;
       const plainSelection = 'BC\nDEF\nGHI\nJK';
       final source = QuillController.basic()
         ..compose(
-          Delta()..insert('ABC\nDEF\nGHI\nJKL'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('ABC\nDEF\nGHI\nJKL'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
-        ..formatText(1, 1, Attribute.underline) // ABC with B underlined
+        ..formatText(1, 1, FormatAttribute.underline) // ABC with B underlined
         ..formatText(4, 0, blockAttribute) // 1. DEF with E in italic
-        ..formatText(5, 1, Attribute.italic)
+        ..formatText(5, 1, FormatAttribute.italic)
         ..formatText(8, 0, blockAttribute) // 2. GHI with H as inline code
-        ..formatText(9, 1, Attribute.inlineCode)
-        ..formatText(13, 1, Attribute.strikeThrough) // JKL with K strikethrough
+        ..formatText(9, 1, FormatAttribute.inlineCode)
+        ..formatText(
+          13,
+          1,
+          FormatAttribute.strikeThrough,
+        ) // JKL with K strikethrough
         ..updateSelection(
           const TextSelection(baseOffset: 1, extentOffset: 14),
           ChangeSource.local,
         );
       //
-      assert(source.clipboardSelection(true));
+      await source.clipboardSelection(true);
       expect(source.pastePlainText, plainSelection);
       expect(
         source.pasteDelta,
@@ -265,9 +270,9 @@ void main() {
       //
       final controller = QuillController.basic()
         ..compose(
-          Delta()..insert('[]'),
-          const TextSelection.collapsed(offset: 0),
-          ChangeSource.local,
+          delta: Delta()..insert('[]'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
         )
         ..updateSelection(
           const TextSelection.collapsed(offset: 1),

@@ -2,10 +2,9 @@
 library;
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'package:meta/meta.dart';
-
-import '../../../flutter_quill.dart';
-import '../../../quill_delta.dart';
 
 extension QuillControllerPaste on QuillController {
   @internal
@@ -16,9 +15,7 @@ extension QuillControllerPaste on QuillController {
   }) {
     if (clipboardText != null) {
       /// Internal copy-paste preserves styles and embeds
-      if (clipboardText == pastePlainText &&
-          pastePlainText.isNotEmpty &&
-          pasteDelta.isNotEmpty) {
+      if (clipboardText == pastePlainText && pastePlainText.isNotEmpty && pasteDelta.isNotEmpty) {
         replaceText(
           selection.start,
           selection.end - selection.start,

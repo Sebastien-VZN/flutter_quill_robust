@@ -1,7 +1,6 @@
-import '../../../editor_toolbar_controller_shared/quill_config.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/quill_config.dart';
 
-class QuillToolbarClearFormatButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarClearFormatButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarClearFormatButtonExtraOptions({
     required super.controller,
     required super.context,
@@ -10,11 +9,7 @@ class QuillToolbarClearFormatButtonExtraOptions
 }
 
 class QuillToolbarClearFormatButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarClearFormatButtonOptions,
-          QuillToolbarClearFormatButtonExtraOptions
-        > {
+    extends QuillToolbarBaseButtonOptions<QuillToolbarClearFormatButtonOptions, QuillToolbarClearFormatButtonExtraOptions> {
   const QuillToolbarClearFormatButtonOptions({
     super.iconData,
     super.afterButtonPressed,

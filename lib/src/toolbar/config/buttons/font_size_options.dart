@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../document/attribute.dart';
-import '../../../editor_toolbar_controller_shared/quill_config.dart';
-import '../../buttons/font_size_button.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/quill_config.dart';
+import 'package:flutter_quill/src/toolbar/buttons/font_size_button.dart';
 
-class QuillToolbarFontSizeButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarFontSizeButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarFontSizeButtonExtraOptions({
     required super.controller,
     required this.currentValue,
@@ -20,17 +19,13 @@ class QuillToolbarFontSizeButtonExtraOptions
 
 @immutable
 class QuillToolbarFontSizeButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarFontSizeButtonOptions,
-          QuillToolbarFontSizeButtonExtraOptions
-        > {
+    extends QuillToolbarBaseButtonOptions<QuillToolbarFontSizeButtonOptions, QuillToolbarFontSizeButtonExtraOptions> {
   const QuillToolbarFontSizeButtonOptions({
     super.iconSize,
     super.iconButtonFactor,
     this.items,
     this.onSelected,
-    this.attribute = Attribute.size,
+    this.attribute = FormatAttribute.size,
     super.afterButtonPressed,
     super.tooltip,
     this.padding,
@@ -60,7 +55,7 @@ class QuillToolbarFontSizeButtonOptions
   /// See also: [QuillToolbarFontSizeButtonState._items]
   final Map<String, String>? items;
   final ValueChanged<String>? onSelected;
-  final Attribute attribute;
+  final FormatAttribute attribute;
   final EdgeInsetsGeometry? padding;
   final TextStyle? style;
   final String? initialValue;

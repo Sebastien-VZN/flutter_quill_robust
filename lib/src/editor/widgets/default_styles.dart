@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../common/structs/horizontal_spacing.dart';
-import '../../common/structs/vertical_spacing.dart';
-import '../../common/utils/platform.dart';
-import '../../document/attribute.dart';
-import '../../document/style.dart';
-import '../style_widgets/checkbox_point.dart';
-import 'text/utils/text_block_utils.dart';
+import 'package:flutter_quill/src/common/structs/horizontal_spacing.dart';
+import 'package:flutter_quill/src/common/structs/vertical_spacing.dart';
+import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/editor/widgets/text/utils/text_block_utils.dart';
 
 class QuillStyles extends InheritedWidget {
   const QuillStyles({required this.data, required super.child, super.key});
@@ -23,8 +22,11 @@ class QuillStyles extends InheritedWidget {
     if (widget == null && nullOk) {
       return null;
     }
-    assert(widget != null);
-    return widget!.data;
+    if (widget == null) {
+      debugPrint('QuillStyles.get — widget is null but nullOk=false');
+      return null;
+    }
+    return widget.data;
   }
 }
 
@@ -120,22 +122,22 @@ class InlineCodeStyle {
   /// Returns effective style to use for inline code for the specified
   /// [lineStyle].
   TextStyle styleFor(Style lineStyle) {
-    if (lineStyle.containsKey(Attribute.h1.key)) {
+    if (lineStyle.containsKey(FormatAttribute.h1.key)) {
       return header1 ?? style;
     }
-    if (lineStyle.containsKey(Attribute.h2.key)) {
+    if (lineStyle.containsKey(FormatAttribute.h2.key)) {
       return header2 ?? style;
     }
-    if (lineStyle.containsKey(Attribute.h3.key)) {
+    if (lineStyle.containsKey(FormatAttribute.h3.key)) {
       return header3 ?? style;
     }
-    if (lineStyle.containsKey(Attribute.h4.key)) {
+    if (lineStyle.containsKey(FormatAttribute.h4.key)) {
       return header4 ?? style;
     }
-    if (lineStyle.containsKey(Attribute.h5.key)) {
+    if (lineStyle.containsKey(FormatAttribute.h5.key)) {
       return header5 ?? style;
     }
-    if (lineStyle.containsKey(Attribute.h6.key)) {
+    if (lineStyle.containsKey(FormatAttribute.h6.key)) {
       return header6 ?? style;
     }
     return style;
@@ -181,14 +183,11 @@ class DefaultListBlockStyle extends DefaultTextBlockStyle {
     super.horizontalSpacing,
     super.verticalSpacing,
     super.lineSpacing,
-    super.decoration,
-    this.checkboxUIBuilder, {
+    super.decoration, {
     this.indentWidthBuilder = TextBlockUtils.defaultIndentWidthBuilder,
-    this.numberPointWidthBuilder =
-        TextBlockUtils.defaultNumberPointWidthBuilder,
+    this.numberPointWidthBuilder = TextBlockUtils.defaultNumberPointWidthBuilder,
   });
 
-  final QuillCheckboxBuilder? checkboxUIBuilder;
   final LeadingBlockIndentWidth indentWidthBuilder;
   final LeadingBlockNumberPointWidth numberPointWidthBuilder;
 
@@ -199,7 +198,6 @@ class DefaultListBlockStyle extends DefaultTextBlockStyle {
     VerticalSpacing? verticalSpacing,
     VerticalSpacing? lineSpacing,
     BoxDecoration? decoration,
-    QuillCheckboxBuilder? checkboxUIBuilder,
     LeadingBlockIndentWidth? indentWidthBuilder,
     LeadingBlockNumberPointWidth? numberPointWidthBuilder,
   }) {
@@ -209,10 +207,8 @@ class DefaultListBlockStyle extends DefaultTextBlockStyle {
       verticalSpacing ?? this.verticalSpacing,
       lineSpacing ?? this.lineSpacing,
       decoration ?? this.decoration,
-      checkboxUIBuilder ?? this.checkboxUIBuilder,
       indentWidthBuilder: indentWidthBuilder ?? this.indentWidthBuilder,
-      numberPointWidthBuilder:
-          numberPointWidthBuilder ?? this.numberPointWidthBuilder,
+      numberPointWidthBuilder: numberPointWidthBuilder ?? this.numberPointWidthBuilder,
     );
   }
 }
@@ -291,7 +287,7 @@ class DefaultStyles {
   /// Custom palette of colors
   final Map<String, Color>? palette;
 
-  static DefaultStyles getInstance(BuildContext context) {
+  DefaultStyles getInstance(BuildContext context) {
     final themeData = Theme.of(context);
     final defaultTextStyle = DefaultTextStyle.of(context);
     final baseStyle = defaultTextStyle.style.copyWith(
@@ -299,7 +295,7 @@ class DefaultStyles {
       height: 1.15,
       decoration: TextDecoration.none,
     );
-    const baseHorizontalSpacing = HorizontalSpacing(0, 0);
+    const baseHorizontalSpacing = HorizontalSpacing.zero;
     const baseVerticalSpacing = VerticalSpacing(6, 0);
     final fontFamily = themeData.isCupertino ? 'Menlo' : 'Roboto Mono';
 
@@ -477,7 +473,6 @@ class DefaultStyles {
         baseHorizontalSpacing,
         baseVerticalSpacing,
         const VerticalSpacing(0, 6),
-        null,
         null,
       ),
       quote: DefaultTextBlockStyle(

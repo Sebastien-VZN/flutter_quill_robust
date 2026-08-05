@@ -1,22 +1,14 @@
-@experimental
-library;
-
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter_quill/src/common/utils/widgets.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/clipboard/clipboard_service_provider.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
 
-import '../../common/utils/widgets.dart';
-import '../../editor_toolbar_controller_shared/clipboard/clipboard_service_provider.dart';
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/base_value_button.dart';
-import '../simple_toolbar.dart';
-
-@experimental
 enum ClipboardAction { cut, copy, paste }
 
-@experimental
 class ClipboardMonitor {
   bool _canPaste = false;
   bool get canPaste => _canPaste;
@@ -43,8 +35,8 @@ class ClipboardMonitor {
     }
 
     _isCheckingClipboard = true;
-
-    final clipboardService = ClipboardServiceProvider.instance;
+    final service = ClipboardServiceProvider();
+    final clipboardService = service.instance;
 
     if (await clipboardService.hasClipboardContent) {
       _canPaste = true;
@@ -56,7 +48,6 @@ class ClipboardMonitor {
   }
 }
 
-@experimental
 class QuillToolbarClipboardButton extends QuillToolbarToggleStyleBaseButton {
   const QuillToolbarClipboardButton({
     required super.controller,
@@ -78,9 +69,7 @@ class QuillToolbarClipboardButton extends QuillToolbarToggleStyleBaseButton {
   State<StatefulWidget> createState() => QuillToolbarClipboardButtonState();
 }
 
-class QuillToolbarClipboardButtonState
-    extends
-        QuillToolbarToggleStyleBaseButtonState<QuillToolbarClipboardButton> {
+class QuillToolbarClipboardButtonState extends QuillToolbarToggleStyleBaseButtonState<QuillToolbarClipboardButton> {
   final ClipboardMonitor _monitor = ClipboardMonitor();
 
   @override
@@ -91,9 +80,7 @@ class QuillToolbarClipboardButtonState
       case ClipboardAction.copy:
         return !controller.selection.isCollapsed;
       case ClipboardAction.paste:
-        return !controller.readOnly &&
-            (kIsWeb ||
-                (widget._options?.enableClipboardPaste ?? _monitor.canPaste));
+        return !controller.readOnly && (kIsWeb || (widget._options?.enableClipboardPaste ?? _monitor.canPaste));
     }
   }
 
@@ -157,21 +144,17 @@ class QuillToolbarClipboardButtonState
   };
 
   bool get _shouldUseClipboardMonitor {
-    return widget.clipboardAction == ClipboardAction.paste &&
-        (widget._options?.enableClipboardPaste == null);
+    return widget.clipboardAction == ClipboardAction.paste && (widget._options?.enableClipboardPaste == null);
   }
 
   void _onPressed() {
     switch (widget.clipboardAction) {
       case ClipboardAction.cut:
-        controller.clipboardSelection(false);
-        break;
+        unawaited(controller.clipboardSelection(false));
       case ClipboardAction.copy:
-        controller.clipboardSelection(true);
-        break;
+        unawaited(controller.clipboardSelection(true));
       case ClipboardAction.paste:
-        controller.clipboardPaste();
-        break;
+        unawaited(controller.clipboardPaste());
     }
     afterButtonPressed?.call();
   }

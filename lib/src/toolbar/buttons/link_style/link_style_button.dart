@@ -1,27 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/editor/widgets/link.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/link_style/link_dialog.dart';
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/link_style_options.dart';
 
-import '../../../editor/widgets/link.dart';
-import '../../../l10n/extensions/localizations_ext.dart';
-import '../../base_button/base_value_button.dart';
+typedef QuillToolbarLinkStyleBaseButton = QuillToolbarBaseButton<QuillToolbarLinkStyleButtonOptions, QuillToolbarLinkStyleButtonExtraOptions>;
 
-import '../../config/buttons/link_style_options.dart';
-import '../quill_icon_button.dart';
-import 'link_dialog.dart';
-
-typedef QuillToolbarLinkStyleBaseButton =
-    QuillToolbarBaseButton<
-      QuillToolbarLinkStyleButtonOptions,
-      QuillToolbarLinkStyleButtonExtraOptions
-    >;
-
-typedef QuillToolbarLinkStyleBaseButtonState<
-  W extends QuillToolbarLinkStyleBaseButton
-> =
-    QuillToolbarCommonButtonState<
-      W,
-      QuillToolbarLinkStyleButtonOptions,
-      QuillToolbarLinkStyleButtonExtraOptions
-    >;
+typedef QuillToolbarLinkStyleBaseButtonState<W extends QuillToolbarLinkStyleBaseButton> =
+    QuillToolbarCommonButtonState<W, QuillToolbarLinkStyleButtonOptions, QuillToolbarLinkStyleButtonExtraOptions>;
 
 class QuillToolbarLinkStyleButton extends QuillToolbarLinkStyleBaseButton {
   const QuillToolbarLinkStyleButton({
@@ -35,12 +23,10 @@ class QuillToolbarLinkStyleButton extends QuillToolbarLinkStyleBaseButton {
   });
 
   @override
-  QuillToolbarLinkStyleButtonState createState() =>
-      QuillToolbarLinkStyleButtonState();
+  QuillToolbarLinkStyleButtonState createState() => QuillToolbarLinkStyleButtonState();
 }
 
-class QuillToolbarLinkStyleButtonState
-    extends QuillToolbarLinkStyleBaseButtonState {
+class QuillToolbarLinkStyleButtonState extends QuillToolbarLinkStyleBaseButtonState {
   @override
   String get defaultTooltip => context.loc.insertURL;
 
@@ -83,8 +69,8 @@ class QuillToolbarLinkStyleButtonState
         QuillToolbarLinkStyleButtonExtraOptions(
           context: context,
           controller: controller,
-          onPressed: () {
-            _openLinkDialog(context);
+          onPressed: () async {
+            await _openLinkDialog(context);
             afterButtonPressed?.call();
           },
         ),
@@ -108,8 +94,6 @@ class QuillToolbarLinkStyleButtonState
       builder: (_) {
         return LinkDialog(
           validateLink: options.validateLink,
-          // ignore: deprecated_member_use_from_same_package
-          legacyLinkRegExp: options.linkRegExp,
           dialogTheme: options.dialogTheme,
           text: initialTextLink.text,
           link: initialTextLink.link,

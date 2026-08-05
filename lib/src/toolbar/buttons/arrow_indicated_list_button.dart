@@ -17,13 +17,10 @@ class QuillToolbarArrowIndicatedButtonList extends StatefulWidget {
   final List<Widget> buttons;
 
   @override
-  QuillToolbarArrowIndicatedButtonListState createState() =>
-      QuillToolbarArrowIndicatedButtonListState();
+  QuillToolbarArrowIndicatedButtonListState createState() => QuillToolbarArrowIndicatedButtonListState();
 }
 
-class QuillToolbarArrowIndicatedButtonListState
-    extends State<QuillToolbarArrowIndicatedButtonList>
-    with WidgetsBindingObserver {
+class QuillToolbarArrowIndicatedButtonListState extends State<QuillToolbarArrowIndicatedButtonList> with WidgetsBindingObserver {
   final ScrollController _controller = ScrollController();
   bool _showBackwardArrow = false;
   bool _showForwardArrow = false;
@@ -51,9 +48,7 @@ class QuillToolbarArrowIndicatedButtonListState
       _buildForwardArrow(),
     ];
 
-    return widget.axis == Axis.horizontal
-        ? Row(children: children)
-        : Column(children: children);
+    return widget.axis == Axis.horizontal ? Row(children: children) : Column(children: children);
   }
 
   @override
@@ -70,10 +65,8 @@ class QuillToolbarArrowIndicatedButtonListState
     if (!mounted) return;
 
     setState(() {
-      _showBackwardArrow =
-          _controller.position.minScrollExtent != _controller.position.pixels;
-      _showForwardArrow =
-          _controller.position.maxScrollExtent != _controller.position.pixels;
+      _showBackwardArrow = _controller.position.minScrollExtent != _controller.position.pixels;
+      _showForwardArrow = _controller.position.maxScrollExtent != _controller.position.pixels;
     });
   }
 
@@ -151,7 +144,7 @@ class QuillToolbarArrowIndicatedButtonListState
 
 /// ScrollBehavior without the Material glow effect.
 class _NoGlowBehavior extends ScrollBehavior {
-  Widget buildViewportChrome(BuildContext _, Widget child, AxisDirection __) {
+  Widget buildViewportChrome(BuildContext _, Widget child, AxisDirection _) {
     return child;
   }
 }

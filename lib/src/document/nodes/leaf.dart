@@ -1,11 +1,12 @@
 import 'dart:math' as math;
 
-import '../../../../quill_delta.dart';
-import '../../editor/embed/embed_editor_builder.dart';
-import '../style.dart';
-import 'embeddable.dart';
-import 'line.dart';
-import 'node.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/document/nodes/embeddable.dart';
+import 'package:flutter_quill/src/document/nodes/line.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/editor/embed/embed_editor_builder.dart';
 
 /// A leaf in Quill document tree.
 abstract base class Leaf extends Node {
@@ -15,7 +16,10 @@ abstract base class Leaf extends Node {
       return Embed(data);
     }
     final text = data as String;
-    assert(text.isNotEmpty);
+    if (text.isEmpty) {
+      debugPrint('Leaf() — data is empty string, returning empty QuillText');
+      return QuillText();
+    }
     return QuillText(text);
   }
 
@@ -61,16 +65,19 @@ abstract base class Leaf extends Node {
 
   @override
   Delta toDelta() {
-    final data = _value is Embeddable
-        ? (_value as Embeddable).toJson()
-        : _value;
+    final data = _value is Embeddable ? (_value as Embeddable).toJson() : _value;
     return Delta()..insert(data, style.toJson());
   }
 
   @override
   void insert(int index, Object data, Style? style) {
     final length = this.length;
-    assert(index >= 0 && index <= length);
+    if (index < 0 || index > length) {
+      debugPrint(
+        'Leaf.insert — invalid index=$index (length=$length), aborting',
+      );
+      return;
+    }
     final node = Leaf(data);
     if (index < length) {
       splitAt(index)!.insertBefore(node);
@@ -99,7 +106,10 @@ abstract base class Leaf extends Node {
   @override
   void delete(int index, int? len) {
     final length = this.length;
-    assert(index < length);
+    if (index >= length) {
+      debugPrint('Leaf.delete — index=$index >= length=$length, aborting');
+      return;
+    }
 
     final local = math.min(length - index, len!);
     final target = _isolate(index, local);
@@ -165,7 +175,12 @@ abstract base class Leaf extends Node {
   /// In case a new node is actually split from this one, it inherits this
   /// node's style.
   Leaf? splitAt(int index) {
-    assert(index >= 0 && index <= length);
+    if (index < 0 || index > length) {
+      debugPrint(
+        'Leaf.splitAt — invalid index=$index (length=$length), returning null',
+      );
+      return null;
+    }
     if (index == 0) {
       return this;
     }
@@ -173,7 +188,12 @@ abstract base class Leaf extends Node {
       return isLast ? null : next as Leaf?;
     }
 
-    assert(this is QuillText);
+    if (this is! QuillText) {
+      debugPrint(
+        'Leaf.splitAt — cannot split non-text leaf (type=$runtimeType), returning null',
+      );
+      return null;
+    }
     final text = _value as String;
     value = text.substring(0, index);
     final split = Leaf(text.substring(index))..applyStyle(style);
@@ -187,7 +207,12 @@ abstract base class Leaf extends Node {
   /// Splitting logic is identical to one described in [splitAt], meaning this
   /// method may return `null`.
   Leaf? cutAt(int index) {
-    assert(index >= 0 && index <= length);
+    if (index < 0 || index > length) {
+      debugPrint(
+        'Leaf.cutAt — invalid index=$index (length=$length), returning null',
+      );
+      return null;
+    }
     final cut = splitAt(index);
     cut?.unlink();
     return cut;
@@ -209,9 +234,12 @@ abstract base class Leaf extends Node {
   /// instance. Returned node may still be the same as this node
   /// if provided [index] is `0`.
   Leaf _isolate(int index, int length) {
-    assert(
-      index >= 0 && index < this.length && (index + length <= this.length),
-    );
+    if (index < 0 || index >= this.length || index + length > this.length) {
+      debugPrint(
+        'Leaf._isolate — invalid index=$index, length=$length (this.length=${this.length}), returning this as fallback',
+      );
+      return this;
+    }
     final target = splitAt(index)!..splitAt(length);
     return target;
   }
@@ -234,9 +262,11 @@ abstract base class Leaf extends Node {
 /// conflict with the one from the widgets, material or cupertino library
 ///
 base class QuillText extends Leaf {
-  QuillText([String super.text = ''])
-    : assert(!text.contains('\n')),
-      super.val();
+  QuillText([String super.text = '']) : super.val() {
+    if (value.contains('\n')) {
+      debugPrint('QuillText() — text contains newline: $value');
+    }
+  }
 
   @override
   Node newInstance() => QuillText(value);
@@ -266,7 +296,10 @@ base class QuillText extends Leaf {
 /// applying "bold" style to an image gives no effect, while adding a "link" to
 /// an image actually makes the image react to user's action.
 base class Embed extends Leaf {
-  Embed(Embeddable super.data) : super.val();
+  // Cannot use super parameter because Leaf has a factory constructor
+  // `Leaf(Object data)` which conflicts with the generative `Leaf.val()`.
+  // ignore: use_super_parameters
+  Embed(Embeddable data) : super.val(data);
 
   // Refer to https://www.fileformat.info/info/unicode/char/fffc/index.htm
   static const kObjectReplacementCharacter = '\uFFFC';

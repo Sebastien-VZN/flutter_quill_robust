@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/cupertino.dart';
@@ -6,14 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
-import '../../common/extensions/view_id_ext.dart';
-import '../../delta/delta_diff.dart';
-import '../../document/document.dart';
-import '../editor.dart';
-import 'raw_editor.dart';
+import 'package:flutter_quill/src/common/extensions/view_id_ext.dart';
+import 'package:flutter_quill/src/delta/delta_diff.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/editor/editor.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor.dart';
 
-mixin RawEditorStateTextInputClientMixin on EditorState
-    implements TextInputClient {
+mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClient {
   TextInputConnection? _textInputConnection;
   TextEditingValue? __lastKnownRemoteTextEditingValue;
 
@@ -24,8 +24,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
   }
 
-  TextEditingValue? get _lastKnownRemoteTextEditingValue =>
-      __lastKnownRemoteTextEditingValue;
+  TextEditingValue? get _lastKnownRemoteTextEditingValue => __lastKnownRemoteTextEditingValue;
 
   /// The range of text that is currently being composed.
   final ValueNotifier<TextRange> composingRange = ValueNotifier<TextRange>(
@@ -48,14 +47,12 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   bool get shouldCreateInputConnection => kIsWeb || !widget.config.readOnly;
 
   /// Returns `true` if there is open input connection.
-  bool get hasConnection =>
-      _textInputConnection != null && _textInputConnection!.attached;
+  bool get hasConnection => _textInputConnection != null && _textInputConnection!.attached;
 
   /// Opens or closes input connection based on the current state of
   /// [focusNode] and [value].
   void openOrCloseConnection() {
-    if (widget.config.focusNode.hasFocus &&
-        widget.config.focusNode.consumeKeyboardToken()) {
+    if (widget.config.focusNode.hasFocus && widget.config.focusNode.consumeKeyboardToken()) {
       openConnectionIfNeeded();
     } else if (!widget.config.focusNode.hasFocus) {
       closeConnectionIfNeeded();
@@ -66,9 +63,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   @visibleForTesting
   @internal
   Brightness createKeyboardAppearance() =>
-      widget.config.keyboardAppearance ??
-      CupertinoTheme.maybeBrightnessOf(context) ??
-      Theme.of(context).brightness;
+      widget.config.keyboardAppearance ?? CupertinoTheme.maybeBrightnessOf(context) ?? Theme.of(context).brightness;
 
   void openConnectionIfNeeded() {
     if (!shouldCreateInputConnection) {
@@ -101,14 +96,12 @@ mixin RawEditorStateTextInputClientMixin on EditorState
 
       /// Trap selection extends off end of document
       if (_lastKnownRemoteTextEditingValue != null) {
-        if (_lastKnownRemoteTextEditingValue!.selection.end >
-            _lastKnownRemoteTextEditingValue!.text.length) {
-          _lastKnownRemoteTextEditingValue = _lastKnownRemoteTextEditingValue!
-              .copyWith(
-                selection: _lastKnownRemoteTextEditingValue!.selection.copyWith(
-                  extentOffset: _lastKnownRemoteTextEditingValue!.text.length,
-                ),
-              );
+        if (_lastKnownRemoteTextEditingValue!.selection.end > _lastKnownRemoteTextEditingValue!.text.length) {
+          _lastKnownRemoteTextEditingValue = _lastKnownRemoteTextEditingValue!.copyWith(
+            selection: _lastKnownRemoteTextEditingValue!.selection.copyWith(
+              extentOffset: _lastKnownRemoteTextEditingValue!.text.length,
+            ),
+          );
         }
       }
       _textInputConnection!.setEditingState(_lastKnownRemoteTextEditingValue!);
@@ -117,11 +110,14 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   }
 
   void _updateComposingRectIfNeeded() {
-    final composingRange =
-        _lastKnownRemoteTextEditingValue?.composing ??
-        textEditingValue.composing;
+    final composingRange = _lastKnownRemoteTextEditingValue?.composing ?? textEditingValue.composing;
     if (hasConnection) {
-      assert(mounted);
+      if (!mounted) {
+        debugPrint(
+          'RawEditorStateTextInputClientMixin — not mounted but has connection, skipping',
+        );
+        return;
+      }
       if (composingRange.isValid) {
         final offset = composingRange.start;
         final composingRect = renderEditor.getLocalRectForCaret(
@@ -137,9 +133,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
 
   void _updateCaretRectIfNeeded() {
     if (hasConnection) {
-      if (!dirty &&
-          renderEditor.selection.isValid &&
-          renderEditor.selection.isCollapsed) {
+      if (!dirty && renderEditor.selection.isValid && renderEditor.selection.isCollapsed) {
         final currentTextPosition = TextPosition(
           offset: renderEditor.selection.baseOffset,
         );
@@ -195,14 +189,13 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     _textInputConnection!.setEditingState(
       // Set composing to (-1, -1), otherwise an exception will be thrown if
       // the values are different.
-      actualValue.copyWith(composing: const TextRange(start: -1, end: -1)),
+      actualValue.copyWith(composing: TextRange.empty),
     );
   }
 
   // Start TextInputClient implementation
   @override
-  TextEditingValue? get currentTextEditingValue =>
-      _lastKnownRemoteTextEditingValue;
+  TextEditingValue? get currentTextEditingValue => _lastKnownRemoteTextEditingValue;
 
   // autofill is not needed
   @override
@@ -220,8 +213,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
     }
 
     // Check if only composing range changed.
-    if (_lastKnownRemoteTextEditingValue!.text == value.text &&
-        _lastKnownRemoteTextEditingValue!.selection == value.selection) {
+    if (_lastKnownRemoteTextEditingValue!.text == value.text && _lastKnownRemoteTextEditingValue!.selection == value.selection) {
       // This update only modifies composing range. Since we don't keep track
       // of composing range we just need to update last known value here.
       // This check fixes an issue on Android when it sends
@@ -279,8 +271,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   // Because the center of the cursor is preferredLineHeight / 2 below the touch
   // origin, but the touch origin is used to determine which line the cursor is
   // on, we need this offset to correctly render and move the cursor.
-  Offset _floatingCursorOffset(TextPosition textPosition) =>
-      Offset(0, renderEditor.preferredLineHeight(textPosition) / 2);
+  Offset _floatingCursorOffset(TextPosition textPosition) => Offset(0, renderEditor.preferredLineHeight(textPosition) / 2);
 
   @override
   void updateFloatingCursor(RawFloatingCursorPoint point) {
@@ -301,22 +292,23 @@ mixin RawEditorStateTextInputClientMixin on EditorState
           currentTextPosition,
         );
 
-        _lastBoundedOffset =
-            _startCaretRect!.center -
-            _floatingCursorOffset(currentTextPosition);
+        _lastBoundedOffset = _startCaretRect!.center - _floatingCursorOffset(currentTextPosition);
         _lastTextPosition = currentTextPosition;
         renderEditor.setFloatingCursor(
           point.state,
           _lastBoundedOffset!,
           _lastTextPosition!,
         );
-        break;
       case FloatingCursorDragState.Update:
-        assert(_lastTextPosition != null, 'Last text position was not set');
+        if (_lastTextPosition == null) {
+          debugPrint(
+            'RawEditorStateTextInputClientMixin — last text position not set, skipping update',
+          );
+          return;
+        }
         final floatingCursorOffset = _floatingCursorOffset(_lastTextPosition!);
         final centeredPoint = point.offset! - _pointOffsetOrigin!;
-        final rawCursorOffset =
-            _startCaretRect!.center + centeredPoint - floatingCursorOffset;
+        final rawCursorOffset = _startCaretRect!.center + centeredPoint - floatingCursorOffset;
 
         final preferredLineHeight = renderEditor.preferredLineHeight(
           _lastTextPosition!,
@@ -345,19 +337,18 @@ mixin RawEditorStateTextInputClientMixin on EditorState
           newSelection,
           SelectionChangedCause.forcePress,
         );
-        break;
       case FloatingCursorDragState.End:
         // We skip animation if no update has happened.
         if (_lastTextPosition != null && _lastBoundedOffset != null) {
-          floatingCursorResetController
-            ..value = 0.0
-            ..animateTo(
+          floatingCursorResetController.value = 0.0;
+          unawaited(
+            floatingCursorResetController.animateTo(
               1,
               duration: _floatingCursorResetTime,
               curve: Curves.decelerate,
-            );
+            ),
+          );
         }
-        break;
     }
   }
 
@@ -368,9 +359,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState
   /// and repositioned (linear interpolation between position of floating cursor
   /// and current position of background cursor)
   void onFloatingCursorResetTick() {
-    final finalPosition =
-        renderEditor.getLocalRectForCaret(_lastTextPosition!).centerLeft -
-        _floatingCursorOffset(_lastTextPosition!);
+    final finalPosition = renderEditor.getLocalRectForCaret(_lastTextPosition!).centerLeft - _floatingCursorOffset(_lastTextPosition!);
     if (floatingCursorResetController.isCompleted) {
       renderEditor.setFloatingCursor(
         FloatingCursorDragState.End,

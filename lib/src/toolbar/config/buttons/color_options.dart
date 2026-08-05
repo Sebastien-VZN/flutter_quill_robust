@@ -1,10 +1,8 @@
 import 'package:flutter/widgets.dart' show Color;
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/toolbar/config/base_button_options.dart';
 
-import '../../../controller/quill_controller.dart';
-import '../base_button_options.dart';
-
-class QuillToolbarColorButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarColorButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarColorButtonExtraOptions({
     required super.controller,
     required super.context,
@@ -21,12 +19,7 @@ class QuillToolbarColorButtonExtraOptions
   final Color? fillColorBackground;
 }
 
-class QuillToolbarColorButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarColorButtonOptions,
-          QuillToolbarColorButtonExtraOptions
-        > {
+class QuillToolbarColorButtonOptions extends QuillToolbarBaseButtonOptions<QuillToolbarColorButtonOptions, QuillToolbarColorButtonExtraOptions> {
   const QuillToolbarColorButtonOptions({
     super.iconSize,
     super.iconButtonFactor,
@@ -41,5 +34,4 @@ class QuillToolbarColorButtonOptions
   final QuillToolbarColorPickerOnPressedCallback? customOnPressedCallback;
 }
 
-typedef QuillToolbarColorPickerOnPressedCallback =
-    Future<void> Function(QuillController controller, bool isBackground);
+typedef QuillToolbarColorPickerOnPressedCallback = Future<void> Function(QuillController controller, bool isBackground);

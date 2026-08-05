@@ -1,14 +1,6 @@
-/// @docImport '../../buttons/clipboard_button.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/toggle_style_options.dart';
 
-@experimental
-library;
-
-import 'package:meta/meta.dart';
-import 'toggle_style_options.dart';
-
-@experimental
-class QuillToolbarClipboardButtonOptions
-    extends QuillToolbarToggleStyleButtonOptions {
+class QuillToolbarClipboardButtonOptions extends QuillToolbarToggleStyleButtonOptions {
   const QuillToolbarClipboardButtonOptions({
     super.iconData,
     super.afterButtonPressed,

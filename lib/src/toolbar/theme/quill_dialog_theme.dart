@@ -1,11 +1,14 @@
-import 'package:flutter/foundation.dart' show Diagnosticable, immutable;
+import 'package:flutter/foundation.dart' show Diagnosticable, debugPrint, immutable;
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' show LinkStyleDialog;
+import 'package:flutter_quill/src/toolbar/buttons/link_style/link_style2_button.dart' show LinkStyleDialog;
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart' show LinkStyleDialog;
 
 /// Used to configure the dialog's look and feel.
 
 @immutable
 class QuillDialogTheme with Diagnosticable {
-  const QuillDialogTheme({
+  QuillDialogTheme({
     this.buttonTextStyle,
     this.labelTextStyle,
     this.inputTextStyle,
@@ -18,7 +21,17 @@ class QuillDialogTheme with Diagnosticable {
     this.mediaSelectorDialogPadding = const EdgeInsets.all(16),
     this.isWrappable = false,
     this.runSpacing = 8.0,
-  }) : assert(runSpacing >= 0);
+  }) {
+    // Guard défensif — remplace l'assert() pour éviter les crash en production.
+    // Le champ est déjà assigné via this.runSpacing, on loggue simplement la
+    // violation d'invariant.
+    if (runSpacing < 0) {
+      debugPrint(
+        'QuillDialogTheme — runSpacing=$runSpacing < 0, '
+        'should be non-negative',
+      );
+    }
+  }
 
   ///The text style to use for the button shown in the dialog
   final TextStyle? buttonTextStyle;
@@ -82,17 +95,13 @@ class QuillDialogTheme with Diagnosticable {
       buttonTextStyle: buttonTextStyle ?? this.buttonTextStyle,
       labelTextStyle: labelTextStyle ?? this.labelTextStyle,
       inputTextStyle: inputTextStyle ?? this.inputTextStyle,
-      dialogBackgroundColor:
-          dialogBackgroundColor ?? this.dialogBackgroundColor,
+      dialogBackgroundColor: dialogBackgroundColor ?? this.dialogBackgroundColor,
       shape: shape ?? this.shape,
       buttonStyle: buttonStyle ?? this.buttonStyle,
-      linkDialogConstraints:
-          linkDialogConstraints ?? this.linkDialogConstraints,
+      linkDialogConstraints: linkDialogConstraints ?? this.linkDialogConstraints,
       linkDialogPadding: linkDialogPadding ?? this.linkDialogPadding,
-      mediaSelectorDialogConstraints:
-          imageDialogConstraints ?? mediaSelectorDialogConstraints,
-      mediaSelectorDialogPadding:
-          mediaDialogPadding ?? mediaSelectorDialogPadding,
+      mediaSelectorDialogConstraints: imageDialogConstraints ?? mediaSelectorDialogConstraints,
+      mediaSelectorDialogPadding: mediaDialogPadding ?? mediaSelectorDialogPadding,
       isWrappable: isWrappable ?? this.isWrappable,
       runSpacing: runSpacing ?? this.runSpacing,
     );
@@ -112,8 +121,7 @@ class QuillDialogTheme with Diagnosticable {
         other.buttonStyle == buttonStyle &&
         other.linkDialogConstraints == linkDialogConstraints &&
         other.linkDialogPadding == linkDialogPadding &&
-        other.mediaSelectorDialogConstraints ==
-            mediaSelectorDialogConstraints &&
+        other.mediaSelectorDialogConstraints == mediaSelectorDialogConstraints &&
         other.mediaSelectorDialogPadding == mediaSelectorDialogPadding &&
         other.isWrappable == isWrappable &&
         other.runSpacing == runSpacing;

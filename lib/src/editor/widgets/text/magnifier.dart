@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 typedef QuillMagnifierBuilder = Widget Function(Offset dragPosition);
 
-Widget defaultQuillMagnifierBuilder(Offset dragPosition) =>
-    QuillMagnifier(dragPosition: dragPosition);
+Widget defaultQuillMagnifierBuilder(Offset dragPosition) => QuillMagnifier(dragPosition: dragPosition);
 
 class QuillMagnifier extends StatelessWidget {
   const QuillMagnifier({required this.dragPosition, super.key});

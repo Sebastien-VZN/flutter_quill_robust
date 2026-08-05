@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart' show BuildContext;
-
-import '../generated/quill_localizations.dart';
+import 'package:flutter_quill/src/l10n/generated/quill_localizations.dart';
 
 class MissingFlutterQuillLocalizationException extends UnimplementedError {
   MissingFlutterQuillLocalizationException();
@@ -17,7 +16,6 @@ extension LocalizationsExt on BuildContext {
   ///
   /// `loc` is short for `localizations`
   FlutterQuillLocalizations get loc {
-    return FlutterQuillLocalizations.of(this) ??
-        (throw MissingFlutterQuillLocalizationException());
+    return FlutterQuillLocalizations.of(this) ?? (throw MissingFlutterQuillLocalizationException());
   }
 }

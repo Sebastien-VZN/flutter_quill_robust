@@ -1,12 +1,11 @@
+import 'package:flutter/foundation.dart' show debugPrint, immutable;
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/extensions/uri_ext.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/rules/rule.dart';
 import 'package:meta/meta.dart';
-
-import '../../quill_delta.dart';
-import '../common/extensions/uri_ext.dart';
-import '../document/attribute.dart';
-import '../document/document.dart';
-import '../document/nodes/embeddable.dart';
-import '../document/style.dart';
-import 'rule.dart';
 
 /// A heuristic rule for insert operations.
 @immutable
@@ -17,9 +16,15 @@ abstract class InsertRule extends Rule {
   RuleType get type => RuleType.insert;
 
   @override
-  void validateArgs(int? len, Object? data, Attribute? attribute) {
-    assert(data != null);
-    assert(attribute == null);
+  void validateArgs(int? len, Object? data, FormatAttribute? attribute) {
+    if (data == null) {
+      debugPrint('InsertRule.validateArgs — data is null, expected non-null');
+    }
+    if (attribute != null) {
+      debugPrint(
+        'InsertRule.validateArgs — attribute is non-null, expected null: $attribute',
+      );
+    }
   }
 }
 
@@ -37,7 +42,7 @@ class PreserveLineStyleOnSplitRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     if (data is! String || data != '\n') {
       return null;
@@ -47,18 +52,21 @@ class PreserveLineStyleOnSplitRule extends InsertRule {
     if (before == null) {
       return null;
     }
-    if (before.data is String && (before.data as String).endsWith('\n')) {
+    if (before.data is String && (before.data! as String).endsWith('\n')) {
       return null;
     }
 
     final after = itr.next();
-    if (after.data is String && (after.data as String).startsWith('\n')) {
+    if (after.data is String && (after.data! as String).startsWith('\n')) {
       return null;
     }
 
     final delta = Delta()..retain(index + (len ?? 0));
-    if (after.data is String && (after.data as String).contains('\n')) {
-      assert(after.isPlain);
+    if (after.data is String && (after.data! as String).contains('\n')) {
+      if (!after.isPlain) {
+        debugPrint('InsertRule — after is not plain, skipping newline insert');
+        return null;
+      }
       delta.insert('\n');
       return delta;
     }
@@ -87,7 +95,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     if (data is! String || !data.contains('\n')) {
       // Only interested in text containing at least one newline character.
@@ -111,8 +119,8 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
     // If current line had heading style applied to it we'll need to move this
     // style to the newly inserted line before it and reset style of the
     // original line.
-    if (lineStyle.containsKey(Attribute.header.key)) {
-      resetStyle.addAll(Attribute.header.toJson());
+    if (lineStyle.containsKey(FormatAttribute.header.key)) {
+      resetStyle.addAll(FormatAttribute.header.toJson());
     }
 
     // Go over each inserted line and ensure block style is applied.
@@ -131,8 +139,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
         final blockAttributes = blockStyle.isEmpty
             ? null
             : blockStyle.map<String, dynamic>(
-                (_, attribute) =>
-                    MapEntry<String, dynamic>(attribute.key, attribute.value),
+                (_, attribute) => MapEntry<String, dynamic>(attribute.key, attribute.value),
               );
         delta.insert('\n', blockAttributes);
       }
@@ -142,7 +149,7 @@ class PreserveBlockStyleOnInsertRule extends InsertRule {
     if (resetStyle.isNotEmpty) {
       delta
         ..retain(nextNewLine.skipped!)
-        ..retain((nextNewLine.operation!.data as String).indexOf('\n'))
+        ..retain((nextNewLine.operation!.data! as String).indexOf('\n'))
         ..retain(1, resetStyle);
     }
 
@@ -164,10 +171,7 @@ class AutoExitBlockRule extends InsertRule {
     if (before == null) {
       return true;
     }
-    return before.data is String &&
-        (before.data as String).endsWith('\n') &&
-        after!.data is String &&
-        (after.data as String).startsWith('\n');
+    return before.data is String && (before.data! as String).endsWith('\n') && after!.data is String && (after.data! as String).startsWith('\n');
   }
 
   @override
@@ -176,14 +180,15 @@ class AutoExitBlockRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     if (data is! String || data != '\n') {
       return null;
     }
 
     final itr = DeltaIterator(document.toDelta());
-    final prev = itr.skip(index), cur = itr.next();
+    final prev = itr.skip(index);
+    final cur = itr.next();
     final blockStyle = Style.fromJson(cur.attributes).getBlockExceptHeader();
     // We are not in a block, ignore.
     if (cur.isPlain || blockStyle == null) {
@@ -223,7 +228,7 @@ class AutoExitBlockRule extends InsertRule {
     // therefore we can exit this block.
     final attributes = cur.attributes ?? <String, dynamic>{};
     final k = attributes.keys.firstWhere(
-      Attribute.blockKeysExceptHeader.contains,
+      FormatAttribute.blockKeysExceptHeader.contains,
     );
     attributes[k] = null;
     // retain(1) should be '\n', set it with no attribute
@@ -248,7 +253,7 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     if (data is! String || data != '\n') {
       return null;
@@ -256,14 +261,13 @@ class ResetLineFormatOnNewLineRule extends InsertRule {
 
     final itr = DeltaIterator(document.toDelta())..skip(index);
     final cur = itr.next();
-    if (cur.data is! String || !(cur.data as String).startsWith('\n')) {
+    if (cur.data is! String || !(cur.data! as String).startsWith('\n')) {
       return null;
     }
 
     Map<String, dynamic>? resetStyle;
-    if (cur.attributes != null &&
-        cur.attributes!.containsKey(Attribute.header.key)) {
-      resetStyle = Attribute.header.toJson();
+    if (cur.attributes != null && cur.attributes!.containsKey(FormatAttribute.header.key)) {
+      resetStyle = FormatAttribute.header.toJson();
     }
     return Delta()
       ..retain(index + (len ?? 0))
@@ -285,21 +289,27 @@ class InsertEmbedsRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     if (data is String) {
       return null;
     }
 
-    assert(data is Map);
-
-    if (!(data as Map).containsKey(BlockEmbed.videoType)) {
+    if (data is! Map) {
+      debugPrint(
+        'InsertRule.applyRule — data is not a Map (type=${data.runtimeType}), aborting',
+      );
+      return null;
+    }
+    // data is promoted to Map by the is! guard above
+    if (!data.containsKey('video')) {
       return null;
     }
 
     final delta = Delta()..retain(index + (len ?? 0));
     final itr = DeltaIterator(document.toDelta());
-    final prev = itr.skip(index), cur = itr.next();
+    final prev = itr.skip(index);
+    final cur = itr.next();
 
     final textBefore = prev?.data is String ? prev!.data as String? : '';
     final textAfter = cur.data is String ? (cur.data as String?)! : '';
@@ -406,7 +416,7 @@ class AutoFormatMultipleLinksRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
     @Deprecated(
       'No longer used and will be silently ignored and removed in future releases.',
     )
@@ -476,8 +486,16 @@ class AutoFormatMultipleLinksRule extends InsertRule {
       // Keep the leading segment of text and add link with its proper
       // attribute.
       formatterDelta
-        ..retain(separationLength, Attribute.link.toJson())
-        ..retain(link.length, LinkAttribute(link).toJson());
+        ..retain(separationLength, FormatAttribute.link.toJson())
+        ..retain(
+          link.length,
+          FormatAttribute(
+            key: "link",
+            scope: FormatScope.inline,
+            value: link,
+            valueType: FormatValueType.nullableString,
+          ).toJson(),
+        );
 
       // Update reference index.
       previousLinkEndRelativeIndex = match.end;
@@ -487,7 +505,7 @@ class AutoFormatMultipleLinksRule extends InsertRule {
     final remainingLength = affectedWords.length - previousLinkEndRelativeIndex;
 
     // Remove links from remaining non-link text.
-    formatterDelta.retain(remainingLength, Attribute.link.toJson());
+    formatterDelta.retain(remainingLength, FormatAttribute.link.toJson());
 
     // Build and return resulting change delta.
     return baseDelta.compose(formatterDelta);
@@ -506,7 +524,7 @@ class AutoFormatLinksRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     if (data is! String || data != ' ') {
       return null;
@@ -519,18 +537,25 @@ class AutoFormatLinksRule extends InsertRule {
     }
 
     try {
-      final cand = (prev.data as String).split('\n').last.split(' ').last;
+      final cand = (prev.data! as String).split('\n').last.split(' ').last;
       final link = Uri.parse(cand);
       if (!link.isHttpBasedUrl()) {
         return null;
       }
       final attributes = prev.attributes ?? <String, dynamic>{};
 
-      if (attributes.containsKey(Attribute.link.key)) {
+      if (attributes.containsKey(FormatAttribute.link.key)) {
         return null;
       }
 
-      attributes.addAll(LinkAttribute(link.toString()).toJson());
+      attributes.addAll(
+        FormatAttribute(
+          key: "link",
+          scope: FormatScope.inline,
+          value: link.toString(),
+          valueType: FormatValueType.nullableString,
+        ).toJson(),
+      );
       return Delta()
         ..retain(index + (len ?? 0) - cand.length)
         ..retain(cand.length, attributes)
@@ -552,7 +577,7 @@ class PreserveInlineStylesRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     if (data is! String || data.contains('\n')) {
       return null;
@@ -570,20 +595,17 @@ class PreserveInlineStylesRule extends InsertRule {
 
       /// Prevent links extending beyond the link's text label.
       excludeLink =
-          currLine.attributes?.containsKey(Attribute.link.key) != true &&
-          prev?.attributes?.containsKey(Attribute.link.key) == true;
+          currLine.attributes?.containsKey(FormatAttribute.link.key) != true && prev?.attributes?.containsKey(FormatAttribute.link.key) == true;
 
       /// Trap for previous is not text
       if (prev?.data is! String) {
         prev = currLine;
         excludeLink = true;
       } else {
-        final prevData = prev!.data as String;
+        final prevData = prev!.data! as String;
         if (prevData.endsWith('\n')) {
           /// If current line is empty get attributes from a prior line
-          final currData = currLine.data is String
-              ? currLine.data as String
-              : null;
+          final currData = currLine.data is String ? currLine.data! as String : null;
           if (currData?.startsWith('\n') == true) {
             if (prevData.trimRight().isEmpty) {
               final back = DeltaIterator(
@@ -591,9 +613,7 @@ class PreserveInlineStylesRule extends InsertRule {
               ).skip(index - prevData.length);
 
               /// Prevent link attribute from propagating over line break
-              if (back != null &&
-                  back.data is String &&
-                  back.attributes?.containsKey(Attribute.link.key) != true) {
+              if (back != null && back.data is String && back.attributes?.containsKey(FormatAttribute.link.key) != true) {
                 prev = back;
               }
             }
@@ -608,7 +628,7 @@ class PreserveInlineStylesRule extends InsertRule {
     final attributes = <String, dynamic>{};
     if (prev?.attributes != null) {
       for (final entry in prev!.attributes!.entries) {
-        if (Attribute.inlineKeys.contains(entry.key)) {
+        if (FormatAttribute.inlineKeys.contains(entry.key)) {
           attributes[entry.key] = entry.value;
         }
       }
@@ -618,7 +638,7 @@ class PreserveInlineStylesRule extends InsertRule {
     }
 
     if (excludeLink) {
-      attributes.remove(Attribute.link.key);
+      attributes.remove(FormatAttribute.link.key);
     }
     return Delta()
       ..retain(index + len)
@@ -637,7 +657,7 @@ class CatchAllInsertRule extends InsertRule {
     int index, {
     int? len,
     Object? data,
-    Attribute? attribute,
+    FormatAttribute? attribute,
   }) {
     return Delta()
       ..retain(index + (len ?? 0))

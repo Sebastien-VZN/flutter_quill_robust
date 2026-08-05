@@ -1,10 +1,9 @@
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/quill_config.dart';
+import 'package:flutter_quill/src/toolbar/embed/embed_button_builder.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_dialog_theme.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 import 'package:meta/meta.dart';
-
-import '../../controller/quill_controller.dart';
-import '../../editor_toolbar_controller_shared/quill_config.dart';
-import '../theme/quill_dialog_theme.dart';
-import '../theme/quill_icon_theme.dart';
-import './embed_button_builder.dart';
 
 /// Encapsulates the context required for embedding a button in a toolbar.
 ///
@@ -31,6 +30,5 @@ class EmbedButtonContext {
   final QuillDialogTheme? dialogTheme;
 
   @internal
-  @experimental
-  final QuillToolbarBaseButtonOptions? baseButtonOptions;
+  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseButtonOptions;
 }

@@ -109,16 +109,14 @@ void main() {
       expect(
         rule.apply(document, 0, data: 'X', len: 0),
         null,
-        reason:
-            'Insert before image must pickup inline attribute for the image',
+        reason: 'Insert before image must pickup inline attribute for the image',
       );
       expect(
         rule.apply(document, 1, data: 'X', len: 0),
         Delta()
           ..retain(1)
           ..insert('X', <String, dynamic>{'bold': true}),
-        reason:
-            'Insert after image must pickup style for text following the image',
+        reason: 'Insert after image must pickup style for text following the image',
       );
     });
 
@@ -385,6 +383,6 @@ void main() {
       }
     });
 
-    // TODO: Write tests for the bug fix: https://github.com/singerdmx/flutter-quill/issues/1432
+    // Write tests for the bug fix: https://github.com/singerdmx/flutter-quill/issues/1432
   });
 }

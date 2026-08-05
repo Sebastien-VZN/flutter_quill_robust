@@ -1,7 +1,6 @@
 // The corner radius of the floating cursor in pixels.
 import 'dart:ui';
-
-import 'cursor.dart';
+import 'package:flutter_quill/src/editor/widgets/cursor.dart';
 
 const Radius _kFloatingCaretRadius = Radius.circular(1);
 

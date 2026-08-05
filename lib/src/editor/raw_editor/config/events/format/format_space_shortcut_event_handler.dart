@@ -1,6 +1,7 @@
-import '../../../../../controller/quill_controller.dart';
-import '../../../../../document/attribute.dart';
-import '../../../../../document/document.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
 
 enum BlockFormatStyle { todo, bullet, ordered, header }
 
@@ -9,28 +10,34 @@ bool handleFormatBlockStyleBySpaceEvent({
   required String character,
   required BlockFormatStyle formatStyle,
 }) {
-  assert(
-    character.trim().isNotEmpty && character != '\n',
-    'Expected character that cannot be empty, a whitespace or a new line. Got $character',
-  );
+  if (character.trim().isEmpty || character == '\n') {
+    debugPrint(
+      'handleFormatBlockStyleBySpaceEvent — Expected non-empty, non-newline character. Got: $character',
+    );
+    return false;
+  }
   if (formatStyle == BlockFormatStyle.todo) {
-    _updateSelectionForKeyPhrase(character, Attribute.unchecked, controller);
+    _updateSelectionForKeyPhrase(
+      character,
+      FormatAttribute.unchecked,
+      controller,
+    );
     return true;
   } else if (formatStyle == BlockFormatStyle.bullet) {
-    _updateSelectionForKeyPhrase(character, Attribute.ul, controller);
+    _updateSelectionForKeyPhrase(character, FormatAttribute.ul, controller);
     return true;
   } else if (formatStyle == BlockFormatStyle.ordered) {
-    _updateSelectionForKeyPhrase(character, Attribute.ol, controller);
+    _updateSelectionForKeyPhrase(character, FormatAttribute.ol, controller);
     return true;
   } else if (formatStyle == BlockFormatStyle.header) {
-    var headerAttribute = Attribute.header as Attribute<int?>;
+    var headerAttribute = FormatAttribute.header;
     final count = _count(character, '#');
     if (count == 1) {
-      headerAttribute = Attribute.h1;
+      headerAttribute = FormatAttribute.h1;
     } else if (count == 2) {
-      headerAttribute = Attribute.h2;
+      headerAttribute = FormatAttribute.h2;
     } else if (count == 3) {
-      headerAttribute = Attribute.h3;
+      headerAttribute = FormatAttribute.h3;
     }
     _updateSelectionForKeyPhrase(character, headerAttribute, controller);
     return true;
@@ -41,7 +48,7 @@ bool handleFormatBlockStyleBySpaceEvent({
 
 void _updateSelectionForKeyPhrase(
   String phrase,
-  Attribute attribute,
+  FormatAttribute attribute,
   QuillController controller,
 ) {
   controller.replaceText(

@@ -23,14 +23,14 @@ void main() {
       //
       for (var index = 6; index < 11; index++) {
         expect(
-          const Style.attr({'bold': Attribute.bold}),
+          const Style.attr({'bold': FormatAttribute.bold}),
           document.collectStyle(index, 0),
         );
       }
       //
       for (var index = 11; index < document.length; index++) {
         expect(
-          const Style.attr({'italic': Attribute.italic}),
+          const Style.attr({'italic': FormatAttribute.italic}),
           document.collectStyle(index, 0),
         );
       }
@@ -40,7 +40,7 @@ void main() {
     /// Changing the format value updates the document but must also update the toolbar button state
     /// by ensuring the collectStyles method returns the attribute selected for the newly entered line.
     test('Change block value type', () {
-      void doTest(Map<String, dynamic> start, Attribute attr) {
+      void doTest(Map<String, dynamic> start, FormatAttribute attr) {
         /// Create a document with 2 lines of block attribute using [start]
         /// Change the format of the last line using [attr] and verify [change]
         final delta = Delta()
@@ -78,17 +78,17 @@ void main() {
         /// Verify that the reported style reflects the newly formatted state
         expect(
           document.collectStyle(4, 0),
-          Style.attr({'bold': Attribute.bold, attr.key: attr}),
-          reason: 'collectStyle reporting correct attribute',
+          Style.attr({'bold': FormatAttribute.bold, attr.key: attr}),
+          reason: 'collectStyle reporting correct attributkey: e',
         );
       }
 
-      doTest({'list': 'ordered'}, const ListAttribute('bullet'));
-      doTest({'list': 'checked'}, const ListAttribute('bullet'));
-      doTest({}, const ListAttribute('bullet'));
-      doTest({'align': 'center'}, const AlignAttribute('right'));
-      doTest({'align': 'left'}, const AlignAttribute('center'));
-      doTest({}, const AlignAttribute('center'));
+      doTest({'list': 'ordered'}, FormatAttribute.ul);
+      doTest({'list': 'checked'}, FormatAttribute.ul);
+      doTest({}, FormatAttribute.ul);
+      doTest({'align': 'center'}, FormatAttribute.rightAlignment);
+      doTest({'align': 'left'}, FormatAttribute.centerAlignment);
+      doTest({}, FormatAttribute.centerAlignment);
     });
 
     /// Enter key inserts newline as plain text without inline styles.
@@ -114,7 +114,7 @@ void main() {
       expect('second\n', document.getPlainText(5, 7));
       for (var index = 5; index < 12; index++) {
         expect(
-          const Style.attr({'bold': Attribute.bold}),
+          const Style.attr({'bold': FormatAttribute.bold}),
           document.collectStyle(index, 0),
         );
       }
@@ -122,7 +122,7 @@ void main() {
       expect('\n\n', document.getPlainText(12, 2));
       for (var index = 12; index < 14; index++) {
         expect(
-          const Style.attr({'bold': Attribute.bold}),
+          const Style.attr({'bold': FormatAttribute.bold}),
           document.collectStyle(index, 0),
         );
       }
@@ -151,14 +151,14 @@ void main() {
       //
       for (var index = 6; index < 11; index++) {
         expect(
-          const Style.attr({'bold': Attribute.bold}),
+          const Style.attr({'bold': FormatAttribute.bold}),
           document.collectStyle(index, 0),
         );
       }
       //
       for (var index = 11; index < document.length; index++) {
         expect(
-          const Style.attr({'italic': Attribute.italic}),
+          const Style.attr({'italic': FormatAttribute.italic}),
           document.collectStyle(index, 0),
         );
       }
@@ -174,11 +174,11 @@ void main() {
       expect(const Style(), document.collectStyle(1, 3));
       //
       expect(
-        const Style.attr({'bold': Attribute.bold}),
+        const Style.attr({'bold': FormatAttribute.bold}),
         document.collectStyle(5, 3),
       );
       expect(
-        const Style.attr({'bold': Attribute.bold}),
+        const Style.attr({'bold': FormatAttribute.bold}),
         document.collectStyle(8, 3),
       );
       //
@@ -196,7 +196,12 @@ void main() {
       final document = Document.fromDelta(delta);
       //
       const linkStyle = Style.attr({
-        'link': LinkAttribute('https://unknown.com'),
+        'link': FormatAttribute(
+          key: "link",
+          scope: FormatScope.inline,
+          value: "https://unknown.com",
+          valueType: FormatValueType.nullableString,
+        ),
       });
       //
       expect(document.collectStyle(15, 0), linkStyle, reason: 'Within Link');
@@ -237,8 +242,7 @@ void main() {
     });
 
     test('updates to null when redo is called', () {
-      final document = Document()
-        ..cachedPlainText = 'Non-null cached plain text';
+      final document = Document()..cachedPlainText = 'Non-null cached plain text';
       expect(document.cachedPlainText, isNotNull);
 
       document.redo();

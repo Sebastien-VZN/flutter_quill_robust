@@ -1,7 +1,7 @@
-import '../../quill_delta.dart';
-import 'document.dart';
-import 'structs/doc_change.dart';
-import 'structs/history_changed.dart';
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/structs/doc_change.dart';
+import 'package:flutter_quill/src/document/structs/history_changed.dart';
 
 class History {
   History({
@@ -78,7 +78,6 @@ class History {
     for (var i = stack.length - 1; i >= 0; i -= 1) {
       final oldDelta = stack[i];
       stack[i] = delta.transform(oldDelta, true);
-      delta = oldDelta.transform(delta, false);
       if (stack[i].length == 0) {
         stack.removeAt(i);
       }
@@ -94,8 +93,7 @@ class History {
     var len = 0;
     final ops = delta.toList();
     for (var i = 0; i < ops.length; i++) {
-      if ((ops[i].key == Operation.insertKey) ||
-          (ops[i].key == Operation.retainKey)) {
+      if ((ops[i].key == Operation.insertKey) || (ops[i].key == Operation.retainKey)) {
         len += ops[i].length ?? 0;
       }
     }

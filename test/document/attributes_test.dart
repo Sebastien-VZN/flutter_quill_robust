@@ -2,47 +2,44 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:test/test.dart';
 
 void main() {
-  /// Attributes are assigned an AttributeScope to define how they are used.
-  /// Collections of Attribute keys are used to allow quick iteration by type of scope.
+  /// Attributes are assigned an FormatScope to define how they are used.
+  /// Collections of FormatAttribute keys are used to allow quick iteration by type of scope.
   group('collections of keys', () {
     test('unmodifiable inlineKeys', () {
       expect(
-        () => Attribute.inlineKeys.add('value'),
+        () => FormatAttribute.inlineKeys.add('value'),
         throwsA(const TypeMatcher<UnsupportedError>()),
       );
     });
 
     /// All registered attributes should be listed in collections of keys.
     test('collections of keys', () {
-      final all = <String>{}..addAll(Attribute.registeredAttributeKeys);
-      for (final key in Attribute.inlineKeys) {
+      final all = <String>{}..addAll(FormatAttribute.registeredAttributeKeys);
+      for (final key in FormatAttribute.inlineKeys) {
         expect(all.remove(key), true);
       }
-      for (final key in Attribute.blockKeys) {
+      for (final key in FormatAttribute.blockKeys) {
         expect(all.remove(key), true);
       }
-      for (final key in Attribute.embedKeys) {
-        expect(all.remove(key), true);
-      }
-      for (final key in Attribute.ignoreKeys) {
+      for (final key in FormatAttribute.metadataKeys) {
         expect(all.remove(key), true);
       }
       expect(all, <String>{});
     });
 
-    /// verify collections contain the correct AttributeScope.
+    /// verify collections contain the correct FormatScope.
     test('collections of scope', () {
-      for (final key in Attribute.inlineKeys) {
-        expect(Attribute.fromKeyValue(key, null)!.scope, AttributeScope.inline);
+      for (final key in FormatAttribute.inlineKeys) {
+        expect(
+          FormatAttribute.fromKeyValue(key, null)!.scope,
+          FormatScope.inline,
+        );
       }
-      for (final key in Attribute.blockKeys) {
-        expect(Attribute.fromKeyValue(key, null)!.scope, AttributeScope.block);
-      }
-      for (final key in Attribute.embedKeys) {
-        expect(Attribute.fromKeyValue(key, null)!.scope, AttributeScope.embeds);
-      }
-      for (final key in Attribute.ignoreKeys) {
-        expect(Attribute.fromKeyValue(key, null)!.scope, AttributeScope.ignore);
+      for (final key in FormatAttribute.blockKeys) {
+        expect(
+          FormatAttribute.fromKeyValue(key, null)!.scope,
+          FormatScope.block,
+        );
       }
     });
   });

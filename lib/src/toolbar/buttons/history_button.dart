@@ -1,24 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/history_options.dart';
 
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/base_value_button.dart';
-import '../config/buttons/history_options.dart';
-import 'quill_icon_button.dart';
+typedef QuillToolbarHistoryBaseButton = QuillToolbarBaseButton<QuillToolbarHistoryButtonOptions, QuillToolbarHistoryButtonExtraOptions>;
 
-typedef QuillToolbarHistoryBaseButton =
-    QuillToolbarBaseButton<
-      QuillToolbarHistoryButtonOptions,
-      QuillToolbarHistoryButtonExtraOptions
-    >;
-
-typedef QuillToolbarHistoryBaseButtonState<
-  W extends QuillToolbarHistoryButton
-> =
-    QuillToolbarCommonButtonState<
-      W,
-      QuillToolbarHistoryButtonOptions,
-      QuillToolbarHistoryButtonExtraOptions
-    >;
+typedef QuillToolbarHistoryBaseButtonState<W extends QuillToolbarHistoryButton> =
+    QuillToolbarCommonButtonState<W, QuillToolbarHistoryButtonOptions, QuillToolbarHistoryButtonExtraOptions>;
 
 class QuillToolbarHistoryButton extends QuillToolbarHistoryBaseButton {
   const QuillToolbarHistoryButton({
@@ -37,21 +26,17 @@ class QuillToolbarHistoryButton extends QuillToolbarHistoryBaseButton {
   final bool isUndo;
 
   @override
-  QuillToolbarHistoryButtonState createState() =>
-      QuillToolbarHistoryButtonState();
+  QuillToolbarHistoryButtonState createState() => QuillToolbarHistoryButtonState();
 }
 
-class QuillToolbarHistoryButtonState
-    extends QuillToolbarHistoryBaseButtonState {
+class QuillToolbarHistoryButtonState extends QuillToolbarHistoryBaseButtonState {
   var _canPressed = false;
 
   @override
-  String get defaultTooltip =>
-      widget.isUndo ? context.loc.undo : context.loc.redo;
+  String get defaultTooltip => widget.isUndo ? context.loc.undo : context.loc.redo;
 
   @override
-  IconData get defaultIconData =>
-      (widget.isUndo ? Icons.undo_outlined : Icons.redo_outlined);
+  IconData get defaultIconData => (widget.isUndo ? Icons.undo_outlined : Icons.redo_outlined);
 
   @override
   void initState() {

@@ -1,5 +1,5 @@
-import '../format/format_space_shortcut_event_handler.dart';
-import '../space_shortcut_events.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/events/format/format_space_shortcut_event_handler.dart';
+import 'package:flutter_quill/src/editor/raw_editor/config/events/space_shortcut_events.dart';
 
 const _orderedList = '1.';
 const _bulletList = '-';

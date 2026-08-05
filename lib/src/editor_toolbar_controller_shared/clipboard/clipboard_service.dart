@@ -1,30 +1,30 @@
-import 'package:flutter/foundation.dart' show Uint8List;
-import 'package:flutter/services.dart' show Clipboard;
-import 'package:meta/meta.dart' show experimental;
+import "package:flutter/services.dart" show Clipboard;
 
-/// A more rich abstraction of Flutter [Clipboard] to support images, rich text
-/// and more clipboard operations.
-@experimental
+/// Abstraction de Flutter [Clipboard] pour le texte riche (HTML, Markdown).
+///
+/// Les methodes media (image, gif, camera) ont ete supprimees du bridge natif
+/// et ne sont plus supportees par ce fork.
+
 abstract class ClipboardService {
-  /// Return HTML from the Clipboard.
+  /// Retourne le HTML du presse-papier.
   Future<String?> getHtmlText();
 
-  /// Return HTML text file from the Clipboard.
-  Future<String?> getHtmlFile();
+  /// Copie du HTML vers le presse-papier.
+  Future<void> copyHtmlToClipboard(String html);
 
-  /// Return the Markdown file in the Clipboard.
-  Future<String?> getMarkdownFile();
+  /// Retourne le texte brut du presse-papier.
+  Future<String?> getClipboardText();
 
-  /// Return image from the Clipboard.
-  Future<Uint8List?> getImageFile();
+  /// Copie du texte brut vers le presse-papier.
+  Future<void> copyTextToClipboard(String text);
 
-  /// Return Gif from the Clipboard.
-  Future<Uint8List?> getGifFile();
+  /// Retourne le Markdown du presse-papier.
+  Future<String?> getMarkdownText();
 
-  /// Copy an image to the system clipboard to paste it on other apps.
-  Future<void> copyImage(Uint8List imageBytes);
+  /// Copie du Markdown vers le presse-papier.
+  Future<void> copyMarkdownToClipboard(String markdown);
 
-  /// If the Clipboard is not empty or has something to paste
+  /// Si le presse-papier n'est pas vide ou contient quelque chose a coller.
   Future<bool> get hasClipboardContent async {
     final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     return clipboardData != null;

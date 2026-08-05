@@ -2,32 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../controller/quill_controller.dart';
-import '../../document/attribute.dart';
-import '../../document/nodes/node.dart';
-import '../../l10n/extensions/localizations_ext.dart';
-
-@Deprecated(
-  'Moved to LinkValidator.linkPrefixes but no longer available with the public'
-  'API. The item `http` has been removed and replaced with `http://` and `https://`.',
-)
-@internal
-const linkPrefixes = [
-  'mailto:', // email
-  'tel:', // telephone
-  'sms:', // SMS
-  'callto:',
-  'wtai:',
-  'market:',
-  'geopoint:',
-  'ymsgr:',
-  'msnim:',
-  'gtalk:', // Google Talk
-  'skype:',
-  'sip:', // Lync
-  'whatsapp:',
-  'http',
-];
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/data_caster.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
 
 /// List of possible actions returned from [LinkActionPickerDelegate].
 enum LinkMenuAction {
@@ -65,8 +44,7 @@ Future<LinkMenuAction> defaultLinkActionPickerDelegate(
     case TargetPlatform.android:
       return _showMaterialMenu(context, link);
     default:
-      assert(
-        false,
+      debugPrint(
         'defaultShowLinkActionsMenu not supposed to '
         'be invoked for $defaultTargetPlatform. '
         "it's only supported for iOS and Android.",
@@ -79,9 +57,9 @@ TextRange getLinkRange(Node node) {
   var start = node.documentOffset;
   var length = node.length;
   var prev = node.previous;
-  final linkAttr = node.style.attributes[Attribute.link.key]!;
+  final linkAttr = node.style.attributes[FormatAttribute.link.key]!;
   while (prev != null) {
-    if (prev.style.attributes[Attribute.link.key] == linkAttr) {
+    if (prev.style.attributes[FormatAttribute.link.key] == linkAttr) {
       start = prev.documentOffset;
       length += prev.length;
       prev = prev.previous;
@@ -92,7 +70,7 @@ TextRange getLinkRange(Node node) {
 
   var next = node.next;
   while (next != null) {
-    if (next.style.attributes[Attribute.link.key] == linkAttr) {
+    if (next.style.attributes[FormatAttribute.link.key] == linkAttr) {
       length += next.length;
       next = next.next;
     } else {
@@ -122,7 +100,7 @@ class QuillTextLink {
     final len = controller.selection.end - index;
     text ??= len == 0 ? '' : controller.document.getPlainText(index, len);
 
-    return QuillTextLink(text, link);
+    return QuillTextLink(text, DataCaster.toStr(link));
   }
 
   final String text;
@@ -144,11 +122,20 @@ class QuillTextLink {
     }
     controller
       ..replaceText(index, length, text, null)
-      ..formatText(index, text.length, LinkAttribute(link));
+      ..formatText(
+        index,
+        text.length,
+        FormatAttribute(
+          key: "link",
+          scope: FormatScope.inline,
+          value: link,
+          valueType: FormatValueType.nullableString,
+        ),
+      );
   }
 
-  static String? _getLinkAttributeValue(QuillController controller) {
-    return controller.getSelectionStyle().attributes[Attribute.link.key]?.value;
+  static Object? _getLinkAttributeValue(QuillController controller) {
+    return controller.getSelectionStyle().attributes[FormatAttribute.link.key]?.value;
   }
 
   static bool isSelected(QuillController controller) {

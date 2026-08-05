@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 
-import '../../editor/widgets/default_styles.dart';
+import 'package:flutter_quill/src/editor/widgets/default_styles.dart';
 
-Color stringToColor(
-  String? s, [
+Color stringToColor({
+  String? value,
   Color? originalColor,
   DefaultStyles? defaultStyles,
-]) {
+}) {
   final palette = defaultStyles?.palette;
-  if (s != null && palette != null) {
-    final maybeColor = palette[s];
+  if (value == null) return Colors.black;
+  var colored = value;
+  if (palette != null) {
+    final maybeColor = palette[colored];
     if (maybeColor != null) {
       return maybeColor;
     }
   }
 
-  switch (s) {
+  switch (colored) {
     case 'transparent':
       return Colors.transparent;
     case 'black':
@@ -118,10 +120,10 @@ Color stringToColor(
       return Colors.brown;
   }
 
-  if (s!.startsWith('rgba')) {
-    s = s.substring(5); // trim left 'rgba('
-    s = s.substring(0, s.length - 1); // trim right ')'
-    final arr = s.split(',').map((e) => e.trim()).toList();
+  if (colored.startsWith('rgba')) {
+    colored = colored.substring(5); // trim left 'rgba('
+    colored = colored.substring(0, colored.length - 1); // trim right ')'
+    final arr = colored.split(',').map((e) => e.trim()).toList();
     return Color.fromRGBO(
       int.parse(arr[0]),
       int.parse(arr[1]),
@@ -130,16 +132,16 @@ Color stringToColor(
     );
   }
 
-  // TODO: take care of "color": "inherit"
-  if (s.startsWith('inherit')) {
+  // take care of "color": "inherit"
+  if (colored.startsWith('inherit')) {
     return originalColor ?? Colors.black;
   }
 
-  if (!s.startsWith('#')) {
+  if (!colored.startsWith('#')) {
     throw UnsupportedError('Color code not supported');
   }
 
-  var hex = s.replaceFirst('#', '');
+  var hex = colored.replaceFirst('#', '');
   hex = hex.length == 6 ? 'ff$hex' : hex;
   final val = int.parse(hex, radix: 16);
   return Color(val);

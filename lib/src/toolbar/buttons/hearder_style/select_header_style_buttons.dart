@@ -1,30 +1,19 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter/material.dart';
-
-import '../../../document/attribute.dart';
-import '../../../document/style.dart';
-import '../../../l10n/extensions/localizations_ext.dart';
-import '../../base_button/base_value_button.dart';
-import '../../config/buttons/select_header_style_buttons_options.dart';
-import '../quill_icon_button.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/select_header_style_buttons_options.dart';
 
 typedef QuillToolbarSelectHeaderStyleBaseButtons =
-    QuillToolbarBaseButton<
-      QuillToolbarSelectHeaderStyleButtonsOptions,
-      QuillToolbarSelectHeaderStyleButtonsExtraOptions
-    >;
+    QuillToolbarBaseButton<QuillToolbarSelectHeaderStyleButtonsOptions, QuillToolbarSelectHeaderStyleButtonsExtraOptions>;
 
-typedef QuillToolbarSelectHeaderStyleBaseButtonsState<
-  W extends QuillToolbarSelectHeaderStyleBaseButtons
-> =
-    QuillToolbarCommonButtonState<
-      W,
-      QuillToolbarSelectHeaderStyleButtonsOptions,
-      QuillToolbarSelectHeaderStyleButtonsExtraOptions
-    >;
+typedef QuillToolbarSelectHeaderStyleBaseButtonsState<W extends QuillToolbarSelectHeaderStyleBaseButtons> =
+    QuillToolbarCommonButtonState<W, QuillToolbarSelectHeaderStyleButtonsOptions, QuillToolbarSelectHeaderStyleButtonsExtraOptions>;
 
-class QuillToolbarSelectHeaderStyleButtons
-    extends QuillToolbarSelectHeaderStyleBaseButtons {
+class QuillToolbarSelectHeaderStyleButtons extends QuillToolbarSelectHeaderStyleBaseButtons {
   const QuillToolbarSelectHeaderStyleButtons({
     required super.controller,
     super.options = const QuillToolbarSelectHeaderStyleButtonsOptions(),
@@ -36,13 +25,11 @@ class QuillToolbarSelectHeaderStyleButtons
   });
 
   @override
-  QuillToolbarSelectHeaderStyleButtonsState createState() =>
-      QuillToolbarSelectHeaderStyleButtonsState();
+  QuillToolbarSelectHeaderStyleButtonsState createState() => QuillToolbarSelectHeaderStyleButtonsState();
 }
 
-class QuillToolbarSelectHeaderStyleButtonsState
-    extends QuillToolbarSelectHeaderStyleBaseButtonsState {
-  Attribute? _selectedAttribute;
+class QuillToolbarSelectHeaderStyleButtonsState extends QuillToolbarSelectHeaderStyleBaseButtonsState {
+  FormatAttribute? _selectedAttribute;
 
   @override
   String get defaultTooltip => context.loc.headerStyle;
@@ -52,11 +39,11 @@ class QuillToolbarSelectHeaderStyleButtonsState
 
   Style get _selectionStyle => controller.getSelectionStyle();
 
-  final _valueToText = <Attribute, String>{
-    Attribute.header: 'N',
-    Attribute.h1: 'H1',
-    Attribute.h2: 'H2',
-    Attribute.h3: 'H3',
+  final _valueToText = <FormatAttribute, String>{
+    FormatAttribute.header: 'N',
+    FormatAttribute.h1: 'H1',
+    FormatAttribute.h2: 'H2',
+    FormatAttribute.h3: 'H3',
   };
 
   @override
@@ -72,25 +59,29 @@ class QuillToolbarSelectHeaderStyleButtonsState
     return options.axis ?? Axis.horizontal;
   }
 
-  void _sharedOnPressed(Attribute attribute) {
-    final attribute0 = _selectedAttribute == attribute
-        ? Attribute.header
-        : attribute;
+  void _sharedOnPressed(FormatAttribute attribute) {
+    final attribute0 = _selectedAttribute == attribute ? FormatAttribute.header : attribute;
     controller.formatSelection(attribute0);
     afterButtonPressed?.call();
   }
 
-  List<Attribute> get _attributes {
+  List<FormatAttribute> get _attributes {
     return options.attributes ??
-        const [Attribute.header, Attribute.h1, Attribute.h2, Attribute.h3];
+        const [
+          FormatAttribute.header,
+          FormatAttribute.h1,
+          FormatAttribute.h2,
+          FormatAttribute.h3,
+        ];
   }
 
   @override
   Widget build(BuildContext context) {
-    assert(
-      _attributes.every((element) => _valueToText.keys.contains(element)),
-      'All attributes must be one of them: header, h1, h2 or h3',
-    );
+    if (!_attributes.every((element) => _valueToText.keys.contains(element))) {
+      debugPrint(
+        'QuillToolbarSelectHeaderStyleButtons.build — All attributes must be one of them: header, h1, h2 or h3',
+      );
+    }
 
     final style = TextStyle(
       fontWeight: FontWeight.w600,
@@ -120,12 +111,9 @@ class QuillToolbarSelectHeaderStyleButtonsState
           isSelected: isSelected,
           onPressed: () => _sharedOnPressed(attribute),
           icon: Text(
-            _valueToText[attribute] ??
-                (throw ArgumentError.notNull('attribute')),
+            _valueToText[attribute] ?? (throw ArgumentError.notNull('attribute')),
             style: style.copyWith(
-              color: isSelected
-                  ? iconTheme?.iconButtonSelectedData?.color
-                  : iconTheme?.iconButtonUnselectedData?.color,
+              color: isSelected ? iconTheme?.iconButtonSelectedData?.color : iconTheme?.iconButtonUnselectedData?.color,
             ),
           ),
         ),
@@ -143,14 +131,14 @@ class QuillToolbarSelectHeaderStyleButtonsState
     });
   }
 
-  Attribute<dynamic> _getHeaderValue() {
-    final attr = controller.toolbarButtonToggler[Attribute.header.key];
+  FormatAttribute _getHeaderValue() {
+    final attr = controller.toolbarButtonToggler[FormatAttribute.header.key];
     if (attr != null) {
       // checkbox tapping causes controller.selection to go to offset 0
-      controller.toolbarButtonToggler.remove(Attribute.header.key);
+      controller.toolbarButtonToggler.remove(FormatAttribute.header.key);
       return attr;
     }
-    return _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+    return _selectionStyle.attributes[FormatAttribute.header.key] ?? FormatAttribute.header;
   }
 
   @override

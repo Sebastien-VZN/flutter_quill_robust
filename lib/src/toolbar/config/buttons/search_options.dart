@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
-class QuillToolbarSearchButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarSearchButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarSearchButtonExtraOptions({
     required super.controller,
     required super.context,
@@ -11,7 +10,7 @@ class QuillToolbarSearchButtonExtraOptions
   });
 }
 
-class QuillToolbarSearchButtonOptions extends QuillToolbarBaseButtonOptions {
+class QuillToolbarSearchButtonOptions extends QuillToolbarBaseButtonOptions<QuillToolbarSearchButtonOptions, QuillToolbarSearchButtonExtraOptions> {
   const QuillToolbarSearchButtonOptions({
     super.iconData,
     super.childBuilder,
@@ -34,5 +33,4 @@ class QuillToolbarSearchButtonOptions extends QuillToolbarBaseButtonOptions {
   final AlignmentGeometry? searchBarAlignment;
 }
 
-typedef QuillToolbarSearchButtonOnPressedCallback =
-    Future<void> Function(QuillController controller);
+typedef QuillToolbarSearchButtonOnPressedCallback = void Function(QuillController controller);

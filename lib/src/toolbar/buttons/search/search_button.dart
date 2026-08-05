@@ -1,38 +1,37 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
-import '../../../l10n/extensions/localizations_ext.dart';
-import '../../base_button/stateless_base_button.dart';
-import '../../simple_toolbar.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/stateless_base_button.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
 
-class QuillToolbarSearchButton extends QuillToolbarBaseButtonStateless {
+class QuillToolbarSearchButton extends QuillToolbarBaseButtonStateless<QuillToolbarSearchButtonOptions, QuillToolbarSearchButtonExtraOptions> {
   const QuillToolbarSearchButton({
     required super.controller,
-    QuillToolbarSearchButtonOptions? options,
-
-    /// Shares common options between all buttons, prefer the [options]
-    /// over the [baseOptions].
-    super.baseOptions,
     super.key,
-  }) : _options = options,
-       super(options: options);
+    this._options,
+  });
 
   final QuillToolbarSearchButtonOptions? _options;
 
   @override
   QuillToolbarSearchButtonOptions? get options => _options;
 
-  Future<void> _sharedOnPressed(BuildContext context) async {
+  void _sharedOnPressed(BuildContext context) {
     final customCallback = options?.customOnPressedCallback;
     if (customCallback != null) {
-      await customCallback(controller);
+      customCallback(controller);
       return;
     }
-    await showDialog<String>(
-      context: context,
-      builder: (_) => QuillToolbarSearchDialog(
-        controller: controller,
-        dialogTheme: options?.dialogTheme,
-        searchBarAlignment: options?.searchBarAlignment,
+    unawaited(
+      showDialog<String>(
+        context: context,
+        builder: (_) => QuillToolbarSearchDialog(
+          controller: controller,
+          dialogTheme: options?.dialogTheme,
+          searchBarAlignment: options?.searchBarAlignment,
+        ),
       ),
     );
   }
@@ -55,7 +54,7 @@ class QuillToolbarSearchButton extends QuillToolbarBaseButtonStateless {
   @override
   Widget? buildCustomChildBuilder(BuildContext context) {
     return childBuilder?.call(
-      options,
+      options!,
       QuillToolbarSearchButtonExtraOptions(
         controller: controller,
         context: context,

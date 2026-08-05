@@ -1,80 +1,85 @@
-# 🌱 Contributing
+# Contributing
 
 First, we would like to thank you for your time and efforts on this project, we appreciate it.
 
 > [!IMPORTANT]
-> At this time, we prioritize bug fixes and code quality improvements over new features. 
-> Please refrain from submitting large changes to add new features, as they might
-> not be merged, and exceptions may made.
-> We encourage you to create an issue or reach out beforehand, 
-> explaining your proposed changes and their rationale for a higher chance of acceptance. Thank you!
+> The linter (`very_good_analysis` strict mode with `strict-casts`, `strict-inference`, `strict-raw-types`) is the **source of truth**. Never weaken lint rules to silence warnings — fix the code instead. `// ignore:` comments are prohibited without exceptional justification.
+>
+> No `assert()` calls in production code paths. Use defensive guards with `debugPrint` for debug-time diagnostics instead.
 
 > [!NOTE]
 > The package version in `pubspec.yaml` **should not be modified**; this will be handled by a maintainer or CI.
 > Add updates to `Unreleased` in `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
-## 📋 Development Prerequisites
+## Development Prerequisites
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install), which can be installed by following the instructions the
-  provided link, also make sure to add it to your path so `flutter --version` and `dart --version` work
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (minimum 3.44 / Dart 3.12)
 - [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/)
   or [Android Studio](https://developer.android.com/studio) (with Dart and Flutter plugins) or
   use [VS Code](https://code.visualstudio.com/) (with Dart and flutter extensions)
 
-## 🧪 Test your changes
+## Linting and Formatting
 
-Make sure you have the [Requirement](#-development-prerequisites) installed and configured correctly
+This project uses [very_good_analysis](https://pub.dev/packages/very_good_analysis) in strict mode:
 
-To test your changes:
+- **strict-casts** — no implicit casts from `dynamic` or `Object?`
+- **strict-inference** — all types must be explicitly inferred
+- **strict-raw-types** — no raw generic types (e.g., `List` must be `List<SomeType>`)
 
-1. Go to the [Example project](./example/) in [main.dart](./example/lib/main.dart) and run the project either by using
-   your IDE or `flutter run`
-2. Make sure to read the [Development Notes](#development-notes) if you made certain changes
-   or [Translations Page](./doc/translation.md) if you made changes to the translations of the package
+```bash
+# Analyze (must pass with zero errors)
+flutter analyze --no-fatal-infos --no-fatal-warnings lib/
 
-## Guidelines 📝
+# Format check
+dart format -l 150 --set-exit-if-changed .
 
-1. **Code Style and Formatting**:
+# Format fix
+dart format -l 150 .
+```
 
-   Adhere to the Dart Coding Conventions (https://dart.dev/effective-dart).
-   Use consistent naming conventions for variables, functions, classes, etc.
-   Follow a consistent code formatting style throughout the project.
+### Key Conventions
 
-   We use [Dart lints](https://dart.dev/tools/linter-rules) to make the process easier.
-2. **Documentation**:
+- **Line length**: 150 characters (not 80)
+- **Double quotes** preferred (`prefer_single_quotes: false`)
+- **Package imports** required: `package:flutter_quill/...` (no relative paths)
+- **No `print()`**: use `debugPrint` instead
+- **No `assert()` in production code**: use defensive guards with `debugPrint`
+- **Constructors first** in class body (`sort_constructors_first: true`)
+- **`unawaited_futures`**: every `Future` must be `await`ed or wrapped with `unawaited()`
+- **`avoid_void_async`**: async functions return `Future<void>`, not `void`
 
-   Document public APIs using Dart comments (https://dart.dev/effective-dart/documentation).
-   Provide comprehensive documentation for any complex algorithms, data structures, or significant functionality.
-   Write clear and concise commit messages and pull request descriptions.
-3. **Performance**:
+### Type Safety with DataCaster
 
-   Write efficient code and avoid unnecessary overhead.
-   Profile the application for performance bottlenecks and optimize critical sections if needed.
-4. **Bundle size**:
+All `Object?` → typed conversions go through `DataCaster` (`lib/src/document/data_caster.dart`):
 
-   Try to make the package size as less as possible but as much as needed
-5. **Code Review**:
+```dart
+// CORRECT — DataCaster with context logging
+final fontSize = DataCaster.toDouble(value, context: "FormatAttribute.numberValue[font]");
 
-   Encourage code reviews for all changes to maintain code quality and catch potential issues early.
-   Use pull requests and code reviews to discuss proposed changes and improvements.
-6. **Versioning and Releases**:
+// WRONG — direct cast
+final fontSize = value as double?;
+```
 
-   Follow semantic versioning for releases (https://semver.org/).
-   Clearly document release notes and changes for each version.
+Never use `as` casts for `FormatAttribute.value` or `Embeddable.data` — use the typed accessors (`intValue`, `stringValue`, `boolValue`, `numberValue`).
 
-   For now, we might introduce breaking changes in a non-major version but will always provide a migration
-   guide in each release info.
-7. **Consistency**:
+## Testing
 
-   Adhere to a consistent coding style throughout the project for improvement readability and maintainability
-8. **Meaningful Names**:
+```bash
+# All tests
+flutter test test/
 
-   Use descriptive variable, class, and function names that clearly convey their purpose.
-9. **Testing**:
+# Specific areas
+flutter test test/document/
+flutter test test/rules/
+flutter test test/controller/
+```
 
-   Try to write tests (Widget or Unit tests or other types or tests) when possible
+All 121 tests must pass. If you add a new feature, write tests for it.
 
-## 📝 Development Notes
+## Code Review Guidelines
 
-- When updating the translations, refer to the [translation](./translation.md) page.
-- Package versioning is automated, PRs need to update `CHANGELOG.md` to add the changes in the `Unreleased` per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
+1. **Type safety** — no `dynamic`, no unchecked `as` casts, no raw generic types
+2. **DataCaster** — all type conversions go through `DataCaster` with context
+3. **No media** — this fork does not support image/video/gif embeds. Do not add media-related code
+4. **Defensive guards** — use `debugPrint` + early return instead of `assert()` for runtime checks
+5. **Consistency** — match existing naming conventions and code style

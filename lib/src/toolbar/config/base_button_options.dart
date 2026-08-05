@@ -1,10 +1,9 @@
 import 'package:flutter/foundation.dart' show VoidCallback, immutable;
 import 'package:flutter/widgets.dart' show BuildContext, IconData, Widget;
 
-import '../../controller/quill_controller.dart';
-import '../../editor_toolbar_controller_shared/quill_config.dart'
-    show kDefaultIconSize;
-import '../theme/quill_icon_theme.dart' show QuillIconTheme;
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/quill_config.dart' show kDefaultIconSize;
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart' show QuillIconTheme;
 
 class QuillToolbarBaseButtonExtraOptionsIsToggled {
   const QuillToolbarBaseButtonExtraOptionsIsToggled(this.isToggled);
@@ -69,5 +68,4 @@ class QuillToolbarBaseButtonOptions<T, I> {
   final QuillToolbarButtonOptionsChildBuilder<T, I> childBuilder;
 }
 
-typedef QuillToolbarButtonOptionsChildBuilder<T, I> =
-    Widget Function(T options, I extraOptions)?;
+typedef QuillToolbarButtonOptionsChildBuilder<T, I> = Widget Function(T options, I extraOptions)?;

@@ -1,33 +1,11 @@
-import '../../../flutter_quill.dart';
-
-dynamic getFontSize(dynamic sizeValue) {
-  if (sizeValue is String &&
-      ['small', 'normal', 'large', 'huge'].contains(sizeValue)) {
-    return sizeValue;
-  }
-
-  if (sizeValue is double) {
-    return sizeValue;
-  }
-
-  if (sizeValue is int) {
-    return sizeValue.toDouble();
-  }
-
-  assert(sizeValue is String);
-  final fontSize = double.tryParse(sizeValue);
-  if (fontSize == null) {
-    throw ArgumentError('Invalid size $sizeValue');
-  }
-  return fontSize;
-}
+import 'package:flutter/foundation.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 double? getFontSizeAsDouble(
   dynamic sizeValue, {
   required DefaultStyles defaultStyles,
 }) {
-  if (sizeValue is String &&
-      ['small', 'normal', 'large', 'huge'].contains(sizeValue)) {
+  if (sizeValue is String && ['small', 'normal', 'large', 'huge'].contains(sizeValue)) {
     return switch (sizeValue) {
       'small' => defaultStyles.sizeSmall?.fontSize,
       'normal' => null,
@@ -45,10 +23,10 @@ double? getFontSizeAsDouble(
     return sizeValue.toDouble();
   }
 
-  assert(sizeValue is String);
-  final fontSize = double.tryParse(sizeValue);
+  final fontSize = double.tryParse(sizeValue.toString());
   if (fontSize == null) {
-    throw ArgumentError('Invalid size $sizeValue');
+    debugPrint('Invalid size $sizeValue');
+    return null;
   }
   return fontSize;
 }

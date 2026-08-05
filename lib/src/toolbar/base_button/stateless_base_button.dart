@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_button_options_resolver.dart';
+import 'package:flutter_quill/src/toolbar/config/simple_toolbar_config.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 import 'package:meta/meta.dart';
-
-import '../../controller/quill_controller.dart';
-import '../config/simple_toolbar_config.dart';
-import '../theme/quill_icon_theme.dart';
-import 'base_button_options_resolver.dart';
 
 /// The [T] is the options for the button, usually should refresnce itself
 /// it's used in [childBuilder] so the developer can custmize this when using it
@@ -20,13 +19,12 @@ abstract class QuillToolbarBaseButtonStateless<T, I> extends StatelessWidget {
 
   final QuillToolbarBaseButtonOptions<T, I>? options;
 
-  final QuillToolbarBaseButtonOptions? baseOptions;
+  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
 
-  QuillToolbarButtonOptionsResolver get _optionsResolver =>
-      QuillToolbarButtonOptionsResolver(
-        baseOptions: baseOptions,
-        specificOptions: options,
-      );
+  QuillToolbarButtonOptionsResolver<T, I> get _optionsResolver => QuillToolbarButtonOptionsResolver<T, I>(
+    baseOptions: baseOptions as QuillToolbarBaseButtonOptions<T, I>?,
+    specificOptions: options,
+  );
 
   final QuillController controller;
 
@@ -54,8 +52,7 @@ abstract class QuillToolbarBaseButtonStateless<T, I> extends StatelessWidget {
     return _optionsResolver.tooltip ?? getDefaultTooltip(context);
   }
 
-  QuillToolbarButtonOptionsChildBuilder get childBuilder =>
-      _optionsResolver.childBuilder;
+  QuillToolbarButtonOptionsChildBuilder<T, I> get childBuilder => _optionsResolver.childBuilder;
 
   abstract final IconData Function(BuildContext context) getDefaultIconData;
   abstract final String Function(BuildContext context) getDefaultTooltip;

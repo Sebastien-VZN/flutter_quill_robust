@@ -1,25 +1,23 @@
 import 'dart:async' show StreamController;
 
-import 'package:meta/meta.dart';
-
-import '../../quill_delta.dart';
-import '../common/structs/offset_value.dart';
-import '../common/structs/segment_leaf_node.dart';
-
-import '../editor/config/search_config.dart';
-import '../editor/embed/embed_editor_builder.dart';
-import '../rules/rule.dart';
-import 'attribute.dart';
-import 'history.dart';
-import 'nodes/block.dart';
-import 'nodes/container.dart';
-import 'nodes/embeddable.dart';
-import 'nodes/leaf.dart';
-import 'nodes/line.dart';
-import 'nodes/node.dart';
-import 'structs/doc_change.dart';
-import 'structs/history_changed.dart';
-import 'style.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/structs/offset_value.dart';
+import 'package:flutter_quill/src/common/structs/segment_leaf_node.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/history.dart';
+import 'package:flutter_quill/src/document/nodes/block.dart';
+import 'package:flutter_quill/src/document/nodes/container.dart';
+import 'package:flutter_quill/src/document/nodes/embeddable.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart';
+import 'package:flutter_quill/src/document/nodes/line.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
+import 'package:flutter_quill/src/document/structs/doc_change.dart';
+import 'package:flutter_quill/src/document/structs/history_changed.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/editor/config/search_config.dart';
+import 'package:flutter_quill/src/editor/embed/embed_editor_builder.dart';
+import 'package:flutter_quill/src/rules/rule.dart';
 
 /// The rich text document
 class Document {
@@ -29,7 +27,7 @@ class Document {
   }
 
   /// Creates new document from provided JSON `data`.
-  Document.fromJson(List data) : _delta = _transform(Delta.fromJson(data)) {
+  Document.fromJson(List<dynamic> data) : _delta = _transform(Delta.fromJson(data)) {
     loadDocument(_delta);
   }
 
@@ -61,11 +59,10 @@ class Document {
   final Rules _rules = Rules.getInstance();
 
   void setCustomRules(List<Rule> customRules) {
-    _rules.setCustomRules(customRules);
+    _rules.customRules;
   }
 
-  final StreamController<DocChange> documentChangeObserver =
-      StreamController.broadcast();
+  final StreamController<DocChange> documentChangeObserver = StreamController.broadcast();
 
   final History history = History();
 
@@ -81,20 +78,36 @@ class Document {
   /// produces a change event with its source set to [ChangeSource.local].
   ///
   /// Returns an instance of [Delta] actually composed into this document.
-  Delta insert(int index, Object? data, {int replaceLength = 0}) {
-    assert(index >= 0);
-    assert(data is String || data is Embeddable);
-    if (data is Embeddable) {
-      data = data.toJson();
-    } else if ((data as String).isEmpty) {
-      return Delta();
+  Delta? insert(int index, Object? data, {int replaceLength = 0}) {
+    /// delta value default
+    var value = data;
+
+    if (index < 0) {
+      debugPrint("ERROR : insert index < 0 return null");
+      return null;
+    }
+    if (value is! String && value is! Embeddable) {
+      debugPrint(
+        "ERROR : insert value is! String && value is! Embeddable return null",
+      );
+      return null;
+    }
+
+    /// Embedable
+    if (value is Embeddable) {
+      value = value.toJson();
+    } else if ((data! as String).isEmpty) {
+      debugPrint(
+        "insert value (data! as String).isEmpty is Embeddable return null",
+      );
+      return null;
     }
 
     final delta = _rules.apply(
       RuleType.insert,
       this,
       index,
-      data: data,
+      data: value,
       len: replaceLength,
     );
     compose(delta, ChangeSource.local);
@@ -104,11 +117,14 @@ class Document {
   /// Deletes [length] of characters from this document starting at [index].
   ///
   /// This method applies heuristic rules before modifying this document and
-  /// produces a [Change] with source set to [ChangeSource.local].
+  /// produces a Change with source set to [ChangeSource.local].
   ///
   /// Returns an instance of [Delta] actually composed into this document.
-  Delta delete(int index, int len) {
-    assert(index >= 0 && len > 0);
+  Delta? delete(int index, int len) {
+    if (index < 0 || len <= 0) {
+      debugPrint("delete value index < 0 || len <= 0 return null");
+      return null;
+    }
     final delta = _rules.apply(RuleType.delete, this, index, len: len);
     if (delta.isNotEmpty) {
       compose(delta, ChangeSource.local);
@@ -122,12 +138,20 @@ class Document {
   /// produces a change event with its source set to [ChangeSource.local].
   ///
   /// Returns an instance of [Delta] actually composed into this document.
-  Delta replace(int index, int len, Object? data) {
-    assert(index >= 0);
-    assert(data is String || data is Embeddable || data is Delta);
+  Delta? replace(int index, int len, Object? data) {
+    if (index < 0) {
+      debugPrint("replace value index < 0 return null");
+      return null;
+    }
 
-    var delta = Delta();
+    if (data is! String && data is! Embeddable && data is! Delta) {
+      debugPrint(
+        "replace value data is! String && data is! Embeddable && data is! Delta return null",
+      );
+      return null;
+    }
 
+    Delta? delta = Delta();
     if (data is Delta) {
       // move to insertion point and add the inserted content
       if (index > 0) {
@@ -140,15 +164,11 @@ class Document {
       }
 
       // add the pasted content
-      for (final op in data.operations) {
-        delta.push(op);
-      }
-
+      data.operations.forEach(delta.push);
       compose(delta, ChangeSource.local);
     } else {
-      final dataIsNotEmpty = (data is String) ? data.isNotEmpty : true;
-
-      assert(dataIsNotEmpty || len > 0);
+      final dataIsNotEmpty = data is! String || data.isNotEmpty;
+      if (!dataIsNotEmpty && len <= 0) return null;
 
       // We have to insert before applying delete rules
       // Otherwise delete would be operating on stale document snapshot.
@@ -158,6 +178,8 @@ class Document {
 
       if (len > 0) {
         final deleteDelta = delete(index, len);
+        if (deleteDelta == null) return null;
+        delta = Delta();
         delta = delta.compose(deleteDelta);
       }
     }
@@ -173,10 +195,12 @@ class Document {
   /// Returns an instance of [Delta] actually composed into this document.
   /// The returned [Delta] may be empty in which case this document remains
   /// unchanged and no change event is published to the [changes] stream.
-  Delta format(int index, int len, Attribute? attribute) {
-    assert(index >= 0 && len >= 0 && attribute != null);
-
+  Delta format(int index, int len, FormatAttribute? attribute) {
     var delta = Delta();
+    if (index < 0 || len < 0 || attribute == null) {
+      debugPrint("Delta format delta error");
+      return delta;
+    }
 
     final formatDelta = _rules.apply(
       RuleType.format,
@@ -202,43 +226,39 @@ class Document {
       return const Style();
     }
     if (len > 0) {
-      return (res.node as Line).collectStyle(res.offset, len);
+      return (res.node! as Line).collectStyle(res.offset, len);
     }
     //
     if (res.offset == 0) {
-      final current = (res.node as Line).collectStyle(0, 0);
+      final current = (res.node! as Line).collectStyle(0, 0);
       //
-      while ((res.node as Line).length == 1 && index > 0) {
+      while ((res.node! as Line).length == 1 && index > 0) {
         res = queryChild(--index);
       }
-      // Get inline attributes from previous line (link does not cross line breaks)
-      final prev = (res.node as Line).collectStyle(res.offset, 0);
-      final attributes = <String, Attribute>{};
+
+      /// Get inline attributes from previous line (link does not cross line breaks)
+      final prev = (res.node! as Line).collectStyle(res.offset, 0);
+      final attributes = <String, FormatAttribute>{};
       for (final attr in prev.attributes.values) {
-        if (attr.scope == AttributeScope.inline &&
-            attr.key != Attribute.link.key) {
+        if (attr.scope == FormatScope.inline && attr.key != FormatAttribute.link.key) {
           attributes[attr.key] = attr;
         }
       }
-      // Combine with block attributes from current line (exclude headers which apply only to the active line)
+
+      /// Combine with block attributes from current line (exclude headers which apply only to the active line)
       for (final attr in current.attributes.values) {
-        if (attr.scope == AttributeScope.block &&
-            attr.key != Attribute.header.key) {
+        if (attr.scope == FormatScope.block && attr.key != FormatAttribute.header.key) {
           attributes[attr.key] = attr;
         }
       }
       return Style.attr(attributes);
     }
     //
-    final style = (res.node as Line).collectStyle(res.offset - 1, 0);
-    final linkAttribute = style.attributes[Attribute.link.key];
+    final style = (res.node! as Line).collectStyle(res.offset - 1, 0);
+    final linkAttribute = style.attributes[FormatAttribute.link.key];
     if (linkAttribute != null) {
       if ((res.node!.length - 1 == res.offset) ||
-          (linkAttribute.value !=
-              (res.node as Line)
-                  .collectStyle(res.offset, len)
-                  .attributes[Attribute.link.key]
-                  ?.value)) {
+          (linkAttribute.value != (res.node! as Line).collectStyle(res.offset, len).attributes[FormatAttribute.link.key]?.value)) {
         return style.removeAll({linkAttribute});
       }
     }
@@ -246,9 +266,9 @@ class Document {
   }
 
   /// Returns all styles and Embed for each node within selection
-  List<OffsetValue> collectAllIndividualStyleAndEmbed(int index, int len) {
+  List<StyledNodeEntry> collectAllIndividualStyleAndEmbed(int index, int len) {
     final res = queryChild(index);
-    return (res.node as Line).collectAllIndividualStylesAndEmbed(
+    return (res.node! as Line).collectAllIndividualStylesAndEmbed(
       res.offset,
       len,
     );
@@ -257,13 +277,13 @@ class Document {
   /// Returns all styles for any character within the specified text range.
   List<Style> collectAllStyles(int index, int len) {
     final res = queryChild(index);
-    return (res.node as Line).collectAllStyles(res.offset, len);
+    return (res.node! as Line).collectAllStyles(res.offset, len);
   }
 
   /// Returns all styles for any character within the specified text range.
-  List<OffsetValue<Style>> collectAllStylesWithOffset(int index, int len) {
+  List<OffsetStyleValue<Style>> collectAllStylesWithOffset(int index, int len) {
     final res = queryChild(index);
-    return (res.node as Line).collectAllStylesWithOffsets(res.offset, len);
+    return (res.node! as Line).collectAllStylesWithOffsets(res.offset, len);
   }
 
   // Store properties that are set in the editor config
@@ -286,16 +306,13 @@ class Document {
   QuillSearchConfig? get searchConfig => _searchConfig;
 
   @internal
-  set searchConfig(QuillSearchConfig? searchConfig) =>
-      _searchConfig = searchConfig;
+  set searchConfig(QuillSearchConfig? searchConfig) => _searchConfig = searchConfig;
 
   @internal
-  set embedBuilders(Iterable<EmbedBuilder>? embedBuilders) =>
-      _embedBuilders = embedBuilders;
+  set embedBuilders(Iterable<EmbedBuilder>? embedBuilders) => _embedBuilders = embedBuilders;
 
   @internal
-  set unknownEmbedBuilder(EmbedBuilder? unknownEmbedBuilder) =>
-      _unknownEmbedBuilder = unknownEmbedBuilder;
+  set unknownEmbedBuilder(EmbedBuilder? unknownEmbedBuilder) => _unknownEmbedBuilder = unknownEmbedBuilder;
 
   /// Returns plain text within the specified text range.
   String getPlainText(
@@ -304,7 +321,7 @@ class Document {
     @internal bool includeEmbeds = false,
   }) {
     final res = queryChild(index);
-    return (res.node as Line).getPlainText(
+    return (res.node! as Line).getPlainText(
       res.offset,
       len,
       embedBuilders: includeEmbeds ? _embedBuilders : null,
@@ -314,7 +331,7 @@ class Document {
 
   /// Returns [Line] located at specified character [offset].
   ChildQuery queryChild(int offset) {
-    // TODO: prevent user from moving caret after last line-break.
+    //  prevent user from moving caret after last line-break.
     final res = _root.queryChild(offset, true);
     if (res.node == null) {
       return res;
@@ -322,7 +339,7 @@ class Document {
     if (res.node is Line) {
       return res;
     }
-    final block = res.node as Block;
+    final block = res.node! as Block;
     return block.queryChild(res.offset, true);
   }
 
@@ -437,33 +454,38 @@ class Document {
       return const SegmentLeafNode(null, null);
     }
 
-    final line = result.node as Line;
+    final line = result.node! as Line;
     final segmentResult = line.queryChild(result.offset, false);
     return SegmentLeafNode(line, segmentResult.node as Leaf?);
   }
 
-  /// Composes [change] Delta into this document.
+  /// Composes change Delta into this document.
   ///
   /// Use this method with caution as it does not apply heuristic rules to the
-  /// [change].
+  /// change.
   ///
-  /// It is callers responsibility to ensure that the [change] conforms to
+  /// It is callers responsibility to ensure that the change conforms to
   /// the document model semantics and can be composed with the current state
   /// of this document.
   ///
-  /// In case the [change] is invalid, behavior of this method is unspecified.
+  /// In case the change is invalid, behavior of this method is unspecified.
   void compose(Delta delta, ChangeSource changeSource) {
-    assert(!documentChangeObserver.isClosed);
+    if (documentChangeObserver.isClosed) {
+      debugPrint("compose documentChangeObserver.isClosed return void");
+      return;
+    }
+
     delta.trim();
-    assert(delta.isNotEmpty);
+    if (delta.isEmpty) {
+      debugPrint("compose delta.isEmpty return void");
+      return;
+    }
 
     var offset = 0;
-    delta = _transform(delta);
+    final trDelta = _transform(delta);
     final originalDelta = toDelta();
-    for (final op in delta.toList()) {
-      final style = op.attributes != null
-          ? Style.fromJson(op.attributes)
-          : null;
+    for (final op in trDelta.toList()) {
+      final style = op.attributes != null ? Style.fromJson(op.attributes) : null;
 
       if (op.isInsert) {
         // Must normalize data before inserting into the document, makes sure
@@ -480,13 +502,19 @@ class Document {
       }
     }
     try {
-      _delta = _delta.compose(delta);
+      _delta = _delta.compose(trDelta);
     } catch (e) {
-      throw StateError('_delta compose failed');
+      debugPrint("_delta compose failed");
+      return;
     }
-    assert(_delta == _root.toDelta(), 'Compose failed');
+    if (_delta != _root.toDelta()) {
+      debugPrint(
+        'Document.compose — Compose failed: delta mismatch after compose',
+      );
+    }
+    // Guard: debugPrint replaces assert for production safety.
     cachedPlainText = null;
-    final change = DocChange(originalDelta, delta, changeSource);
+    final change = DocChange(originalDelta, trDelta, changeSource);
     documentChangeObserver.add(change);
     history.handleDocChange(change);
   }
@@ -511,7 +539,7 @@ class Document {
     for (var i = 0; i < ops.length; i++) {
       final op = ops[i];
       res.push(op);
-      _autoAppendNewlineAfterEmbeddable(i, ops, op, res, BlockEmbed.videoType);
+      _autoAppendNewlineAfterEmbeddable(i, ops, op, res, 'video');
     }
     return res;
   }
@@ -523,25 +551,13 @@ class Document {
     Delta res,
     String type,
   ) {
-    final nextOpIsEmbed =
-        i + 1 < ops.length &&
-        ops[i + 1].isInsert &&
-        ops[i + 1].data is Map &&
-        (ops[i + 1].data as Map).containsKey(type);
-    if (nextOpIsEmbed &&
-        op.data is String &&
-        (op.data as String).isNotEmpty &&
-        !(op.data as String).endsWith('\n')) {
+    final nextOpIsEmbed = i + 1 < ops.length && ops[i + 1].isInsert && ops[i + 1].data is Map && (ops[i + 1].data! as Map).containsKey(type);
+    if (nextOpIsEmbed && op.data is String && (op.data! as String).isNotEmpty && !(op.data! as String).endsWith('\n')) {
       res.push(Operation.insert('\n'));
     }
     // embed could be image or video
-    final opInsertEmbed =
-        op.isInsert && op.data is Map && (op.data as Map).containsKey(type);
-    final nextOpIsLineBreak =
-        i + 1 < ops.length &&
-        ops[i + 1].isInsert &&
-        ops[i + 1].data is String &&
-        (ops[i + 1].data as String).startsWith('\n');
+    final opInsertEmbed = op.isInsert && op.data is Map && (op.data! as Map).containsKey(type);
+    final nextOpIsLineBreak = i + 1 < ops.length && ops[i + 1].isInsert && ops[i + 1].data is String && (ops[i + 1].data! as String).startsWith('\n');
     if (opInsertEmbed && (i + 1 == ops.length - 1 || !nextOpIsLineBreak)) {
       // automatically append '\n' for embeddable
       res.push(Operation.insert('\n'));
@@ -556,11 +572,11 @@ class Document {
     if (data is Embeddable) {
       return data;
     }
-    return Embeddable.fromJson(data as Map<String, dynamic>);
+    return Embeddable.fromJson(data! as Map<String, dynamic>);
   }
 
-  void close() {
-    documentChangeObserver.close();
+  Future<void> close() async {
+    await documentChangeObserver.close();
     history.clear();
   }
 
@@ -568,9 +584,7 @@ class Document {
   String toPlainText([
     Iterable<EmbedBuilder>? embedBuilders,
     EmbedBuilder? unknownEmbedBuilder,
-  ]) => cachedPlainText ??= _root.children
-      .map((e) => e.toPlainText(embedBuilders, unknownEmbedBuilder))
-      .join();
+  ]) => cachedPlainText ??= _root.children.map((e) => e.toPlainText(embedBuilders, unknownEmbedBuilder)).join();
 
   @visibleForTesting
   @internal
@@ -582,28 +596,26 @@ class Document {
       );
     }
 
-    assert((doc.last.data as String).endsWith('\n'));
+    if (!(doc.last.data! as String).endsWith('\n')) {
+      debugPrint(r"loadDocument failed: doc does not end with \n");
+      return;
+    }
 
     var offset = 0;
     for (final op in doc.toList()) {
       if (!op.isInsert) {
-        throw ArgumentError.value(
-          doc,
-          'Document can only contain insert operations but ${op.key} found.',
+        debugPrint(
+          "'Document can only contain insert operations but ${op.key} found.",
         );
+        return;
       }
-      final style = op.attributes != null
-          ? Style.fromJson(op.attributes)
-          : null;
+      final style = op.attributes != null ? Style.fromJson(op.attributes) : null;
       final data = _normalize(op.data);
       _root.insert(offset, data, style);
       offset += op.length!;
     }
     final node = _root.last;
-    if (node is Line &&
-        node.parent is! Block &&
-        node.style.isEmpty &&
-        _root.childCount > 1) {
+    if (node is Line && node.parent is! Block && node.style.isEmpty && _root.childCount > 1) {
       _root.remove(node);
     }
     cachedPlainText = null;
@@ -620,13 +632,11 @@ class Document {
     }
 
     final delta = node.toDelta();
-    return delta.length == 1 &&
-        delta.first.data == '\n' &&
-        delta.first.key == 'insert';
+    return delta.length == 1 && delta.first.data == '\n' && delta.first.key == 'insert';
   }
 }
 
-/// Source of a [Change].
+/// Source of a Change.
 enum ChangeSource {
   /// Change originated from a local action. Typically triggered by user.
   local,

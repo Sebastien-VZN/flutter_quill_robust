@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/stateless_base_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/clear_format_options.dart';
 
-import '../../document/attribute.dart';
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/stateless_base_button.dart';
-import '../config/buttons/clear_format_options.dart';
-import 'quill_icon_button.dart';
-
-class QuillToolbarClearFormatButton extends QuillToolbarBaseButtonStateless {
+class QuillToolbarClearFormatButton
+    extends QuillToolbarBaseButtonStateless<QuillToolbarClearFormatButtonOptions, QuillToolbarClearFormatButtonExtraOptions> {
   const QuillToolbarClearFormatButton({
     required super.controller,
     QuillToolbarClearFormatButtonOptions? options,
@@ -18,14 +18,12 @@ class QuillToolbarClearFormatButton extends QuillToolbarBaseButtonStateless {
   }) : super(options: options);
 
   void _sharedOnPressed() {
-    final attributes = <Attribute>{};
+    final attributes = <FormatAttribute>{};
     for (final style in controller.getAllSelectionStyles()) {
-      for (final attr in style.attributes.values) {
-        attributes.add(attr);
-      }
+      style.attributes.values.forEach(attributes.add);
     }
     for (final attribute in attributes) {
-      controller.formatSelection(Attribute.clone(attribute, null));
+      controller.formatSelection(FormatAttribute.clone(attribute, null));
     }
   }
 
@@ -47,7 +45,7 @@ class QuillToolbarClearFormatButton extends QuillToolbarBaseButtonStateless {
   @override
   Widget? buildCustomChildBuilder(BuildContext context) {
     return options?.childBuilder?.call(
-      options,
+      options! as QuillToolbarClearFormatButtonOptions,
       QuillToolbarClearFormatButtonExtraOptions(
         controller: controller,
         context: context,

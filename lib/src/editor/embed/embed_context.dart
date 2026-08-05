@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart' as leaf;
+import 'package:flutter_quill/src/editor/embed/embed_editor_builder.dart';
 import 'package:meta/meta.dart';
-
-import '../../controller/quill_controller.dart';
-import '../../document/nodes/leaf.dart' as leaf;
-import './embed_editor_builder.dart';
 
 /// Encapsulates the context required for embedding content in a rich text editor.
 ///

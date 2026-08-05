@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/quill_icon_theme.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 
 class QuillToolbarIconButton extends StatelessWidget {
   const QuillToolbarIconButton({

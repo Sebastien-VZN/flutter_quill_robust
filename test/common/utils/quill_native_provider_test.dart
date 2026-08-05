@@ -44,8 +44,7 @@ void main() {
 }
 
 class _FakeQuillNativeBridge extends QuillNativeBridge {
-  var testIsSupported = false;
+  bool testIsSupported = false;
   @override
-  Future<bool> isSupported(QuillNativeBridgeFeature feature) async =>
-      testIsSupported;
+  Future<bool> isSupported(QuillNativeBridgeFeature feature) async => testIsSupported;
 }

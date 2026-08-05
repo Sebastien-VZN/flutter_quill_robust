@@ -1,22 +1,23 @@
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/src/controller/quill_controller.dart' show QuillController;
 import 'package:meta/meta.dart';
 
-import '../../../../controller/quill_controller.dart' show QuillController;
-
-typedef CharacterShortcutEventHandler =
-    bool Function(QuillController controller);
+typedef CharacterShortcutEventHandler = bool Function(QuillController controller);
 
 /// Defines the implementation of shortcut event based on character.
 @immutable
-@experimental
 class CharacterShortcutEvent {
-  const CharacterShortcutEvent({
+  CharacterShortcutEvent({
     required this.key,
     required this.character,
     required this.handler,
-  }) : assert(
-         character.length == 1 && character != '\n',
-         'character cannot be major than one char, and it must not be a new line',
-       );
+  }) {
+    if (character.length != 1 || character == '\n') {
+      debugPrint(
+        'CharacterShortcutEvent — character cannot be major than one char, and it must not be a new line',
+      );
+    }
+  }
 
   final String key;
   final String character;
@@ -39,17 +40,13 @@ class CharacterShortcutEvent {
   }
 
   @override
-  String toString() =>
-      'CharacterShortcutEvent(key: $key, character: $character, handler: $handler)';
+  String toString() => 'CharacterShortcutEvent(key: $key, character: $character, handler: $handler)';
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is CharacterShortcutEvent &&
-        other.key == key &&
-        other.character == character &&
-        other.handler == handler;
+    return other is CharacterShortcutEvent && other.key == key && other.character == character && other.handler == handler;
   }
 
   @override

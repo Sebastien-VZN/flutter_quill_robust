@@ -17,12 +17,12 @@ class TestTimeStampEmbedBuilderWidget extends EmbedBuilder {
 
   @override
   String toPlainText(Embed node) {
-    return node.value.data.split(' ')[0]; // return date component
+    return node.value.data.toString().split(' ')[0]; // return date component
   }
 
   @override
   Widget build(BuildContext context, EmbedContext embedContext) {
-    return Text(embedContext.node.value.data);
+    return Text(embedContext.node.value.data.toString());
   }
 }
 
@@ -39,7 +39,7 @@ class TestUnknownEmbedBuilder extends EmbedBuilder {
 
   @override
   Widget build(BuildContext context, EmbedContext embedContext) {
-    return Text(embedContext.node.value.data);
+    return Text(embedContext.node.value.data.toString());
   }
 }
 
@@ -80,7 +80,11 @@ void main() {
       final document = Document.fromDelta(delta);
 
       /// Default does not search embeds
-      expect(document.search('2024'), [], reason: 'Does not search embeds');
+      expect(
+        document.search('2024'),
+        isEmpty,
+        reason: 'Does not search embeds',
+      );
 
       /// Test rawData mode
       document.searchConfig = const QuillSearchConfig(
@@ -96,7 +100,7 @@ void main() {
       document.searchConfig = const QuillSearchConfig(
         searchEmbedMode: SearchEmbedMode.plainText,
       );
-      expect(document.search('2024'), [], reason: 'No embed builders');
+      expect(document.search('2024'), isEmpty, reason: 'No embed builders');
 
       /// Test plainText mode
       document
@@ -111,7 +115,7 @@ void main() {
       );
       expect(
         document.search('18'),
-        [],
+        isEmpty,
         reason: 'timeStamp overrides toPlainText returns date not time',
       );
       expect(document.search('08'), [
@@ -127,9 +131,8 @@ void main() {
         ..unknownEmbedBuilder = const TestUnknownEmbedBuilder();
       expect(
         document.search('7900'),
-        [],
-        reason:
-            'image not found because unknown returns first 5 chars of rawData',
+        isEmpty,
+        reason: 'image not found because unknown returns first 5 chars of rawData',
       );
       expect(
         document.search('https'),

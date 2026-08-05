@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../common/utils/widgets.dart';
-import '../../document/attribute.dart';
-import '../../document/style.dart';
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/base_value_button.dart';
-import '../simple_toolbar.dart';
-import '../theme/quill_icon_theme.dart';
+import 'package:flutter_quill/src/common/utils/widgets.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/style.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 
 typedef ToggleStyleButtonBuilder =
     Widget Function(
       BuildContext context,
-      Attribute attribute,
+      FormatAttribute attribute,
       IconData icon,
       bool? isToggled,
       VoidCallback? onPressed,
@@ -32,16 +32,13 @@ class QuillToolbarToggleStyleButton extends QuillToolbarToggleStyleBaseButton {
     super.key,
   });
 
-  final Attribute attribute;
+  final FormatAttribute attribute;
 
   @override
-  QuillToolbarToggleStyleButtonState createState() =>
-      QuillToolbarToggleStyleButtonState();
+  QuillToolbarToggleStyleButtonState createState() => QuillToolbarToggleStyleButtonState();
 }
 
-class QuillToolbarToggleStyleButtonState
-    extends
-        QuillToolbarToggleStyleBaseButtonState<QuillToolbarToggleStyleButton> {
+class QuillToolbarToggleStyleButtonState extends QuillToolbarToggleStyleBaseButtonState<QuillToolbarToggleStyleButton> {
   Style get _selectionStyle => controller.getSelectionStyle();
 
   @override
@@ -52,7 +49,7 @@ class QuillToolbarToggleStyleButtonState
       case 'bold':
         return (context.loc.bold, Icons.format_bold);
       case 'script':
-        if (widget.attribute.value == ScriptAttributes.sub.value) {
+        if (widget.attribute.value == "sub") {
           return (context.loc.subscript, Icons.subscript);
         }
         return (context.loc.superscript, Icons.superscript);
@@ -89,7 +86,7 @@ class QuillToolbarToggleStyleButtonState
       default:
         throw ArgumentError(
           'Could not find the default tooltip for '
-          '${widget.attribute.toString()}',
+          '${widget.attribute}',
         );
     }
   }
@@ -135,11 +132,11 @@ class QuillToolbarToggleStyleButtonState
     );
   }
 
-  bool _getIsToggled(Map<String, Attribute> attrs) {
-    if (widget.attribute.key == Attribute.list.key ||
-        widget.attribute.key == Attribute.header.key ||
-        widget.attribute.key == Attribute.script.key ||
-        widget.attribute.key == Attribute.align.key) {
+  bool _getIsToggled(Map<String, FormatAttribute> attrs) {
+    if (widget.attribute.key == FormatAttribute.list.key ||
+        widget.attribute.key == FormatAttribute.header.key ||
+        widget.attribute.key == FormatAttribute.script.key ||
+        widget.attribute.key == FormatAttribute.align.key) {
       final attribute = attrs[widget.attribute.key];
       if (attribute == null) {
         return false;
@@ -153,16 +150,14 @@ class QuillToolbarToggleStyleButtonState
     controller
       ..skipRequestKeyboard = !widget.attribute.isInline
       ..formatSelection(
-        currentValue
-            ? Attribute.clone(widget.attribute, null)
-            : widget.attribute,
+        currentValue ? FormatAttribute.clone(widget.attribute, null) : widget.attribute,
       );
   }
 }
 
 Widget defaultToggleStyleButtonBuilder(
   BuildContext context,
-  Attribute attribute,
+  FormatAttribute attribute,
   IconData icon,
   bool? isToggled,
   VoidCallback? onPressed,
@@ -174,7 +169,7 @@ Widget defaultToggleStyleButtonBuilder(
   final isEnabled = onPressed != null;
   return QuillToolbarIconButton(
     icon: Icon(icon, size: iconSize * iconButtonFactor),
-    isSelected: isEnabled ? isToggled == true : false,
+    isSelected: isEnabled && isToggled == true,
     onPressed: onPressed,
     afterPressed: afterPressed,
     iconTheme: iconTheme,

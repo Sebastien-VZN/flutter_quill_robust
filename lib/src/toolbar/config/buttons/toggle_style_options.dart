@@ -1,11 +1,8 @@
 import 'package:flutter/foundation.dart' show immutable;
+import 'package:flutter_quill/src/toolbar/config/base_button_options.dart';
 import 'package:meta/meta.dart';
 
-import '../base_button_options.dart';
-
-class QuillToolbarToggleStyleButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions
-    implements QuillToolbarBaseButtonExtraOptionsIsToggled {
+class QuillToolbarToggleStyleButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions implements QuillToolbarBaseButtonExtraOptionsIsToggled {
   const QuillToolbarToggleStyleButtonExtraOptions({
     required super.controller,
     required super.context,
@@ -19,11 +16,7 @@ class QuillToolbarToggleStyleButtonExtraOptions
 
 @immutable
 class QuillToolbarToggleStyleButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarToggleStyleButtonOptions,
-          QuillToolbarToggleStyleButtonExtraOptions
-        > {
+    extends QuillToolbarBaseButtonOptions<QuillToolbarToggleStyleButtonOptions, QuillToolbarToggleStyleButtonExtraOptions> {
   const QuillToolbarToggleStyleButtonOptions({
     super.iconData,
     super.iconSize,

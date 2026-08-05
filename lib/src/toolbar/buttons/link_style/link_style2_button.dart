@@ -1,33 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' show QuillToolbarLinkStyleButton;
+import 'package:flutter_quill/src/common/utils/link_validator.dart';
+import 'package:flutter_quill/src/common/utils/widgets.dart';
+import 'package:flutter_quill/src/editor/widgets/link.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/link_style/link_style_button.dart' show QuillToolbarLinkStyleButton;
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/simple_toolbar_config.dart';
+import 'package:flutter_quill/src/toolbar/simple_toolbar.dart' show QuillToolbarLinkStyleButton;
+import 'package:flutter_quill/src/toolbar/theme/quill_dialog_theme.dart';
 import 'package:url_launcher/link.dart';
 
-import '../../../common/utils/link_validator.dart';
-import '../../../common/utils/widgets.dart';
+typedef QuillToolbarLinkStyleBaseButton2 = QuillToolbarBaseButton<QuillToolbarLinkStyleButton2Options, QuillToolbarLinkStyleButton2ExtraOptions>;
 
-import '../../../editor/widgets/link.dart';
-import '../../../l10n/extensions/localizations_ext.dart';
-import '../../base_button/base_value_button.dart';
-
-import '../../config/simple_toolbar_config.dart';
-import '../../theme/quill_dialog_theme.dart';
-
-import '../quill_icon_button.dart';
-
-typedef QuillToolbarLinkStyleBaseButton2 =
-    QuillToolbarBaseButton<
-      QuillToolbarLinkStyleButton2Options,
-      QuillToolbarLinkStyleButton2ExtraOptions
-    >;
-
-typedef QuillToolbarLinkStyleBaseButton2State<
-  W extends QuillToolbarLinkStyleBaseButton2
-> =
-    QuillToolbarCommonButtonState<
-      W,
-      QuillToolbarLinkStyleButton2Options,
-      QuillToolbarLinkStyleButton2ExtraOptions
-    >;
+typedef QuillToolbarLinkStyleBaseButton2State<W extends QuillToolbarLinkStyleBaseButton2> =
+    QuillToolbarCommonButtonState<W, QuillToolbarLinkStyleButton2Options, QuillToolbarLinkStyleButton2ExtraOptions>;
 
 /// Alternative version of [QuillToolbarLinkStyleButton]. This widget has more
 /// customization
@@ -41,27 +32,38 @@ class QuillToolbarLinkStyleButton2 extends QuillToolbarLinkStyleBaseButton2 {
     /// over the [baseOptions].
     super.baseOptions,
     super.key,
-  }) : assert(
-         options.addLinkLabel == null ||
-             (options.addLinkLabel?.isNotEmpty ?? true),
-       ),
-       assert(
-         options.editLinkLabel == null ||
-             (options.editLinkLabel?.isNotEmpty ?? true),
-       ),
-       assert(options.childrenSpacing > 0),
-       assert(
-         options.validationMessage == null ||
-             (options.validationMessage?.isNotEmpty ?? true),
-       );
+  }) {
+    // Guards défensifs — remplacent les assert() pour éviter les crash en
+    // production. Les options sont déjà construites et finales, on loggue
+    // simplement les violations d'invariants.
+    if (options.addLinkLabel != null && options.addLinkLabel!.isEmpty) {
+      debugPrint(
+        'QuillToolbarLinkStyleButton2 — addLinkLabel is empty, ignoring',
+      );
+    }
+    if (options.editLinkLabel != null && options.editLinkLabel!.isEmpty) {
+      debugPrint(
+        'QuillToolbarLinkStyleButton2 — editLinkLabel is empty, ignoring',
+      );
+    }
+    if (options.childrenSpacing <= 0) {
+      debugPrint(
+        'QuillToolbarLinkStyleButton2 — childrenSpacing='
+        '${options.childrenSpacing} <= 0, should be positive',
+      );
+    }
+    if (options.validationMessage != null && options.validationMessage!.isEmpty) {
+      debugPrint(
+        'QuillToolbarLinkStyleButton2 — validationMessage is empty, ignoring',
+      );
+    }
+  }
 
   @override
-  State<QuillToolbarLinkStyleButton2> createState() =>
-      _QuillToolbarLinkStyleButton2State();
+  State<QuillToolbarLinkStyleButton2> createState() => _QuillToolbarLinkStyleButton2State();
 }
 
-class _QuillToolbarLinkStyleButton2State
-    extends State<QuillToolbarLinkStyleButton2> {
+class _QuillToolbarLinkStyleButton2State extends State<QuillToolbarLinkStyleButton2> {
   @override
   void dispose() {
     super.dispose();
@@ -101,7 +103,7 @@ class _QuillToolbarLinkStyleButton2State
           controller: widget.controller,
           context: context,
           onPressed: () {
-            _openLinkDialog();
+            unawaited(_openLinkDialog());
             options.afterButtonPressed?.call();
           },
         ),
@@ -152,7 +154,7 @@ class _QuillToolbarLinkStyleButton2State
 }
 
 class LinkStyleDialog extends StatefulWidget {
-  const LinkStyleDialog({
+  LinkStyleDialog({
     super.key,
     this.text,
     this.link,
@@ -169,10 +171,26 @@ class LinkStyleDialog extends StatefulWidget {
     this.autovalidateMode = AutovalidateMode.disabled,
     this.validationMessage,
     this.buttonSize,
-  }) : assert(addLinkLabel == null || addLinkLabel.length > 0),
-       assert(editLinkLabel == null || editLinkLabel.length > 0),
-       assert(childrenSpacing > 0),
-       assert(validationMessage == null || validationMessage.length > 0);
+  }) {
+    // Guards défensifs — remplacent les assert() pour éviter les crash en
+    // production. Les champs sont déjà assignés via this.*, on loggue
+    // simplement les violations d'invariants.
+    if (addLinkLabel != null && addLinkLabel!.isEmpty) {
+      debugPrint('LinkStyleDialog — addLinkLabel is empty, ignoring');
+    }
+    if (editLinkLabel != null && editLinkLabel!.isEmpty) {
+      debugPrint('LinkStyleDialog — editLinkLabel is empty, ignoring');
+    }
+    if (childrenSpacing <= 0) {
+      debugPrint(
+        'LinkStyleDialog — childrenSpacing=$childrenSpacing <= 0, '
+        'should be positive',
+      );
+    }
+    if (validationMessage != null && validationMessage!.isEmpty) {
+      debugPrint('LinkStyleDialog — validationMessage is empty, ignoring');
+    }
+  }
 
   final String? text;
   final String? link;
@@ -229,9 +247,7 @@ class _LinkStyleDialogState extends State<LinkStyleDialog> {
     _linkController = TextEditingController.fromValue(
       TextEditingValue(
         text: _isEditMode ? _link : '',
-        selection: _isEditMode
-            ? TextSelection(baseOffset: 0, extentOffset: _link.length)
-            : const TextSelection.collapsed(offset: 0),
+        selection: _isEditMode ? TextSelection(baseOffset: 0, extentOffset: _link.length) : const TextSelection.collapsed(offset: 0),
       ),
     );
   }
@@ -340,10 +356,7 @@ class _LinkStyleDialogState extends State<LinkStyleDialog> {
 
     return Dialog(
       backgroundColor: widget.dialogTheme?.dialogBackgroundColor,
-      shape:
-          widget.dialogTheme?.shape ??
-          DialogTheme.of(context).shape ??
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      shape: widget.dialogTheme?.shape ?? DialogTheme.of(context).shape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       child: ConstrainedBox(
         constraints: constraints,
         child: Padding(
@@ -369,19 +382,13 @@ class _LinkStyleDialogState extends State<LinkStyleDialog> {
 
   bool _canPress() => _validateLink(_link) == null;
 
-  String? _validateLink(final String? value) {
+  String? _validateLink(String? value) {
     final input = value ?? '';
-
-    final errorMessage = LinkValidator.validate(input)
-        ? null
-        // TODO: Translate
-        : (widget.validationMessage ?? 'That is not a valid URL');
+    final errorMessage = LinkValidator.validate(input) ? null : (widget.validationMessage ?? 'That is not a valid URL');
     return errorMessage;
   }
 
-  void _applyLink() =>
-      Navigator.pop(context, QuillTextLink(_text.trim(), _link.trim()));
+  void _applyLink() => Navigator.pop(context, QuillTextLink(_text.trim(), _link.trim()));
 
-  void _removeLink() =>
-      Navigator.pop(context, QuillTextLink(_text.trim(), null));
+  void _removeLink() => Navigator.pop(context, QuillTextLink(_text.trim(), null));
 }

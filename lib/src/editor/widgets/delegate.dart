@@ -1,20 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderEditable;
 import 'package:flutter/scheduler.dart';
 
-import '../../common/utils/platform.dart';
-import '../../document/attribute.dart';
-import '../../document/nodes/leaf.dart';
-import '../editor.dart';
-import '../raw_editor/raw_editor.dart';
-import 'text/magnifier.dart';
-import 'text/text_selection.dart';
+import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart';
+import 'package:flutter_quill/src/editor/editor.dart';
+import 'package:flutter_quill/src/editor/raw_editor/raw_editor.dart';
+import 'package:flutter_quill/src/editor/widgets/text/magnifier.dart';
+import 'package:flutter_quill/src/editor/widgets/text/text_selection.dart';
 
-typedef CustomStyleBuilder = TextStyle Function(Attribute attribute);
+typedef CustomStyleBuilder = TextStyle Function(FormatAttribute attribute);
 
-typedef CustomRecognizerBuilder =
-    GestureRecognizer? Function(Attribute attribute, Leaf leaf);
+typedef CustomRecognizerBuilder = GestureRecognizer? Function(FormatAttribute attribute, Leaf leaf);
 
 /// Delegate interface for the [EditorTextSelectionGestureDetectorBuilder].
 ///
@@ -130,9 +130,7 @@ class EditorTextSelectionGestureDetectorBuilder {
     kind = details.kind;
     shouldShowSelectionToolbar =
         kind == null ||
-        kind ==
-            PointerDeviceKind
-                .mouse || // Enable word selection by mouse double tap
+        kind == PointerDeviceKind.mouse || // Enable word selection by mouse double tap
         kind == PointerDeviceKind.touch ||
         kind == PointerDeviceKind.stylus;
   }
@@ -150,7 +148,12 @@ class EditorTextSelectionGestureDetectorBuilder {
   ///  which triggers this callback.
   @protected
   void onForcePressStart(ForcePressDetails details) {
-    assert(delegate.forcePressEnabled);
+    if (!delegate.forcePressEnabled) {
+      debugPrint(
+        'EditorTextSelectionGestureDetectorState.onForcePressStart — forcePressEnabled is false, aborting',
+      );
+      return;
+    }
     shouldShowSelectionToolbar = true;
     if (delegate.selectionEnabled) {
       renderEditor!.selectWordsInRange(
@@ -174,7 +177,12 @@ class EditorTextSelectionGestureDetectorBuilder {
   ///  which triggers this callback.
   @protected
   void onForcePressEnd(ForcePressDetails details) {
-    assert(delegate.forcePressEnabled);
+    if (!delegate.forcePressEnabled) {
+      debugPrint(
+        'EditorTextSelectionGestureDetectorState.onForcePressEnd — forcePressEnabled is false, aborting',
+      );
+      return;
+    }
     renderEditor!.selectWordsInRange(
       details.globalPosition,
       null,
@@ -349,9 +357,7 @@ class EditorTextSelectionGestureDetectorBuilder {
   @protected
   void onDragSelectionEnd(DragEndDetails details) {
     renderEditor!.handleDragEnd(details);
-    if (isDesktop &&
-        delegate.selectionEnabled &&
-        checkSelectionToolbarShouldShow(isAdditionalAction: false)) {
+    if (isDesktop && delegate.selectionEnabled && checkSelectionToolbarShouldShow(isAdditionalAction: false)) {
       // added to show selection copy/paste toolbar after drag to select
       editor!.showToolbar();
     }

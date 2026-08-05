@@ -1,10 +1,9 @@
 import 'package:flutter/foundation.dart' show immutable;
 
-import '../../../document/attribute.dart';
-import '../../../editor_toolbar_controller_shared/quill_config.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/quill_config.dart';
 
-class QuillToolbarToggleCheckListButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarToggleCheckListButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarToggleCheckListButtonExtraOptions({
     required super.controller,
     required super.context,
@@ -16,15 +15,11 @@ class QuillToolbarToggleCheckListButtonExtraOptions
 
 @immutable
 class QuillToolbarToggleCheckListButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarToggleCheckListButtonOptions,
-          QuillToolbarToggleCheckListButtonExtraOptions
-        > {
+    extends QuillToolbarBaseButtonOptions<QuillToolbarToggleCheckListButtonOptions, QuillToolbarToggleCheckListButtonExtraOptions> {
   const QuillToolbarToggleCheckListButtonOptions({
     super.iconSize,
     super.iconButtonFactor,
-    this.attribute = Attribute.unchecked,
+    this.attribute = FormatAttribute.unchecked,
     this.shouldRequestKeyboard = false,
     super.iconTheme,
     super.tooltip,
@@ -33,7 +28,7 @@ class QuillToolbarToggleCheckListButtonOptions
     super.childBuilder,
   });
 
-  final Attribute attribute;
+  final FormatAttribute attribute;
 
   final bool shouldRequestKeyboard;
 }

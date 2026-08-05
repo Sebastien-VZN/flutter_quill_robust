@@ -1,10 +1,10 @@
 import 'dart:math';
 
-import '../../controller/quill_controller.dart';
-import '../../document/nodes/leaf.dart';
-import '../structs/offset_value.dart';
+import 'package:flutter_quill/src/common/structs/offset_value.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart';
 
-OffsetValue<Embed> getEmbedNode(QuillController controller, int offset) {
+OffsetStyleValue<Embed> getEmbedNode(QuillController controller, int offset) {
   var offset = controller.selection.start;
   var embedNode = controller.queryNode(offset);
   if (embedNode == null || embedNode is! Embed) {
@@ -12,7 +12,7 @@ OffsetValue<Embed> getEmbedNode(QuillController controller, int offset) {
     embedNode = controller.queryNode(offset);
   }
   if (embedNode != null && embedNode is Embed) {
-    return OffsetValue(offset, embedNode);
+    return OffsetStyleValue(offset, embedNode);
   }
 
   return throw ArgumentError('Embed node not found by offset $offset');

@@ -1,15 +1,14 @@
+import 'package:flutter/material.dart' show DividerThemeData, Theme, ThemeData;
 import 'package:flutter/widgets.dart';
-import 'package:meta/meta.dart';
-
-import '../buttons/hearder_style/select_header_style_buttons.dart';
-import '../buttons/hearder_style/select_header_style_dropdown_button.dart';
-import '../buttons/link_style/link_style2_button.dart';
-import '../buttons/link_style/link_style_button.dart';
-import '../embed/embed_button_builder.dart';
-import '../structs/link_dialog_action.dart';
-import '../theme/quill_dialog_theme.dart';
-import '../theme/quill_icon_theme.dart';
-import 'simple_toolbar_button_options.dart';
+import 'package:flutter_quill/src/toolbar/buttons/hearder_style/select_header_style_buttons.dart';
+import 'package:flutter_quill/src/toolbar/buttons/hearder_style/select_header_style_dropdown_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/link_style/link_style2_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/link_style/link_style_button.dart';
+import 'package:flutter_quill/src/toolbar/config/simple_toolbar_button_options.dart';
+import 'package:flutter_quill/src/toolbar/embed/embed_button_builder.dart';
+import 'package:flutter_quill/src/toolbar/structs/link_dialog_action.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_dialog_theme.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 
 export '../buttons/search/search_dialog.dart';
 export 'base_button_options.dart';
@@ -107,9 +106,9 @@ class QuillSimpleToolbarConfig {
     this.showSearchButton = true,
     this.showSubscript = true,
     this.showSuperscript = true,
-    @experimental this.showClipboardCut = false,
-    @experimental this.showClipboardCopy = false,
-    @experimental this.showClipboardPaste = false,
+    this.showClipboardCut = false,
+    this.showClipboardCopy = false,
+    this.showClipboardPaste = false,
     this.linkStyleType = LinkStyleType.original,
     this.headerStyleType = HeaderStyleType.original,
 
@@ -178,11 +177,11 @@ class QuillSimpleToolbarConfig {
   final bool showSearchButton;
   final bool showSubscript;
   final bool showSuperscript;
-  @experimental
+
   final bool showClipboardCut;
-  @experimental
+
   final bool showClipboardCopy;
-  @experimental
+
   final bool showClipboardPaste;
 
   /// This activates a functionality that is only implemented in [flutter_quill] and is NOT originally
@@ -192,10 +191,8 @@ class QuillSimpleToolbarConfig {
   /// Toolbar items to display for controls of embed blocks
   final List<EmbedButtonBuilder>? embedButtons;
 
-  @experimental
   final QuillIconTheme? iconTheme;
 
-  @experimental
   final QuillDialogTheme? dialogTheme;
 
   /// Defines which dialog is used for applying link attribute.

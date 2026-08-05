@@ -1,19 +1,14 @@
-import 'package:meta/meta.dart' show experimental;
+import "package:flutter_quill/src/editor_toolbar_controller_shared/clipboard/clipboard_service.dart";
+import "package:flutter_quill/src/editor_toolbar_controller_shared/clipboard/default_clipboard_service.dart";
 
-import 'clipboard_service.dart';
-import 'default_clipboard_service.dart';
+final class ClipboardServiceProvider {
+  ClipboardService _instance = DefaultClipboardService();
 
-@experimental
-abstract final class ClipboardServiceProvider {
-  static ClipboardService _instance = DefaultClipboardService();
+  ClipboardService get instance => _instance;
 
-  static ClipboardService get instance => _instance;
+  set instance(ClipboardService service) => _instance;
 
-  static void setInstance(ClipboardService service) {
-    _instance = service;
-  }
-
-  static void setInstanceToDefault() {
+  void setInstanceToDefault() {
     _instance = DefaultClipboardService();
   }
 }

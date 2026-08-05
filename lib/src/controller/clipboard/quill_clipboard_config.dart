@@ -1,19 +1,16 @@
 import 'package:flutter/foundation.dart';
-import 'package:meta/meta.dart';
-
-import '../../../quill_delta.dart';
+import 'package:flutter_quill/quill_delta.dart';
 
 @immutable
-@experimental
 class QuillClipboardConfig {
   const QuillClipboardConfig({
-    @experimental this.onClipboardPaste,
-    @experimental this.onUnprocessedPaste,
+    this.onClipboardPaste,
+    this.onUnprocessedPaste,
     this.onImagePaste,
-    @experimental this.onGifPaste,
-    @experimental this.onRichTextPaste,
-    @experimental this.onPlainTextPaste,
-    @experimental this.enableExternalRichPaste,
+    this.onGifPaste,
+    this.onRichTextPaste,
+    this.onPlainTextPaste,
+    this.enableExternalRichPaste,
   });
 
   /// Callback to allow overriding the default clipboard paste handling.
@@ -44,13 +41,13 @@ class QuillClipboardConfig {
   ///
   /// Return `true` if the paste operation was handled or `false` to
   /// fallback to the default clipboard paste handling.
-  @experimental
+
   final Future<bool> Function()? onClipboardPaste;
 
   /// Callback when the user pastes and data has not already been processed.
   ///
   /// Return `true` if the paste operation was handled.
-  @experimental
+
   final Future<bool> Function()? onUnprocessedPaste;
 
   /// Callback when the user pastes the given image.
@@ -63,7 +60,7 @@ class QuillClipboardConfig {
   /// Supports **Android** and **iOS** only.
   ///
   /// Returns the URL of the image if the GIF image should be inserted.
-  @experimental
+
   final Future<String?> Function(Uint8List imageBytes)? onGifPaste;
 
   /// Callback triggered when pasting a [Delta] to the editor.
@@ -75,13 +72,13 @@ class QuillClipboardConfig {
   ///
   /// Currently this callback is only called when pasting content from the
   /// system clipboard but that's subject to change, see [#2474](https://github.com/singerdmx/flutter-quill/issues/2474).
-  @experimental
+
   final Future<Delta?> Function(Delta delta, bool isExternal)? onRichTextPaste;
 
   /// Callback triggered when pasting plain text into the editor.
   ///
   /// Return modified text to override the pasted content, or `null` to use the default.
-  @experimental
+
   final Future<String?> Function(String plainText)? onPlainTextPaste;
 
   /// Determines if rich text pasting from external sources (system clipboard) is enabled.
@@ -96,6 +93,5 @@ class QuillClipboardConfig {
   /// Defaults to `true`.
   ///
   /// See also: https://pub.dev/packages/flutter_quill#-rich-text-paste
-  @experimental
   final bool? enableExternalRichPaste;
 }

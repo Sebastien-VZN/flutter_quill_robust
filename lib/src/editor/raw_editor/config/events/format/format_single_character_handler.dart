@@ -1,7 +1,8 @@
-import '../../../../../../quill_delta.dart';
-import '../../../../../controller/quill_controller.dart';
-import '../../../../../document/attribute.dart';
-import '../../../../../document/document.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
 
 enum SingleCharacterFormatStyle { code, italic, strikethrough }
 
@@ -11,7 +12,12 @@ bool handleFormatByWrappingWithSingleCharacter({
   required String character,
   required SingleCharacterFormatStyle formatStyle,
 }) {
-  assert(character.length == 1, 'Expected 1 char, got ${character.length}.');
+  if (character.length != 1) {
+    debugPrint(
+      'handleFormatByWrappingWithSingleCharacter — Expected 1 char, got ${character.length}.',
+    );
+    return false;
+  }
   final selection = controller.selection;
   // If the selection is not collapsed or the cursor is at the first two index range, we don't need to format it.
   if (!selection.isCollapsed || selection.end < 2) {
@@ -69,20 +75,18 @@ bool handleFormatByWrappingWithSingleCharacter({
   // If it is in a double character case, we should skip the single character formatting.
   // For example, adding * after **a*, it should skip the single character formatting and it
   // will be handled by double character formatting.
-  if ((character == '*' || character == '_' || character == '~') &&
-      (lastCharIndex >= 1) &&
-      (plainText[lastCharIndex - 1] == character)) {
+  if ((character == '*' || character == '_' || character == '~') && (lastCharIndex >= 1) && (plainText[lastCharIndex - 1] == character)) {
     return false;
   }
 
-  late final Attribute? style;
+  late final FormatAttribute? style;
 
   if (formatStyle case SingleCharacterFormatStyle.italic) {
-    style = const ItalicAttribute();
+    style = FormatAttribute.italic;
   } else if (formatStyle case SingleCharacterFormatStyle.strikethrough) {
-    style = const StrikeThroughAttribute();
+    style = FormatAttribute.strikeThrough;
   } else if (formatStyle case SingleCharacterFormatStyle.code) {
-    style = const InlineCodeAttribute();
+    style = FormatAttribute.inlineCode;
   }
   // 1. delete all the *[char]
   // 2. update the style of the text surrounded by the *[char] to a formatted text style
@@ -95,7 +99,11 @@ bool handleFormatByWrappingWithSingleCharacter({
     ); // retain the text before that the new char that we type on keyboard
 
   controller
-    ..compose(deletionDelta, selection, ChangeSource.local)
+    ..compose(
+      delta: deletionDelta,
+      textSelection: selection,
+      source: ChangeSource.local,
+    )
     ..moveCursorToPosition(selection.end - 1);
   return true;
 }

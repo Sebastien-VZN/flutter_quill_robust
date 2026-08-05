@@ -3,10 +3,9 @@ import 'dart:io' as io show Directory, File;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_example/quill_delta_sample.dart';
-import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:path/path.dart' as path;
 
 void main() => runApp(const MainApp());
@@ -20,9 +19,8 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light(useMaterial3: true),
       darkTheme: ThemeData.dark(useMaterial3: true),
-      themeMode: ThemeMode.system,
-      home: HomePage(),
-      localizationsDelegates: [
+      home: const HomePage(),
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -52,8 +50,7 @@ class _HomePageState extends State<HomePage> {
             }
             // Save the image somewhere and return the image URL that will be
             // stored in the Quill Delta JSON (the document).
-            final newFileName =
-                'image-file-${DateTime.now().toIso8601String()}.png';
+            final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
             final newPath = path.join(
               io.Directory.systemTemp.path,
               newFileName,
@@ -81,7 +78,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter Quill Example'),
+        title: const Text('Flutter Quill Example'),
         actions: [
           IconButton(
             icon: const Icon(Icons.output),
@@ -105,7 +102,6 @@ class _HomePageState extends State<HomePage> {
             QuillSimpleToolbar(
               controller: _controller,
               config: QuillSimpleToolbarConfig(
-                embedButtons: FlutterQuillEmbeds.toolbarButtons(),
                 showClipboardPaste: true,
                 showDirection: true,
                 customButtons: [
@@ -158,26 +154,7 @@ class _HomePageState extends State<HomePage> {
                 config: QuillEditorConfig(
                   placeholder: 'Start writing your notes...',
                   padding: const EdgeInsets.all(16),
-                  embedBuilders: [
-                    ...FlutterQuillEmbeds.editorBuilders(
-                      imageEmbedConfig: QuillEditorImageEmbedConfig(
-                        imageProviderBuilder: (context, imageUrl) {
-                          // https://pub.dev/packages/flutter_quill_extensions#-image-assets
-                          if (imageUrl.startsWith('assets/')) {
-                            return AssetImage(imageUrl);
-                          }
-                          return null;
-                        },
-                      ),
-                      videoEmbedConfig: QuillEditorVideoEmbedConfig(
-                        customVideoBuilder: (videoUrl, readOnly) {
-                          // To load YouTube videos https://github.com/singerdmx/flutter-quill/releases/tag/v10.8.0
-                          return null;
-                        },
-                      ),
-                    ),
-                    TimeStampEmbedBuilder(),
-                  ],
+                  embedBuilders: [TimeStampEmbedBuilder()],
                 ),
               ),
             ),
@@ -199,12 +176,29 @@ class _HomePageState extends State<HomePage> {
 class TimeStampEmbed extends Embeddable {
   const TimeStampEmbed(String value) : super(timeStampType, value);
 
+  factory TimeStampEmbed.fromDocument(Document val) {
+    try {
+      final jsonData = val.toDelta().toJson();
+      final encode = jsonEncode(jsonData);
+      return TimeStampEmbed(encode);
+    } catch (e) {
+      debugPrint("TimeStampEmbed fromDocument error $e");
+      return const TimeStampEmbed('');
+    }
+  }
+
   static const String timeStampType = 'timeStamp';
 
-  static TimeStampEmbed fromDocument(Document document) =>
-      TimeStampEmbed(jsonEncode(document.toDelta().toJson()));
-
-  Document get document => Document.fromJson(jsonDecode(data));
+  Document? toDocument() {
+    try {
+      final decoded = jsonDecode(data as String);
+      if (decoded is! List) return null;
+      return Document.fromJson(decoded.cast<Map<String, dynamic>>());
+    } catch (e) {
+      debugPrint("TimeStampEmbed toDocument error $e");
+      return null;
+    }
+  }
 }
 
 class TimeStampEmbedBuilder extends EmbedBuilder {
@@ -213,7 +207,7 @@ class TimeStampEmbedBuilder extends EmbedBuilder {
 
   @override
   String toPlainText(Embed node) {
-    return node.value.data;
+    return node.value.stringVal.toString();
   }
 
   @override

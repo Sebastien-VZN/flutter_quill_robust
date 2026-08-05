@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart' show VoidCallback, Widget;
 
-import '../base_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/base_button_options.dart';
 
-class QuillToolbarCustomButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarCustomButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarCustomButtonExtraOptions({
     required super.controller,
     required super.context,
@@ -11,12 +10,7 @@ class QuillToolbarCustomButtonExtraOptions
   });
 }
 
-class QuillToolbarCustomButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarBaseButtonOptions,
-          QuillToolbarCustomButtonExtraOptions
-        > {
+class QuillToolbarCustomButtonOptions extends QuillToolbarBaseButtonOptions<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions> {
   const QuillToolbarCustomButtonOptions({
     this.icon,
     super.afterButtonPressed,

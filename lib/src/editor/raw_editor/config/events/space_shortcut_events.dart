@@ -1,19 +1,20 @@
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart';
 import 'package:meta/meta.dart';
-import '../../../../controller/quill_controller.dart';
-import '../../../../document/nodes/leaf.dart';
 
-typedef SpaceShortcutEventHandler =
-    bool Function(QuillText node, QuillController controller);
+typedef SpaceShortcutEventHandler = bool Function(QuillText node, QuillController controller);
 
 /// Defines the implementation of shortcut events for space key calls.
 @immutable
-@experimental
 class SpaceShortcutEvent {
-  SpaceShortcutEvent({required this.character, required this.handler})
-    : assert(
-        character != '\n' && character.trim().isNotEmpty,
-        'character that cannot be empty, a whitespace or a new line. Ensure that you are passing a not empty character',
+  SpaceShortcutEvent({required this.character, required this.handler}) {
+    if (character == '\n' || character.trim().isEmpty) {
+      debugPrint(
+        'SpaceShortcutEvent — character cannot be empty, a whitespace or a new line.',
       );
+    }
+  }
 
   final String character;
   final SpaceShortcutEventHandler handler;
@@ -33,16 +34,13 @@ class SpaceShortcutEvent {
   }
 
   @override
-  String toString() =>
-      'SpaceShortcutEvent(character: $character, handler: $handler)';
+  String toString() => 'SpaceShortcutEvent(character: $character, handler: $handler)';
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is SpaceShortcutEvent &&
-        other.character == character &&
-        other.handler == handler;
+    return other is SpaceShortcutEvent && other.character == character && other.handler == handler;
   }
 
   @override

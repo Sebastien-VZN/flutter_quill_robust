@@ -1,11 +1,11 @@
-// ignore_for_file: avoid_print
-
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-import './update_changelog_version.dart';
-import './update_pubspec_version.dart';
 import 'pubspec_version_check.dart';
+import 'update_changelog_version.dart';
+import 'update_pubspec_version.dart';
 
 // NOTE: This script is for the maintainers.
 
@@ -25,8 +25,7 @@ const _confirmPublishOptionName = 'Y';
 
 const _mainGitRemote = 'origin';
 
-const _githubRepoActionsLink =
-    'https://github.com/singerdmx/flutter-quill/actions';
+const _githubRepoActionsLink = 'https://github.com/singerdmx/flutter-quill/actions';
 
 const _packageName = 'flutter_quill';
 
@@ -37,54 +36,53 @@ const _changelogAndPubspecRestoreMessage =
     'git restore $_targetChangelog $_targetPubspecYaml $_targetExamplePubspecLock';
 
 Future<void> main(List<String> args) async {
-  print('➡️ Arguments provided: $args');
+  debugPrint('➡️ Arguments provided: $args');
 
   if (args.isEmpty) {
-    print('❌ Missing required arguments. $_usage');
+    debugPrint('❌ Missing required arguments. $_usage');
     exit(1);
   }
   if (args.length > 2) {
-    print('❌ Too many arguments. $_usage');
+    debugPrint('❌ Too many arguments. $_usage');
     exit(1);
   }
   final version = args[0];
   if (version.isEmpty) {
-    print('❌ The version is empty. $_usage');
+    debugPrint('❌ The version is empty. $_usage');
     exit(1);
   }
   if (version.startsWith('v')) {
-    print(
+    debugPrint(
       '❌ Version ($version) should not start with `v`, as the script will add it to the tag.',
     );
     exit(1);
   }
-  final confirmPublish =
-      args.elementAtOrNull(1) == '-$_confirmPublishOptionName';
+  final confirmPublish = args.elementAtOrNull(1) == '-$_confirmPublishOptionName';
   if (!_isValidVersion(version)) {
-    print('❌ Invalid version format ($version).');
+    debugPrint('❌ Invalid version format ($version).');
     exit(1);
   }
   if (!_isGitClean()) {
-    print(
+    debugPrint(
       '❌ Git working directory is not clean. Commit all changes and try again.',
     );
     exit(1);
   }
 
-  print(
+  debugPrint(
     'ℹ️ Checking if the version `$version` is already published on pub.dev...',
   );
   if (await _isPackageVersionPublished(version)) {
-    print(
+    debugPrint(
       '❌ The version `$version` of the `$_packageName` package is already published on pub.dev.',
     );
-    print(
+    debugPrint(
       '📦 Check the package page on pub.dev: https://pub.dev/packages/$_packageName/versions',
     );
-    print('⚠️ Choose a different version and try again.');
+    debugPrint('⚠️ Choose a different version and try again.');
     exit(1);
   }
-  updatePubspecVersion(
+  await updatePubspecVersion(
     newVersion: version,
     pubspecFilePath: _targetPubspecYaml,
   );
@@ -99,7 +97,7 @@ Future<void> main(List<String> args) async {
 
   try {
     // To update pubspec.lock of the example
-    print(
+    debugPrint(
       'ℹ️ Running `flutter pub get` in the example directory to update `pubspec.lock`...',
     );
     Process.runSync('flutter', ['pub', 'get', '-C', _exampleDirectory]);
@@ -112,22 +110,22 @@ Future<void> main(List<String> args) async {
     ]);
 
     if (_isGitClean()) {
-      print(
+      debugPrint(
         '❌ No changes detected after updating $_targetChangelog and $_targetPubspecYaml.\n'
         'Review the script for potential issues.',
       );
       exit(1);
     }
 
-    print('✅ CHANGELOG and pubspec.yaml files have been updated.');
+    debugPrint('✅ CHANGELOG and pubspec.yaml files have been updated.');
     if (!confirmPublish) {
-      print(
+      debugPrint(
         'ℹ️ To confirm publishing, type `$_confirmPublishOptionName` and press Enter.\n'
         'Tip: Add `-$_confirmPublishOptionName` as an argument to skip this prompt in the future.',
       );
       final confirm = stdin.readLineSync();
       if (confirm != _confirmPublishOptionName) {
-        print(
+        debugPrint(
           '❌ The publishing process has been aborted.\n'
           '$_changelogAndPubspecRestoreMessage',
         );
@@ -137,30 +135,28 @@ Future<void> main(List<String> args) async {
 
     final tagName = 'v$version';
 
-    print('ℹ️ Committing changes...');
+    debugPrint('ℹ️ Committing changes...');
     Process.runSync('git', [
       'commit',
       '-m',
       'chore(release): prepare to publish $version',
     ]);
 
-    print('ℹ️ Creating git tag `$tagName`...');
+    debugPrint('ℹ️ Creating git tag `$tagName`...');
     Process.runSync('git', ['tag', tagName]);
 
-    print('ℹ️ Pushing commit to remote...');
+    debugPrint('ℹ️ Pushing commit to remote...');
     Process.runSync('git', ['push']);
 
-    print('ℹ️ Pushing tag to remote...');
+    debugPrint('ℹ️ Pushing tag to remote...');
     Process.runSync('git', ['push', _mainGitRemote, tagName]);
-    print(
+    debugPrint(
       '✅ The tag $tagName has been pushed. The GitHub workflow will handle the rest.\n'
       'For more details, check: $_githubRepoActionsLink',
     );
   } catch (e) {
-    print(
-      '❌ An error occurred during the publishing process: ${e.toString()}\n',
-    );
-    print(_changelogAndPubspecRestoreMessage);
+    debugPrint('❌ An error occurred during the publishing process: $e\n');
+    debugPrint(_changelogAndPubspecRestoreMessage);
   }
 }
 

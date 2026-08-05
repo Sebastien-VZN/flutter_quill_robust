@@ -1,11 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../common/structs/horizontal_spacing.dart';
-import '../../../../document/attribute.dart';
-import '../../../../document/nodes/block.dart';
-import '../../../../document/nodes/node.dart';
-import '../../default_styles.dart';
+import 'package:flutter_quill/src/common/structs/horizontal_spacing.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/document/nodes/block.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
+import 'package:flutter_quill/src/editor/widgets/default_styles.dart';
 
 typedef LeadingBlockIndentWidth =
     HorizontalSpacing Function(
@@ -15,8 +15,7 @@ typedef LeadingBlockIndentWidth =
       LeadingBlockNumberPointWidth numberPointWidthDelegate,
     );
 
-typedef LeadingBlockNumberPointWidth =
-    double Function(double fontSize, int count);
+typedef LeadingBlockNumberPointWidth = double Function(double fontSize, int count);
 
 typedef TextSpanBuilder =
     InlineSpan Function(
@@ -55,23 +54,23 @@ abstract final class TextBlockUtils {
     final fontSize = defaultStyles.paragraph?.style.fontSize ?? 16;
     final attrs = block.style.attributes;
 
-    final indent = attrs[Attribute.indent.key];
+    final indent = attrs[FormatAttribute.indent.key];
     var extraIndent = 0.0;
-    if (indent != null && indent.value != null) {
-      extraIndent = fontSize * indent.value;
+    if (indent != null && indent.numberValue != null) {
+      extraIndent = fontSize * indent.numberValue!;
     }
 
-    if (attrs.containsKey(Attribute.blockQuote.key)) {
+    if (attrs.containsKey(FormatAttribute.blockQuote.key)) {
       return HorizontalSpacing(fontSize + extraIndent, 0);
     }
 
     var baseIndent = 0.0;
 
-    if (attrs.containsKey(Attribute.list.key)) {
+    if (attrs.containsKey(FormatAttribute.list.key)) {
       baseIndent = fontSize * 2;
-      if (attrs[Attribute.list.key] == Attribute.ol) {
+      if (attrs[FormatAttribute.list.key] == FormatAttribute.ol) {
         baseIndent = numberPointWidthBuilder(fontSize, count);
-      } else if (attrs.containsKey(Attribute.codeBlock.key)) {
+      } else if (attrs.containsKey(FormatAttribute.codeBlock.key)) {
         baseIndent = numberPointWidthBuilder(fontSize, count);
       }
     }

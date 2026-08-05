@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-
-import '../../../controller/quill_controller.dart';
-import '../../../document/attribute.dart';
-import '../../config/simple_toolbar_button_options.dart';
-import '../toggle_style_button.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/toolbar/buttons/toggle_style_button.dart';
+import 'package:flutter_quill/src/toolbar/config/simple_toolbar_button_options.dart';
 
 class QuillToolbarSelectAlignmentButtons extends StatelessWidget {
   const QuillToolbarSelectAlignmentButtons({
@@ -16,20 +15,20 @@ class QuillToolbarSelectAlignmentButtons extends StatelessWidget {
     super.key,
   });
 
-  final QuillToolbarBaseButtonOptions? baseOptions;
+  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
 
-  // TODO: This button doesn't support the base button option
+  // This button doesn't support the base button option
 
   final QuillController controller;
   final QuillToolbarSelectAlignmentButtonOptions options;
 
-  List<Attribute> get _attrbuites {
+  List<FormatAttribute> get _attrbuites {
     return options.attributes ??
         [
-          if (options.showLeftAlignment) Attribute.leftAlignment,
-          if (options.showCenterAlignment) Attribute.centerAlignment,
-          if (options.showRightAlignment) Attribute.rightAlignment,
-          if (options.showJustifyAlignment) Attribute.justifyAlignment,
+          if (options.showLeftAlignment) FormatAttribute.leftAlignment,
+          if (options.showCenterAlignment) FormatAttribute.centerAlignment,
+          if (options.showRightAlignment) FormatAttribute.rightAlignment,
+          if (options.showJustifyAlignment) FormatAttribute.justifyAlignment,
         ];
   }
 

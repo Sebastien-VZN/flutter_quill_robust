@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import '../../common/extensions/view_id_ext.dart';
+import 'package:flutter_quill/src/common/extensions/view_id_ext.dart';
 
 class ScribbleFocusable extends StatefulWidget {
   const ScribbleFocusable({
@@ -23,14 +23,11 @@ class ScribbleFocusable extends StatefulWidget {
   final EdgeInsets? scribbleAreaInsets;
 
   @override
-  // ignore: library_private_types_in_public_api
-  _ScribbleFocusableState createState() => _ScribbleFocusableState();
+  State<ScribbleFocusable> createState() => _ScribbleFocusableState();
 }
 
-class _ScribbleFocusableState extends State<ScribbleFocusable>
-    implements ScribbleClient {
-  _ScribbleFocusableState()
-    : _elementIdentifier = 'quill-scribble-${_nextElementIdentifier++}';
+class _ScribbleFocusableState extends State<ScribbleFocusable> implements ScribbleClient {
+  _ScribbleFocusableState() : _elementIdentifier = 'quill-scribble-${_nextElementIdentifier++}';
 
   @override
   void initState() {
@@ -58,8 +55,7 @@ class _ScribbleFocusableState extends State<ScribbleFocusable>
     super.dispose();
   }
 
-  RenderBox? get _renderBoxForEditor =>
-      widget.editorKey.currentContext?.findRenderObject() as RenderBox?;
+  RenderBox? get _renderBoxForEditor => widget.editorKey.currentContext?.findRenderObject() as RenderBox?;
 
   RenderBox? get _renderBoxForBounds {
     final box = widget.renderBoxForBounds();
@@ -100,9 +96,7 @@ class _ScribbleFocusableState extends State<ScribbleFocusable>
     final result = HitTestResult();
     WidgetsBinding.instance.hitTestInView(result, intersection.center, viewId);
     return result.path.any(
-      (entry) =>
-          entry.target == _renderBoxForEditor ||
-          entry.target == _renderBoxForBounds,
+      (entry) => entry.target == _renderBoxForEditor || entry.target == _renderBoxForBounds,
     );
   }
 
@@ -119,12 +113,8 @@ class _ScribbleFocusableState extends State<ScribbleFocusable>
       Rect.fromLTWH(
         0 + (widget.scribbleAreaInsets?.left ?? 0),
         0 + (widget.scribbleAreaInsets?.top ?? 0),
-        size.width -
-            (widget.scribbleAreaInsets?.left ?? 0) -
-            (widget.scribbleAreaInsets?.right ?? 0),
-        size.height -
-            (widget.scribbleAreaInsets?.top ?? 0) -
-            (widget.scribbleAreaInsets?.bottom ?? 0),
+        size.width - (widget.scribbleAreaInsets?.left ?? 0) - (widget.scribbleAreaInsets?.right ?? 0),
+        size.height - (widget.scribbleAreaInsets?.top ?? 0) - (widget.scribbleAreaInsets?.bottom ?? 0),
       ),
     );
   }

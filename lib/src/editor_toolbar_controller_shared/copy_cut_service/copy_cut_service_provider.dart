@@ -1,19 +1,9 @@
-import 'package:meta/meta.dart';
-import 'copy_cut_service.dart';
-import 'default_copy_cut_service.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/copy_cut_service/copy_cut_service.dart';
 
-@immutable
-@experimental
-abstract final class CopyCutServiceProvider {
-  static CopyCutService _instance = DefaultCopyCutService();
+class CopyCutServiceProvider {
+  CopyCutService instance = const DefaultCopyCutService();
 
-  static CopyCutService get instance => _instance;
-
-  static void setInstance(CopyCutService service) {
-    _instance = service;
-  }
-
-  static void setInstanceToDefault() {
-    _instance = DefaultCopyCutService();
+  void setInstanceToDefault() {
+    instance = const DefaultCopyCutService();
   }
 }

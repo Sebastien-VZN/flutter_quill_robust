@@ -86,7 +86,6 @@ abstract final class LinkValidator {
       }
     }
     // Implemented for backward compatibility, clients should use validateLink instead.
-    // ignore: deprecated_member_use_from_same_package
     final legacyRegexp = legacyRegex;
     if (legacyRegexp?.hasMatch(link) == true) {
       return true;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../raw_editor/builders/leading_block_builder.dart';
-import '../../style_widgets/style_widgets.dart';
+import 'package:flutter_quill/src/editor/raw_editor/builders/leading_block_builder.dart';
+import 'package:flutter_quill/src/editor/style_widgets/style_widgets.dart';
 
 Widget numberPointLeading(LeadingConfig config) => QuillNumberPoint(
   index: config.getIndexNumberByIndent!,

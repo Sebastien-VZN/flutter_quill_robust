@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../document/attribute.dart';
-import '../../buttons/font_family_button.dart';
-import '../base_button_options.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/toolbar/buttons/font_family_button.dart';
+import 'package:flutter_quill/src/toolbar/config/base_button_options.dart';
 
 @immutable
-class QuillToolbarFontFamilyButtonExtraOptions
-    extends QuillToolbarBaseButtonExtraOptions {
+class QuillToolbarFontFamilyButtonExtraOptions extends QuillToolbarBaseButtonExtraOptions {
   const QuillToolbarFontFamilyButtonExtraOptions({
     required this.defaultDisplayText,
     required this.currentValue,
@@ -19,13 +18,9 @@ class QuillToolbarFontFamilyButtonExtraOptions
 }
 
 class QuillToolbarFontFamilyButtonOptions
-    extends
-        QuillToolbarBaseButtonOptions<
-          QuillToolbarFontFamilyButtonOptions,
-          QuillToolbarFontFamilyButtonExtraOptions
-        > {
+    extends QuillToolbarBaseButtonOptions<QuillToolbarFontFamilyButtonOptions, QuillToolbarFontFamilyButtonExtraOptions> {
   const QuillToolbarFontFamilyButtonOptions({
-    this.attribute = Attribute.font,
+    this.attribute = FormatAttribute.font,
     this.items,
     super.iconData,
     super.afterButtonPressed,
@@ -68,7 +63,7 @@ class QuillToolbarFontFamilyButtonOptions
   /// See also: [QuillToolbarFontFamilyButtonState._items]
   final Map<String, String>? items;
   final ValueChanged<String>? onSelected;
-  final Attribute attribute;
+  final FormatAttribute attribute;
 
   final EdgeInsetsGeometry? padding;
   final TextStyle? style;

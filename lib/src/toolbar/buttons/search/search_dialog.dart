@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../common/utils/platform.dart';
-import '../../../controller/quill_controller.dart';
-import '../../../document/document.dart';
-import '../../../document/nodes/leaf.dart';
-import '../../../l10n/extensions/localizations_ext.dart';
-import '../../theme/quill_dialog_theme.dart';
+import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/controller/quill_controller.dart';
+import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_dialog_theme.dart';
 
 @immutable
 class QuillToolbarSearchDialogChildBuilderExtraOptions {
@@ -59,8 +59,7 @@ class QuillToolbarSearchDialog extends StatefulWidget {
   final AlignmentGeometry? searchBarAlignment;
 
   @override
-  QuillToolbarSearchDialogState createState() =>
-      QuillToolbarSearchDialogState();
+  QuillToolbarSearchDialogState createState() => QuillToolbarSearchDialogState();
 }
 
 class QuillToolbarSearchDialogState extends State<QuillToolbarSearchDialog> {
@@ -107,8 +106,7 @@ class QuillToolbarSearchDialogState extends State<QuillToolbarSearchDialog> {
       );
     }
 
-    final searchBarAlignment =
-        widget.searchBarAlignment ?? Alignment.bottomCenter;
+    final searchBarAlignment = widget.searchBarAlignment ?? Alignment.bottomCenter;
     final searchBarAtBottom =
         (searchBarAlignment == Alignment.bottomCenter) ||
         (searchBarAlignment == Alignment.bottomLeft) ||

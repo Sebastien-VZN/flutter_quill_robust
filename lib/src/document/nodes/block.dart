@@ -1,7 +1,7 @@
-import '../../../../quill_delta.dart';
-import 'container.dart';
-import 'line.dart';
-import 'node.dart';
+import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/document/nodes/container.dart';
+import 'package:flutter_quill/src/document/nodes/line.dart';
+import 'package:flutter_quill/src/document/nodes/node.dart';
 
 /// Represents a group of adjacent [Line]s with the same block style.
 ///
@@ -24,9 +24,7 @@ base class Block extends QuillContainer<Line?> {
   @override
   Delta toDelta() {
     // Line nodes take care of incorporating block style into their delta.
-    return children
-        .map((child) => child.toDelta())
-        .fold(Delta(), (a, b) => a.concat(b));
+    return children.map((child) => child.toDelta()).fold(Delta(), (a, b) => a.concat(b));
   }
 
   @override
@@ -43,9 +41,7 @@ base class Block extends QuillContainer<Line?> {
     var block = this;
     final prev = block.previous;
     // merging it with previous block if style is the same
-    if (!block.isFirst &&
-        block.previous is Block &&
-        prev!.style == block.style) {
+    if (!block.isFirst && block.previous is Block && prev!.style == block.style) {
       block
         ..moveChildToNewParent(prev as QuillContainer<Node?>?)
         ..unlink();

@@ -1,33 +1,25 @@
 import 'package:flutter/material.dart';
-
-import '../../document/attribute.dart';
-import '../../l10n/extensions/localizations_ext.dart';
-import '../base_button/base_value_button.dart';
-import '../config/buttons/select_line_height_style_dropdown_button_options.dart';
-import '../theme/quill_icon_theme.dart';
-import 'quill_icon_button.dart';
+import 'package:flutter_quill/src/document/format_attribute.dart';
+import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
+import 'package:flutter_quill/src/toolbar/base_button/base_value_button.dart';
+import 'package:flutter_quill/src/toolbar/buttons/quill_icon_button.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/select_line_height_style_dropdown_button_options.dart';
+import 'package:flutter_quill/src/toolbar/theme/quill_icon_theme.dart';
 
 typedef QuillToolbarSelectLineHeightStyleDropdownBaseButton =
-    QuillToolbarBaseButton<
-      QuillToolbarSelectLineHeightStyleDropdownButtonOptions,
-      QuillToolbarSelectLineHeightStyleDropdownButtonExtraOptions
-    >;
+    QuillToolbarBaseButton<QuillToolbarSelectLineHeightStyleDropdownButtonOptions, QuillToolbarSelectLineHeightStyleDropdownButtonExtraOptions>;
 
-typedef QuillToolbarSelectLineHeightStyleDropdownBaseButtonsState<
-  W extends QuillToolbarSelectLineHeightStyleDropdownButton
-> =
+typedef QuillToolbarSelectLineHeightStyleDropdownBaseButtonsState<W extends QuillToolbarSelectLineHeightStyleDropdownButton> =
     QuillToolbarCommonButtonState<
       W,
       QuillToolbarSelectLineHeightStyleDropdownButtonOptions,
       QuillToolbarSelectLineHeightStyleDropdownButtonExtraOptions
     >;
 
-class QuillToolbarSelectLineHeightStyleDropdownButton
-    extends QuillToolbarSelectLineHeightStyleDropdownBaseButton {
+class QuillToolbarSelectLineHeightStyleDropdownButton extends QuillToolbarSelectLineHeightStyleDropdownBaseButton {
   const QuillToolbarSelectLineHeightStyleDropdownButton({
     required super.controller,
-    super.options =
-        const QuillToolbarSelectLineHeightStyleDropdownButtonOptions(),
+    super.options = const QuillToolbarSelectLineHeightStyleDropdownButtonOptions(),
 
     /// Shares common options between all buttons, prefer the [options]
     /// over the [baseOptions].
@@ -36,19 +28,17 @@ class QuillToolbarSelectLineHeightStyleDropdownButton
   });
 
   @override
-  QuillToolbarSelectLineHeightStyleDropdownBaseButtonsState createState() =>
-      _QuillToolbarSelectLineHeightStyleDropdownButtonState();
+  QuillToolbarSelectLineHeightStyleDropdownBaseButtonsState createState() => _QuillToolbarSelectLineHeightStyleDropdownButtonState();
 }
 
-class _QuillToolbarSelectLineHeightStyleDropdownButtonState
-    extends QuillToolbarSelectLineHeightStyleDropdownBaseButtonsState {
+class _QuillToolbarSelectLineHeightStyleDropdownButtonState extends QuillToolbarSelectLineHeightStyleDropdownBaseButtonsState {
   @override
   String get defaultTooltip => context.loc.lineheight;
 
   @override
   IconData get defaultIconData => Icons.question_mark_outlined;
 
-  Attribute<dynamic> _selectedItem = Attribute.lineHeight;
+  FormatAttribute _selectedItem = FormatAttribute.lineHeight;
 
   final _menuController = MenuController();
   @override
@@ -86,38 +76,36 @@ class _QuillToolbarSelectLineHeightStyleDropdownButtonState
     });
   }
 
-  Attribute<dynamic> _getLineHeightValue() {
-    final attr =
-        widget.controller.toolbarButtonToggler[Attribute.lineHeight.key];
+  FormatAttribute _getLineHeightValue() {
+    final attr = widget.controller.toolbarButtonToggler[FormatAttribute.lineHeight.key];
     if (attr != null) {
-      widget.controller.toolbarButtonToggler.remove(Attribute.lineHeight.key);
+      widget.controller.toolbarButtonToggler.remove(
+        FormatAttribute.lineHeight.key,
+      );
       return attr;
     }
-    return widget.controller
-            .getSelectionStyle()
-            .attributes[Attribute.lineHeight.key] ??
-        Attribute.lineHeight;
+    return widget.controller.getSelectionStyle().attributes[FormatAttribute.lineHeight.key] ?? FormatAttribute.lineHeight;
   }
 
-  String _label(Attribute<dynamic> attribute) {
-    var label = LineHeightAttribute.lineHeightNormal.value.toString();
+  String _label(FormatAttribute attribute) {
+    var label = FormatAttribute.lineHeightNormal.value.toString();
     if (attribute.value != null) {
       label = attribute.value.toString();
     }
     return label;
   }
 
-  List<Attribute<dynamic>> get lineHeightAttributes {
+  List<FormatAttribute> get lineHeightAttributes {
     return widget.options.attributes ??
         [
-          LineHeightAttribute.lineHeightNormal,
-          LineHeightAttribute.lineHeightTight,
-          LineHeightAttribute.lineHeightOneAndHalf,
-          LineHeightAttribute.lineHeightDouble,
+          FormatAttribute.lineHeightNormal,
+          FormatAttribute.lineHeightTight,
+          FormatAttribute.lineHeightOneAndHalf,
+          FormatAttribute.lineHeightDouble,
         ];
   }
 
-  void _onPressed(Attribute<dynamic> e) {
+  void _onPressed(FormatAttribute e) {
     setState(() => _selectedItem = e);
     widget.controller.formatSelection(_selectedItem);
   }
@@ -160,9 +148,7 @@ class _QuillToolbarSelectLineHeightStyleDropdownButtonState
             children: [
               Text(
                 _label(_selectedItem),
-                style:
-                    widget.options.textStyle ??
-                    TextStyle(fontSize: iconSize / 1.15),
+                style: widget.options.textStyle ?? TextStyle(fontSize: iconSize / 1.15),
               ),
               Icon(Icons.arrow_drop_down, size: iconSize * iconButtonFactor),
             ],
