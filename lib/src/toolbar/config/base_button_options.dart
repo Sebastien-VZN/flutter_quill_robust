@@ -43,6 +43,24 @@ class QuillToolbarBaseButtonOptions<T, I> {
     this.childBuilder,
   });
 
+  /// Creates a typed copy of [baseOptions] with the same common values.
+  ///
+  /// Use this when sharing a single base options instance across buttons with
+  /// different specific option types. The returned instance keeps only the
+  /// common fields ([iconData], [tooltip], [iconSize], [iconButtonFactor],
+  /// [afterButtonPressed], [iconTheme], [childBuilder]).
+  factory QuillToolbarBaseButtonOptions.fromBase(
+    QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions,
+  ) => QuillToolbarBaseButtonOptions<T, I>(
+    iconData: baseOptions?.iconData,
+    iconSize: baseOptions?.iconSize,
+    iconButtonFactor: baseOptions?.iconButtonFactor,
+    afterButtonPressed: baseOptions?.afterButtonPressed,
+    tooltip: baseOptions?.tooltip,
+    iconTheme: baseOptions?.iconTheme,
+    childBuilder: baseOptions?.childBuilder,
+  );
+
   /// By default it will use a Icon data from Icons which comes from material
   /// library, to change this, please pass a different value
   /// If there is no Icon in this button then pass `null` in the child class

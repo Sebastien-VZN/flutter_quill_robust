@@ -18,13 +18,13 @@ class QuillToolbarCustomButton extends StatelessWidget {
 
   final QuillController controller;
   final QuillToolbarCustomButtonOptions options;
-  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
+  final QuillToolbarBaseButtonOptions<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions>? baseOptions;
 
   void _onPressed(BuildContext context) => options.onPressed?.call();
 
   QuillToolbarButtonOptionsResolver<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions> get _optionsResolver =>
       QuillToolbarButtonOptionsResolver<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions>(
-        baseOptions: baseOptions as QuillToolbarBaseButtonOptions<QuillToolbarCustomButtonOptions, QuillToolbarCustomButtonExtraOptions>?,
+        baseOptions: baseOptions,
         specificOptions: options,
       );
 

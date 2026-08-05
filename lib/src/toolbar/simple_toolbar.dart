@@ -64,102 +64,102 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
               isUndo: true,
               options: config.buttonOptions.undoHistory,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showRedo)
             QuillToolbarHistoryButton(
               isUndo: false,
               options: config.buttonOptions.redoHistory,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showFontFamily)
             QuillToolbarFontFamilyButton(
               options: config.buttonOptions.fontFamily,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showFontSize)
             QuillToolbarFontSizeButton(
               options: config.buttonOptions.fontSize,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showBoldButton)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.bold,
               options: config.buttonOptions.bold,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showItalicButton)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.italic,
               options: config.buttonOptions.italic,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showUnderLineButton)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.underline,
               options: config.buttonOptions.underLine,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showStrikeThrough)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.strikeThrough,
               options: config.buttonOptions.strikeThrough,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showInlineCode)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.inlineCode,
               options: config.buttonOptions.inlineCode,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showSubscript)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.subscript,
               options: config.buttonOptions.subscript,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showSuperscript)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.superscript,
               options: config.buttonOptions.superscript,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showSmallButton)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.small,
               options: config.buttonOptions.small,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showColorButton)
             QuillToolbarColorButton(
               controller: controller,
               isBackground: false,
               options: config.buttonOptions.color,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showBackgroundColorButton)
             QuillToolbarColorButton(
               options: config.buttonOptions.backgroundColor,
               controller: controller,
               isBackground: true,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showClearFormat)
             QuillToolbarClearFormatButton(
               controller: controller,
               options: config.buttonOptions.clearFormat,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (embedButtons != null)
             for (final builder in embedButtons)
@@ -170,7 +170,7 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
                   toolbarIconSize: kDefaultIconSize,
                   iconTheme: config.iconTheme,
                   dialogTheme: config.dialogTheme,
-                  baseButtonOptions: config.buttonOptions.base,
+                  baseButtonOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
                 ),
               ),
         ],
@@ -184,14 +184,14 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
                 showRightAlignment: config.showRightAlignment,
                 showJustifyAlignment: config.showJustifyAlignment,
               ),
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showDirection)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.rtl,
               options: config.buttonOptions.direction,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
         ],
         [
@@ -199,20 +199,20 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
             QuillToolbarSelectLineHeightStyleDropdownButton(
               controller: controller,
               options: config.buttonOptions.selectLineHeightStyleDropdownButton,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showHeaderStyle) ...[
             if (config.headerStyleType.isOriginal)
               QuillToolbarSelectHeaderStyleDropdownButton(
                 controller: controller,
                 options: config.buttonOptions.selectHeaderStyleDropdownButton,
-                baseOptions: config.buttonOptions.base,
+                baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
               )
             else
               QuillToolbarSelectHeaderStyleButtons(
                 controller: controller,
                 options: config.buttonOptions.selectHeaderStyleButtons,
-                baseOptions: config.buttonOptions.base,
+                baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
               ),
           ],
         ],
@@ -222,27 +222,27 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
               attribute: FormatAttribute.ol,
               options: config.buttonOptions.listNumbers,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showListBullets)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.ul,
               options: config.buttonOptions.listBullets,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showListCheck)
             QuillToolbarToggleCheckListButton(
               options: config.buttonOptions.toggleCheckList,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showCodeBlock)
             QuillToolbarToggleStyleButton(
               attribute: FormatAttribute.codeBlock,
               options: config.buttonOptions.codeBlock,
               controller: controller,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
         ],
         [
@@ -251,21 +251,21 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
               options: config.buttonOptions.quote,
               controller: controller,
               attribute: FormatAttribute.blockQuote,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showIndent)
             QuillToolbarIndentButton(
               controller: controller,
               isIncrease: true,
               options: config.buttonOptions.indentIncrease,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showIndent)
             QuillToolbarIndentButton(
               controller: controller,
               isIncrease: false,
               options: config.buttonOptions.indentDecrease,
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
         ],
         [
@@ -274,12 +274,12 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
                 ? QuillToolbarLinkStyleButton(
                     controller: controller,
                     options: config.buttonOptions.linkStyle,
-                    baseOptions: config.buttonOptions.base,
+                    baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
                   )
                 : QuillToolbarLinkStyleButton2(
                     controller: controller,
                     options: config.buttonOptions.linkStyle2,
-                    baseOptions: config.buttonOptions.base,
+                    baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
                   ),
           if (config.showSearchButton)
             QuillToolbarSearchButton(
@@ -288,21 +288,21 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
             ),
           if (config.showClipboardCut)
             QuillToolbarClipboardButton(
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
               options: config.buttonOptions.clipboardCut,
               controller: controller,
               clipboardAction: ClipboardAction.cut,
             ),
           if (config.showClipboardCopy)
             QuillToolbarClipboardButton(
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
               options: config.buttonOptions.clipboardCopy,
               controller: controller,
               clipboardAction: ClipboardAction.copy,
             ),
           if (config.showClipboardPaste)
             QuillToolbarClipboardButton(
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
               options: config.buttonOptions.clipboardPaste,
               controller: controller,
               clipboardAction: ClipboardAction.paste,
@@ -311,7 +311,7 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
         [
           for (final customButton in config.customButtons)
             QuillToolbarCustomButton(
-              baseOptions: config.buttonOptions.base,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
               options: customButton,
               controller: controller,
             ),
