@@ -1103,11 +1103,18 @@ class QuillRawEditorState extends EditorState
     if (dirty) {
       print("yolo !");
       requestKeyboard();
-      SchedulerBinding.instance.addPostFrameCallback(
-        (_) => _handleFocusChanged(),
-      );
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        _afterFocusChanged();
+      });
       return;
     }
+    _afterFocusChanged();
+  }
+
+  void _afterFocusChanged() {
     print("[FOCUS-OPEN] dirty=false, appelle openOrCloseConnection");
     openOrCloseConnection();
     _cursorCont.startOrStopCursorTimerIfNeeded(_hasFocus, controller.selection);
