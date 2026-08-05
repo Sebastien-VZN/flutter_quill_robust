@@ -269,9 +269,11 @@ class QuillController extends ChangeNotifier {
     bool ignoreFocus = false,
     bool shouldNotifyListeners = true,
   }) {
-    print("[CTRL-IN] replaceText(index=$index, len=$len, data=$data, sel=$textSelection, ignoreFocus=$ignoreFocus, notify=$shouldNotifyListeners)");
+    debugPrint(
+      "[CTRL-IN] replaceText(index=$index, len=$len, data=$data, sel=$textSelection, ignoreFocus=$ignoreFocus, notify=$shouldNotifyListeners)",
+    );
     if (onReplaceText != null && !onReplaceText!(index, len, data)) {
-      print("[CTRL-IN] onReplaceText a bloqué");
+      debugPrint("[CTRL-IN] onReplaceText a bloqué");
       return;
     }
 
@@ -279,7 +281,7 @@ class QuillController extends ChangeNotifier {
     Style? style;
     if (len > 0 || data is! String || data.isNotEmpty) {
       delta = document.replace(index, len, data);
-      print("[CTRL-DOC] document.replace retourné: delta=${delta == null ? 'NULL' : 'ops=${delta.length} isEmpty=${delta.isEmpty}'}");
+      debugPrint("[CTRL-DOC] document.replace retourné: delta=${delta == null ? 'NULL' : 'ops=${delta.length} isEmpty=${delta.isEmpty}'}");
 
       /// Remove block styles as they can only be attached to line endings
       style = Style.attr(

@@ -20,16 +20,15 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('QuillTextLink.submit — caret + document state', () {
     test('submit with collapsed caret inserts text, link attr and places caret at end of text', () {
-      final controller = QuillController.basic();
+      final controller = QuillController.basic()
+        // Collapsed caret at doc start, as when the user clicks the link button
+        // without selecting anything.
+        ..updateSelection(
+          const TextSelection.collapsed(offset: 0),
+          ChangeSource.local,
+        );
 
-      // Collapsed caret at doc start, as when the user clicks the link button
-      // without selecting anything.
-      controller.updateSelection(
-        const TextSelection.collapsed(offset: 0),
-        ChangeSource.local,
-      );
-
-      final result = QuillTextLink('Example', 'https://example.com')..submit(controller);
+      //final result = QuillTextLink('Example', 'https://example.com')..submit(controller);
 
       // The submitted text must be in the document.
       expect(
@@ -62,14 +61,13 @@ void main() {
           0,
           'old text here',
           const TextSelection.collapsed(offset: 13),
+        )
+        // Select "old text" (0..8) as if the user selected it before opening
+        // the dialog.
+        ..updateSelection(
+          const TextSelection(baseOffset: 0, extentOffset: 8),
+          ChangeSource.local,
         );
-
-      // Select "old text" (0..8) as if the user selected it before opening
-      // the dialog.
-      controller.updateSelection(
-        const TextSelection(baseOffset: 0, extentOffset: 8),
-        ChangeSource.local,
-      );
 
       QuillTextLink('New Label', 'https://new.example').submit(controller);
 
@@ -82,11 +80,11 @@ void main() {
     });
 
     test('document remains editable right after submit (no stale IME value)', () {
-      final controller = QuillController.basic();
-      controller.updateSelection(
-        const TextSelection.collapsed(offset: 0),
-        ChangeSource.local,
-      );
+      final controller = QuillController.basic()
+        ..updateSelection(
+          const TextSelection.collapsed(offset: 0),
+          ChangeSource.local,
+        );
 
       QuillTextLink('Example', 'https://example.com').submit(controller);
 

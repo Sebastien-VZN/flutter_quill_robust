@@ -46,9 +46,11 @@ void main() {
         expect(focusNode.hasFocus, isTrue);
 
         const word = 'hello';
-        var current = '';
+        final buffer = StringBuffer();
+
         for (final char in word.split('')) {
-          current += char;
+          buffer.write(char);
+          final current = buffer.toString();
           final nextText = '$current\n';
           tester.testTextInput.updateEditingValue(
             TextEditingValue(

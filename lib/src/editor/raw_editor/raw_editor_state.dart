@@ -1107,9 +1107,9 @@ class QuillRawEditorState extends EditorState
   }
 
   void _handleFocusChanged() {
-    print(" _handleFocusChanged INFO void _hasFocus=$_hasFocus dirty=$dirty");
+    debugPrint(" _handleFocusChanged INFO void _hasFocus=$_hasFocus dirty=$dirty");
     if (dirty) {
-      print("yolo !");
+      debugPrint("yolo !");
       requestKeyboard();
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
@@ -1123,14 +1123,14 @@ class QuillRawEditorState extends EditorState
   }
 
   void _afterFocusChanged() {
-    print("[FOCUS-OPEN] dirty=false, appelle openOrCloseConnection");
+    debugPrint("[FOCUS-OPEN] dirty=false, appelle openOrCloseConnection");
     if (!_hasFocus && hasConnection && !widget.config.readOnly) {
       // On Windows desktop, each keystroke can trigger a brief app lifecycle
       // cycle (inactive -> resumed) which causes FocusManager to revoke focus
       // from all non-primary FocusNodes. If the IME connection is still alive
       // we re-acquire focus so the user can keep typing instead of having the
       // connection closed under their fingers.
-      print("[FOCUS-REACQUIRE] focus perdu mais connexion active, re-requestFocus");
+      debugPrint("[FOCUS-REACQUIRE] focus perdu mais connexion active, re-requestFocus");
       widget.config.focusNode.requestFocus();
       return;
     }
@@ -1149,7 +1149,7 @@ class QuillRawEditorState extends EditorState
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && !_hasFocus && hasConnection && !widget.config.readOnly) {
-      print("[LIFECYCLE-RESUME] re-requestFocus après cycle lifecycle");
+      debugPrint("[LIFECYCLE-RESUME] re-requestFocus après cycle lifecycle");
       widget.config.focusNode.requestFocus();
     }
   }
@@ -1241,15 +1241,15 @@ class QuillRawEditorState extends EditorState
   /// keyboard become visible.
   @override
   void requestKeyboard() {
-    print("[REQKB] _hasFocus=$_hasFocus keyboardVisible=$_keyboardVisible skip=${controller.skipRequestKeyboard}");
+    debugPrint("[REQKB] _hasFocus=$_hasFocus keyboardVisible=$_keyboardVisible skip=${controller.skipRequestKeyboard}");
     if (controller.skipRequestKeyboard) {
-      print("[REQKB] skipRequestKeyboard=true, return");
+      debugPrint("[REQKB] skipRequestKeyboard=true, return");
       controller.skipRequestKeyboard = false;
       return;
     }
     if (_hasFocus) {
       final keyboardAlreadyShown = _keyboardVisible;
-      print("[REQKB-OPEN] appelle openConnectionIfNeeded, keyboardAlreadyShown=$keyboardAlreadyShown");
+      debugPrint("[REQKB-OPEN] appelle openConnectionIfNeeded, keyboardAlreadyShown=$keyboardAlreadyShown");
       openConnectionIfNeeded();
       if (!keyboardAlreadyShown) {
         /// delay 500 milliseconds for waiting keyboard show up
@@ -1258,7 +1258,7 @@ class QuillRawEditorState extends EditorState
         _showCaretOnScreen();
       }
     } else {
-      print("[REQKB-NOFOCUS] pas de focus, requestFocus");
+      debugPrint("[REQKB-NOFOCUS] pas de focus, requestFocus");
       widget.config.focusNode.requestFocus();
     }
   }

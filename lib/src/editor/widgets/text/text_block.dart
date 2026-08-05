@@ -269,8 +269,7 @@ class EditableTextBlock extends StatelessWidget {
     /// Merged attribute map: fall back to node style attributes when the
     /// delta op does not carry the block attribute itself. Values from the
     /// delta op are converted from raw JSON into [FormatAttribute].
-    final attrs = <String, FormatAttribute>{...nodeAttrs};
-    attrs.addAll(Style.fromJson(attributeOp).attributes);
+    final attrs = <String, FormatAttribute>{...nodeAttrs}..addAll(Style.fromJson(attributeOp).attributes);
 
     // Of the alignment buttons
     // final textAlign = line.style.attributes[FormatAttribute.align.key]?.value != null

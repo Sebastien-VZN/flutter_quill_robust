@@ -265,8 +265,9 @@ class _TextLineState extends State<TextLine> {
     TextStyle lineStyle,
     TextSpanBuilder textSpanBuilder,
   ) {
+    var result = nodes;
     if (nodes.isEmpty && kIsWeb) {
-      nodes = LinkedList<Node>()..add(leaf.QuillText());
+      result = LinkedList<Node>()..add(leaf.QuillText());
     }
 
     final isComposingRangeOutOfLine =
@@ -275,7 +276,7 @@ class _TextLineState extends State<TextLine> {
         (widget.composingRange.start < widget.line.documentOffset || widget.composingRange.end > widget.line.documentOffset + widget.line.length);
 
     if (isComposingRangeOutOfLine) {
-      final children = nodes
+      final children = result
           .map(
             (node) => _getTextSpanFromNode(
               defaultStyles,
