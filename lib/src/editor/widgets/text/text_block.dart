@@ -8,6 +8,7 @@ import 'package:flutter_quill/src/delta/delta_diff.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/nodes/block.dart';
 import 'package:flutter_quill/src/document/nodes/line.dart';
+import 'package:flutter_quill/src/document/style.dart';
 import 'package:flutter_quill/src/editor/editor.dart';
 import 'package:flutter_quill/src/editor/raw_editor/builders/leading_block_builder.dart';
 import 'package:flutter_quill/src/editor/widgets/box.dart';
@@ -233,22 +234,43 @@ class EditableTextBlock extends StatelessWidget {
   }) {
     final defaultStyles = QuillStyles.getStyles(context, false)!;
     final fontSize = defaultStyles.paragraph?.style.fontSize ?? 16;
-    final attrs = line.style.attributes;
+    // Block-level attributes (list, code-block) can live either on the line
+    // node style or on the delta operations. We merge both lookup sources so
+    // the leading widget is rendered no matter where the attribute is stored.
+    final nodeAttrs = line.style.attributes;
     final numberPointWidthBuilder = defaultStyles.lists?.numberPointWidthBuilder ?? TextBlockUtils.defaultNumberPointWidthBuilder;
 
     /// Of the color button
     final delta = line.toDelta();
-    final attributeOp = delta.operations.first.attributes;
-    if (attributeOp == null) return null;
+    // Find the first op that carries block attributes (usually the text op
+    // or the trailing newline op). An op without attributes is skipped.
+    Map<String, dynamic>? attributeOp;
+    for (final op in delta.operations) {
+      if (op.attributes != null) {
+        attributeOp = op.attributes;
+        break;
+      }
+    }
+    if (attributeOp == null) {
+      // No attributes at all on this line: nothing to render in the leading.
+      return null;
+    }
     final valColor = attributeOp[FormatAttribute.color.key];
     final colorSchema = hexToColor(valColor.toString());
     final fontColor = attributeOp[FormatAttribute.color.key] != null ? colorSchema : null;
 
-    /// Of the size button
+    /// Of the size button — the leading must be rendered even when no
+    /// explicit size attribute is set on the line. When a size IS set, it
+    /// drives both the leading text style and its layout width so the leading
+    /// stays aligned with the body text.
     final opSize = attributeOp[FormatAttribute.size.key];
-    if (opSize == null) return null;
-    final sizeStyle = getFontSizeAsDouble(opSize, defaultStyles: defaultStyles);
-    if (sizeStyle == null) return null;
+    final sizeStyle = opSize == null ? fontSize : (getFontSizeAsDouble(opSize, defaultStyles: defaultStyles) ?? fontSize);
+
+    /// Merged attribute map: fall back to node style attributes when the
+    /// delta op does not carry the block attribute itself. Values from the
+    /// delta op are converted from raw JSON into [FormatAttribute].
+    final attrs = <String, FormatAttribute>{...nodeAttrs};
+    attrs.addAll(Style.fromJson(attributeOp).attributes);
 
     // Of the alignment buttons
     // final textAlign = line.style.attributes[FormatAttribute.align.key]?.value != null
@@ -290,23 +312,23 @@ class EditableTextBlock extends StatelessWidget {
       }(),
       width: () {
         if (isOrdered || isCodeBlock) {
-          return numberPointWidthBuilder(fontSize, count);
+          return numberPointWidthBuilder(sizeStyle, count);
         }
         if (isUnordered) {
-          return numberPointWidthBuilder(fontSize, 1); // same as fontSize * 2
+          return numberPointWidthBuilder(sizeStyle, 1); // same as sizeStyle * 2
         }
         return null;
       }(),
       padding: () {
         if (isOrdered || isUnordered) {
-          return fontSize / 2;
+          return sizeStyle / 2;
         }
         if (isCodeBlock) {
-          return fontSize;
+          return sizeStyle;
         }
         return null;
       }(),
-      lineSize: isCheck ? fontSize : null,
+      lineSize: isCheck ? sizeStyle : null,
       value: attribute == FormatAttribute.checked,
       onCheckboxTap: !isCheck ? (value) {} : (value) => onCheckboxTap(line.documentOffset, value),
     );

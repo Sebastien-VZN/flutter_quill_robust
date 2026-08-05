@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/document/data_caster.dart';
+import 'package:flutter_quill/src/document/document.dart' show ChangeSource;
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/nodes/node.dart';
 import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
@@ -121,7 +122,12 @@ class QuillTextLink {
       }
     }
     controller
-      ..replaceText(index, length, text, null)
+      ..replaceText(
+        index,
+        length,
+        text,
+        TextSelection.collapsed(offset: index + text.length),
+      )
       ..formatText(
         index,
         text.length,
@@ -132,6 +138,16 @@ class QuillTextLink {
           valueType: FormatValueType.nullableString,
         ),
       );
+
+    // repaceText may shift the caret via getPositionDelta when replacing a
+    // non-empty range. Pin the caret once, after the whole operation, so the
+    // next keystroke always appends right after the link label.
+    if (controller.selection.extentOffset != index + text.length) {
+      controller.updateSelection(
+        TextSelection.collapsed(offset: index + text.length),
+        ChangeSource.local,
+      );
+    }
   }
 
   static Object? _getLinkAttributeValue(QuillController controller) {
