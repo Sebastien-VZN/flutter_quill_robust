@@ -360,58 +360,74 @@ packages:
   quill_native_bridge:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge"
-      relative: true
-    source: path
+      path: quill_native_bridge
+      ref: HEAD
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "11.3.0"
   quill_native_bridge_android:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge_android"
-      relative: true
-    source: path
+      path: quill_native_bridge_android
+      ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "0.1.0"
   quill_native_bridge_ios:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge_ios"
-      relative: true
-    source: path
+      path: quill_native_bridge_ios
+      ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "0.1.0"
   quill_native_bridge_linux:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge_linux"
-      relative: true
-    source: path
+      path: quill_native_bridge_linux
+      ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "0.1.0"
   quill_native_bridge_macos:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge_macos"
-      relative: true
-    source: path
+      path: quill_native_bridge_macos
+      ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "0.1.0"
   quill_native_bridge_platform_interface:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge_platform_interface"
-      relative: true
-    source: path
+      path: quill_native_bridge_platform_interface
+      ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "0.1.0+2"
   quill_native_bridge_web:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge_web"
-      relative: true
-    source: path
+      path: quill_native_bridge_web
+      ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "0.1.0"
   quill_native_bridge_windows:
     dependency: transitive
     description:
-      path: "../../quill_native_bridge_robust/quill_native_bridge_windows"
-      relative: true
-    source: path
+      path: quill_native_bridge_windows
+      ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      resolved-ref: "81c3ae6bf8d3cb945b0ae67a2335642828ff05b8"
+      url: "https://github.com/Sebastien-VZN/quill_native_bridge_robust.git"
+    source: git
     version: "0.2.0"
   quiver:
     dependency: transitive
