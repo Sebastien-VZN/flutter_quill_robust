@@ -67,7 +67,9 @@ A production-hardened fork of `flutter_quill`. It keeps **text-only rich editing
 
 ## Generated code
 
-- `lib/src/l10n/generated/` is produced by `flutter gen-l10n`. It is excluded from analysis and formatting checks.
+- `lib/src/l10n/generated/` is produced by `flutter gen-l10n` and **is tracked in git**. Without committing it, consumers that depend on this package via a git URL cannot resolve `FlutterQuillLocalizations` (Dart does not run `flutter gen-l10n` on fetched git deps), so every git consumer would see `Undefined name 'FlutterQuillLocalizations'`.
+- The folder is excluded from `flutter analyze` (see `analysis_options.yaml`) and from `dart format` (see `scripts/_lib/format_files.dart`, shared by `scripts/format_check.dart` and `scripts/before_push.dart`) because `flutter gen-l10n` output formatting differs slightly between the Windows and Linux Flutter toolchains.
+- Do not hand-edit committed files under `lib/src/l10n/generated/`. Regenerate via `flutter gen-l10n` (or `dart ./scripts/regenerate_translations.dart`), then commit the result.
 - `scripts/regenerate_translations.dart` deletes the folder, regenerates, applies `dart fix`, then formats.
 - `scripts/translations_check.dart` asserts the template ARB has exactly **117** keys. If you add or remove keys, update `_expectedTranslationKeysLength` in that script.
 

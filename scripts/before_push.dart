@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import '_lib/format_files.dart';
+
 void main() async {
   await runCommand('flutter', ['analyze']);
 
@@ -11,12 +13,22 @@ void main() async {
 
   await runCommand('dart', ['fix', '--apply']);
 
-  // Format the whole repository, then assert it is fully formatted (mirrors the
-  // CI `dart format --set-exit-if-changed .` check). The repo is kept in canonical
-  // style by a one-off reformat + the pinned-version CI check, so this no longer
-  // needs to scope to changed files only.
-  await runCommand('dart', ['format', '.']);
-  await runCommand('dart', ['format', '--set-exit-if-changed', '.']);
+  // Format the repository, then assert it is fully formatted (mirrors the CI
+  // `format_check.dart` check). Skips generated localizations whose formatting
+  // differs across the Windows and Linux Flutter toolchains — see
+  // `scripts/_lib/format_files.dart` for the shared exclusion list. Files are
+  // passed in chunks to stay under the Windows command-line length limit.
+  final files = collectFormatableDartFiles();
+  if (files.isEmpty) {
+    stderr.writeln('No Dart files found to format.');
+    exit(1);
+  }
+  for (final batch in chunkFormatBatches(files)) {
+    await runCommand('dart', ['format', '-l', '150', ...batch]);
+  }
+  for (final batch in chunkFormatBatches(files)) {
+    await runCommand('dart', ['format', '-l', '150', '--set-exit-if-changed', ...batch]);
+  }
 
   await runCommand('flutter', [
     'build',

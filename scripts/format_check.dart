@@ -1,41 +1,31 @@
 import 'dart:io';
 
-import 'package:path/path.dart' as p;
+import '_lib/format_files.dart';
 
 /// Runs `dart format -l 150 --set-exit-if-changed` on every `.dart` file
 /// except generated localizations, whose formatting differs between
-/// Windows and Linux Flutter toolchains.
+/// Windows and Linux Flutter toolchains. See `scripts/_lib/format_files.dart`
+/// for the shared exclusion list. Files are passed in chunks to stay under
+/// the Windows command-line length limit.
 void main() {
-  final root = Directory.current;
-  final excludedDirs = <String>{
-    p.join(root.path, 'lib', 'src', 'l10n', 'generated'),
-    p.join(root.path, 'build'),
-    p.join(root.path, '.dart_tool'),
-    p.join(root.path, 'example', 'build'),
-    p.join(root.path, 'example', '.dart_tool'),
-    p.join(root.path, 'flutter_quill_extensions', 'build'),
-    p.join(root.path, 'flutter_quill_extensions', '.dart_tool'),
-  };
-
-  final files = <String>[];
-  for (final entity in root.listSync(recursive: true, followLinks: false)) {
-    if (entity is! File) continue;
-    if (!entity.path.endsWith('.dart')) continue;
-
-    final dir = p.dirname(entity.path);
-    if (excludedDirs.any(dir.startsWith)) continue;
-
-    files.add(entity.path);
-  }
+  final files = collectFormatableDartFiles();
 
   if (files.isEmpty) {
     stderr.writeln('No Dart files found to format.');
     exit(1);
   }
 
-  final result = Process.runSync('dart', ['format', '-l', '150', '--set-exit-if-changed', ...files], runInShell: true);
-
-  stdout.write(result.stdout);
-  stderr.write(result.stderr);
-  exit(result.exitCode);
+  final failureCodes = <int>[];
+  for (final batch in chunkFormatBatches(files)) {
+    final result = Process.runSync(
+      'dart',
+      ['format', '-l', '150', '--set-exit-if-changed', ...batch],
+      runInShell: true,
+    );
+    stdout.write(result.stdout);
+    stderr.write(result.stderr);
+    if (result.exitCode != 0) failureCodes.add(result.exitCode);
+    if (result.exitCode != 0) break;
+  }
+  exit(failureCodes.isEmpty ? 0 : failureCodes.first);
 }
