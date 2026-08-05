@@ -15,7 +15,7 @@ class QuillToolbarSelectAlignmentButtons extends StatelessWidget {
     super.key,
   });
 
-  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
+  final QuillToolbarBaseButtonOptions<QuillToolbarToggleStyleButtonOptions, QuillToolbarToggleStyleButtonExtraOptions>? baseOptions;
 
   // This button doesn't support the base button option
 

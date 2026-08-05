@@ -19,10 +19,10 @@ abstract class QuillToolbarBaseButtonStateless<T, I> extends StatelessWidget {
 
   final QuillToolbarBaseButtonOptions<T, I>? options;
 
-  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
+  final QuillToolbarBaseButtonOptions<T, I>? baseOptions;
 
   QuillToolbarButtonOptionsResolver<T, I> get _optionsResolver => QuillToolbarButtonOptionsResolver<T, I>(
-    baseOptions: baseOptions as QuillToolbarBaseButtonOptions<T, I>?,
+    baseOptions: baseOptions,
     specificOptions: options,
   );
 

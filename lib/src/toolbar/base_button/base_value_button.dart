@@ -19,7 +19,7 @@ abstract class QuillToolbarBaseButton<T extends QuillToolbarBaseButtonOptions<T,
 
   /// Shares common options between all buttons, prefer the [options]
   /// over the [baseOptions].
-  final QuillToolbarBaseButtonOptions<dynamic, dynamic>? baseOptions;
+  final QuillToolbarBaseButtonOptions<T, E>? baseOptions;
 
   final QuillController controller;
 }
@@ -54,7 +54,7 @@ abstract class QuillToolbarCommonButtonState<
   QuillToolbarButtonOptionsChildBuilder<T, E> get childBuilder => _optionsResolver.childBuilder;
 
   QuillToolbarButtonOptionsResolver<T, E> get _optionsResolver => QuillToolbarButtonOptionsResolver<T, E>(
-    baseOptions: widget.baseOptions as QuillToolbarBaseButtonOptions<T, E>?,
+    baseOptions: widget.baseOptions,
     specificOptions: options,
   );
 }
