@@ -88,11 +88,10 @@ void main() {
         ..updateSelection(
           const TextSelection.collapsed(offset: 0),
           ChangeSource.local,
-        );
-      controller.formatSelection(FormatAttribute.bold);
-
-      // Now simulate a keystroke — the staged toggledStyle must be applied.
-      controller.replaceText(0, 0, 'A', const TextSelection.collapsed(offset: 1));
+        )
+        ..formatSelection(FormatAttribute.bold)
+        // Now simulate a keystroke — the staged toggledStyle must be applied.
+        ..replaceText(0, 0, 'A', const TextSelection.collapsed(offset: 1));
 
       expect(controller.document.toPlainText(), startsWith('A'));
       final firstOp = controller.document.toDelta().toList().first;

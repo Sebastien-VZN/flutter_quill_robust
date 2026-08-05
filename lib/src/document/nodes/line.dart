@@ -82,7 +82,7 @@ base class Line extends QuillContainer<Leaf?> {
 
   @override
   void insert(int index, Object data, Style? style) {
-    print("[LINE-INSERT-IN] index=$index data=$data style=$style");
+    debugPrint("[LINE-INSERT-IN] index=$index data=$data style=$style");
     var value = index;
     if (data is Embeddable) {
       // We do not check whether this line already has any children here as
@@ -357,9 +357,9 @@ base class Line extends QuillContainer<Leaf?> {
   }
 
   void _insertSafe(int index, Object data, Style? style) {
-    print("[LINE-INSAFE-IN] index=$index length=$length data=$data");
+    debugPrint("[LINE-INSAFE-IN] index=$index length=$length data=$data");
     if (index < 0 || index > length) {
-      print("[LINE-INSAFE-GUARD] BLOQUÉ — index=$index hors [0,$length]");
+      debugPrint("[LINE-INSAFE-GUARD] BLOQUÉ — index=$index hors [0,$length]");
       debugPrint(
         'Line._insertSafe — invalid index=$index (length=$length), aborting insert',
       );
@@ -377,30 +377,30 @@ base class Line extends QuillContainer<Leaf?> {
     var safeData = data;
     if (safeData is String) {
       if (safeData.contains('\n')) {
-        print("[LINE-INSAFE-NEWLINE] data contient newline, strip");
+        debugPrint("[LINE-INSAFE-NEWLINE] data contient newline, strip");
         debugPrint(
           'Line._insertSafe — data contains newline, stripping it: $safeData',
         );
         safeData = safeData.replaceAll('\n', '');
         if (safeData.isEmpty) {
-          print("[LINE-INSAFE-EMPTY] data vide après strip newline, return");
+          debugPrint("[LINE-INSAFE-EMPTY] data vide après strip newline, return");
           return;
         }
       }
       if (safeData.isEmpty) {
-        print("[LINE-INSAFE-EMPTY] data vide, return");
+        debugPrint("[LINE-INSAFE-EMPTY] data vide, return");
         return;
       }
     }
 
-    print("[LINE-INSAFE-OK] insertion effective, isEmpty=$isEmpty data=$safeData");
+    debugPrint("[LINE-INSAFE-OK] insertion effective, isEmpty=$isEmpty data=$safeData");
     if (isEmpty) {
       final child = Leaf(safeData);
       add(child);
       child.format(style);
     } else {
       final result = queryChild(index, true);
-      print("[LINE-INSAFE-DELEG] delegate à child offset=${result.offset} node=${result.node}");
+      debugPrint("[LINE-INSAFE-DELEG] delegate à child offset=${result.offset} node=${result.node}");
       result.node!.insert(result.offset, safeData, style);
     }
   }

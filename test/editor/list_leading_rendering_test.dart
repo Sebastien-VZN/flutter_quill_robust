@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
-import 'package:flutter_quill/src/editor/style_widgets/style_widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../common/utils/quill_test_app.dart';

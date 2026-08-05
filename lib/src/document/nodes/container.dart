@@ -1,6 +1,7 @@
 import "dart:collection" show LinkedList;
 import "dart:developer" as developer;
 
+import "package:flutter/foundation.dart";
 import "package:flutter_quill/src/document/nodes/leaf.dart";
 import "package:flutter_quill/src/document/nodes/line.dart";
 import "package:flutter_quill/src/document/nodes/node.dart";
@@ -170,9 +171,9 @@ abstract base class QuillContainer<T extends Node?> extends Node {
   /// and returns without modifying the document.
   @override
   void insert(int index, Object data, Style? style) {
-    print("[CONT-INSERT-IN] index=$index length=$length data=$data");
+    debugPrint("[CONT-INSERT-IN] index=$index length=$length data=$data");
     if (index < 0 || index > length) {
-      print("[CONT-INSERT-GUARD] BLOQUÉ — index=$index hors [0,$length]");
+      debugPrint("[CONT-INSERT-GUARD] BLOQUÉ — index=$index hors [0,$length]");
       developer.log(
         "QuillContainer.insert: index $index out of bounds (length=$length) — skipping.",
         name: "quill.container",
@@ -183,14 +184,14 @@ abstract base class QuillContainer<T extends Node?> extends Node {
     if (isNotEmpty) {
       final child = queryChild(index, false);
       if (child.isNotEmpty) {
-        print("[CONT-INSERT-CHILD] delegate à child offset=${child.offset} node=${child.node}");
+        debugPrint("[CONT-INSERT-CHILD] delegate à child offset=${child.offset} node=${child.node}");
         child.node!.insert(child.offset, data, style);
       } else {
-        print("[CONT-INSERT-CHILD] child isEmpty, skip");
+        debugPrint("[CONT-INSERT-CHILD] child isEmpty, skip");
       }
     } else {
       final node = defaultChild;
-      print("[CONT-INSERT-DEFAULT] container vide, add defaultChild=${node.runtimeType} puis insert");
+      debugPrint("[CONT-INSERT-DEFAULT] container vide, add defaultChild=${node.runtimeType} puis insert");
       add(node);
       node?.insert(index, data, style);
     }

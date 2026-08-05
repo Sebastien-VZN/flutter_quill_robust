@@ -73,7 +73,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
 
     if (!hasConnection) {
       _lastKnownRemoteTextEditingValue = textEditingValue;
-      print(
+      debugPrint(
         "[OPEN-1] textEditingValue.text='${_lastKnownRemoteTextEditingValue?.text}' len=${_lastKnownRemoteTextEditingValue?.text.length} sel=${_lastKnownRemoteTextEditingValue?.selection}",
       );
       _textInputConnection = TextInput.attach(
@@ -106,7 +106,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
       }
       final remote = _lastKnownRemoteTextEditingValue;
       if (remote != null) {
-        print("[OPEN-2] setEditingState appelé, remote.text='${remote.text}' len=${remote.text.length} sel=${remote.selection}");
+        debugPrint("[OPEN-2] setEditingState appelé, remote.text='${remote.text}' len=${remote.text.length} sel=${remote.selection}");
         _textInputConnection!.setEditingState(remote);
       }
     }
@@ -191,7 +191,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
       return;
     }
 
-    print("[REMOTE-PUSH] setEditingState actualValue.text='${actualValue.text}' len=${actualValue.text.length} sel=${actualValue.selection}");
+    debugPrint("[REMOTE-PUSH] setEditingState actualValue.text='${actualValue.text}' len=${actualValue.text.length} sel=${actualValue.selection}");
     _lastKnownRemoteTextEditingValue = actualValue;
     _textInputConnection!.setEditingState(
       actualValue.copyWith(composing: TextRange.empty),
@@ -208,28 +208,28 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
 
   @override
   void updateEditingValue(TextEditingValue value) {
-    print("[IME-IN] value.text='${value.text}' len=${value.text.length} sel=${value.selection} composing=${value.composing}");
+    debugPrint("[IME-IN] value.text='${value.text}' len=${value.text.length} sel=${value.selection} composing=${value.composing}");
     if (!shouldCreateInputConnection) {
-      print("[IME-IN] shouldCreateInputConnection=false, return");
+      debugPrint("[IME-IN] shouldCreateInputConnection=false, return");
       return;
     }
 
     final last = _lastKnownRemoteTextEditingValue;
     final lastStr = last == null ? "NULL" : "text='${last.text}' len=${last.text.length} sel=${last.selection}";
-    print("[IME-LAST] last=$lastStr");
+    debugPrint("[IME-LAST] last=$lastStr");
     if (last == value) {
-      print("[IME-IN] last == value, return");
+      debugPrint("[IME-IN] last == value, return");
       return;
     }
 
     if (last != null && last.text == value.text && last.selection == value.selection) {
-      print("[IME-IN] composing-only, return");
+      debugPrint("[IME-IN] composing-only, return");
       _lastKnownRemoteTextEditingValue = value;
       return;
     }
 
     if (last != null && last.text == value.text) {
-      print("[IME-IN] selection-only, return");
+      debugPrint("[IME-IN] selection-only, return");
       _lastKnownRemoteTextEditingValue = value;
       widget.controller.updateSelection(value.selection, ChangeSource.local);
       return;
@@ -241,17 +241,17 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
     final text = value.text;
     final cursorPosition = value.selection.extentOffset;
     final diff = getDiff(oldText, text, cursorPosition);
-    print(
+    debugPrint(
       "[IME-DIFF] oldText='$oldText'(len=${oldText.length}) -> newText='$text'(len=${text.length}) cursor=$cursorPosition => start=${diff.start} del='${diff.deleted}'(${diff.deleted.length}) ins='${diff.inserted}'(${diff.inserted.length})",
     );
 
     _isHandlingUpdateEditingValue = true;
     try {
       if (diff.deleted.isEmpty && diff.inserted.isEmpty) {
-        print("[IME-IN] diff vide, updateSelection only");
+        debugPrint("[IME-IN] diff vide, updateSelection only");
         widget.controller.updateSelection(value.selection, ChangeSource.local);
       } else {
-        print("[IME-REPLACE] replaceText(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})");
+        debugPrint("[IME-REPLACE] replaceText(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})");
         widget.controller.replaceText(
           diff.start,
           diff.deleted.length,
