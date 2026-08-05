@@ -991,10 +991,18 @@ class QuillRawEditorState extends EditorState
   }
 
   void _onComposingRangeChanged() {
-    if (!mounted) {
-      return;
-    }
-    _markNeedsBuild();
+    // During widget teardown (hot-reload / test disposal) the composing
+    // notifier can still fire between `deactivate` and the final `dispose`.
+    // In that window `mounted` may still be `true` while the element is in a
+    // defunct lifecycle state: calling `setState` would throw. Defer to a
+    // post-frame callback and re-check `mounted` so we never touch a stale
+    // element.
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _markNeedsBuild();
+    });
   }
 
   /// Marks the editor as dirty and trigger a rebuild.
