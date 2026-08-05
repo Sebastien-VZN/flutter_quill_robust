@@ -35,9 +35,11 @@ dependencies:
   url_launcher: ^6.2.1
   flutter_keyboard_visibility_temp_fork: ^0.1.1
 
-  # Native bridge — fork local (workspace fixé avec overrides)
+  # Native bridge — fork git
   quill_native_bridge:
-    path: ../quill_native_bridge_robust/quill_native_bridge
+    git:
+      url: https://github.com/Sebastien-VZN/quill_native_bridge_robust.git
+      path: quill_native_bridge
 
 dev_dependencies:
   very_good_analysis: ^10.2.0
@@ -53,11 +55,6 @@ dev_dependencies:
   http: ^1.2.1
 
   path: any
-
-dependency_overrides:
-  dart_quill_delta:
-    git:
-      url: https://github.com/Sebastien-VZN/dart_quill_delta_robust.git
 
 flutter:
   uses-material-design: true
