@@ -15,6 +15,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **QuillDebugLogs** (`lib/src/common/utils/quill_debug_logs.dart`) — global debug-log manager with `quillDebugPrint()` wrapper. All `debugPrint` calls in the lib now route through this wrapper and stay silent unless enabled.
 - **QuillEditorConfig.enableDebugLogs** — config flag (default `false`) that toggles `QuillDebugLogs.enabled` at editor init. Pass `enableDebugLogs: true` to surface `DataCaster` type-mismatch logs and other internal debug output.
 
+## [11.6.0] - 2026-08-06
+
+### Added
+
+- **QuillToolbarEmojiButton** (`lib/src/toolbar/buttons/emoji/emoji_button.dart`) — new desktop-only toolbar button that opens an emoji picker dropdown anchored below the button using Material 3 `MenuAnchor`. Pattern matches the existing font-family / font-size / header-style / line-height dropdowns. Insertion at the cursor position via `QuillController.replaceText`. Stays open after each emoji selection so the user can insert multiple emojis in a row; closes by toggling the same button or tapping outside.
+- **QuillToolbarEmojiDialog** (`lib/src/toolbar/buttons/emoji/emoji_dialog.dart`) — theme-aware wrapper around `emoji_picker_flutter` `EmojiPicker` (8 categories + search bar). Colors sourced from `Theme.of(context)` (no project-specific palette). `Config.height` left null so the picker adapts to the parent `SizedBox`.
+- **QuillToolbarEmojiButtonOptions** (`lib/src/toolbar/config/buttons/emoji_options.dart`) — new options class with `menuWidth` (default 320), `menuHeight` (default 400), `dialogTheme`, and `customOnPressedCallback`.
+- **QuillSimpleToolbarConfig.showEmojiButton** — new config flag (default `true`). The button is rendered only when `showEmojiButton && isDesktop` (see `lib/src/common/utils/platform.dart`); on mobile the native keyboard emoji palette remains the input path.
+- **Localization key `emoji`** — added to `lib/src/l10n/quill_en.arb`; `flutter gen-l10n` regenerated all 48 locale files. `scripts/translations_check.dart` `_expectedTranslationKeysLength` bumped from 117 to 118.
+- **Dependency** — added `emoji_picker_flutter: ^4.5.3` (Flutter >=3.41.8 compatible) to `pubspec.yaml`.
+
+### Changed
+
+- **QuillSimpleToolbar** (`lib/src/toolbar/simple_toolbar.dart`) — `QuillToolbarEmojiButton` inserted in the search/clipboard group, right after `QuillToolbarSearchButton`, gated by `config.showEmojiButton && isDesktop`.
+- **QuillSimpleToolbarButtonOptions** — new `emoji` field of type `QuillToolbarEmojiButtonOptions`.
+
 ## [11.5.4] - 2026-08-06
 
 ### Repository
