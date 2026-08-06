@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                 showClipboardPaste: true,
                 showDirection: true,
                 customButtons: [
-                  /// TODO A verifier à quoi ça sert ! imbriqué les emiji pour les vue desktop
+                  // TODO(Seb): Need to check what this is for! Nested emoji selectors for desktop views.
                   QuillToolbarCustomButtonOptions(
                     icon: const Icon(Icons.add_alarm_rounded),
                     onPressed: () {

@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- _Nothing yet._
+
+## [11.5.4] - 2026-08-06
+
+### Repository
+
+- **Commit messages rewritten** — 14 non-conventional commit messages on `master` (between `v11.5.3+2` and HEAD) reworded to follow [Conventional Commits](https://www.conventionalcommits.org/). Commit content is byte-identical (`git diff backup/master-before-reword..HEAD` empty); tag `v11.5.3+2` and its GitHub release untouched. Backup branch `backup/master-before-reword` kept locally as a safety net.
+
+### Added
+
 - **DataCaster** (`lib/src/document/data_caster.dart`) — centralized type-casting utility with `debugPrint` logging on type mismatches. Provides `toInt()`, `toStr()`, `toBool()`, `toDouble()` static methods with optional `context` parameter for traceability.
 - **FormatValueType** enum — runtime type marker (`boolean`, `string`, `nullableString`, `integer`, `nullableInteger`, `number`, `nullableNumber`) that compensates for Dart's lack of union types.
 - **Typed accessors** on `FormatAttribute` — `intValue`, `stringValue`, `boolValue`, `numberValue` delegate to `DataCaster` with full context logging.
