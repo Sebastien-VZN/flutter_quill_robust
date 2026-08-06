@@ -305,4 +305,94 @@ void main() {
       expect(controller.selection, const TextSelection.collapsed(offset: 14));
     });
   });
+
+  group('clipboard with embeds', () {
+    test('clipboardSelection captures embed in pastePlainText and pasteDelta', () async {
+      final controller = QuillController.basic()
+        ..compose(
+          delta: Delta()..insert('before'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
+        )
+        ..replaceText(6, 0, BlockEmbed.formula('x^2 + y^2'), null)
+        ..updateSelection(
+          const TextSelection(baseOffset: 0, extentOffset: 8),
+          ChangeSource.local,
+        );
+
+      // The plain text representation of the selection contains the embed
+      // object replacement character for the formula embed.
+      await controller.clipboardSelection(true);
+      expect(controller.pastePlainText, contains(Embed.kObjectReplacementCharacter));
+      expect(controller.pasteDelta.isNotEmpty, true);
+      // The delta should contain at least one insert whose data is a Map
+      // (the embed payload), not a plain String.
+      final hasEmbedOp = controller.pasteDelta.toList().where((op) => op.data is Map).isNotEmpty;
+      expect(hasEmbedOp, true, reason: 'pasteDelta should contain an embed operation');
+    });
+
+    test('clipboardSelection does not leave clipboard empty before caches are filled', () async {
+      // Regression: previously the clipboard was cleared first and only
+      // repopulated at the very end, after computing the slow caches. A
+      // concurrent paste would then see an empty clipboard. Now the plain
+      // text is written to the clipboard before the caches are computed.
+      final controller = QuillController.basic()
+        ..compose(
+          delta: Delta()..insert('hello'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
+        )
+        ..updateSelection(
+          const TextSelection(baseOffset: 0, extentOffset: 5),
+          ChangeSource.local,
+        );
+
+      await controller.clipboardSelection(true);
+      // The cache should be populated synchronously with the clipboard write,
+      // so a concurrent paste would see consistent content.
+      expect(controller.pastePlainText, 'hello');
+      expect(controller.pasteDelta.isNotEmpty, true);
+    });
+
+    test('internal paste via pastePlainTextOrDelta preserves embeds', () async {
+      final source = QuillController.basic()
+        ..compose(
+          delta: Delta()..insert('a'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
+        )
+        ..replaceText(1, 0, BlockEmbed.formula('x^2'), null)
+        ..replaceText(2, 0, 'b', null)
+        ..updateSelection(
+          const TextSelection(baseOffset: 0, extentOffset: 3),
+          ChangeSource.local,
+        );
+
+      await source.clipboardSelection(true);
+      // pastePlainText should be "a\uFFFCb" (embed replaced by FFFC).
+      expect(source.pastePlainText, 'a${Embed.kObjectReplacementCharacter}b');
+
+      final controller = QuillController.basic()
+        ..compose(
+          delta: Delta()..insert('[]'),
+          textSelection: const TextSelection.collapsed(offset: 0),
+          source: ChangeSource.local,
+        )
+        ..updateSelection(
+          const TextSelection.collapsed(offset: 1),
+          ChangeSource.local,
+        );
+
+      expect(
+        pasteUsingPlainOrDelta(controller, source.pastePlainText),
+        true,
+        reason: 'Internal paste with embed should be handled',
+      );
+      // The resulting document should contain the embed (a formula node),
+      // not a literal FFFC character in the text.
+      final plain = controller.document.toPlainText();
+      expect(plain, contains(Embed.kObjectReplacementCharacter));
+      expect(plain, '[a${Embed.kObjectReplacementCharacter}b]\n');
+    });
+  });
 }

@@ -56,8 +56,9 @@ abstract final class TextBlockUtils {
 
     final indent = attrs[FormatAttribute.indent.key];
     var extraIndent = 0.0;
-    if (indent != null && indent.numberValue != null) {
-      extraIndent = fontSize * indent.numberValue!;
+    final indentLevel = indent?.intValue;
+    if (indentLevel != null) {
+      extraIndent = fontSize * indentLevel;
     }
 
     if (attrs.containsKey(FormatAttribute.blockQuote.key)) {

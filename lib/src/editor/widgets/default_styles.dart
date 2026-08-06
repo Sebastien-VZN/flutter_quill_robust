@@ -437,7 +437,7 @@ class DefaultStyles {
       underline: const TextStyle(decoration: TextDecoration.underline),
       strikeThrough: const TextStyle(decoration: TextDecoration.lineThrough),
       inlineCode: InlineCodeStyle(
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: themeData.brightness == Brightness.dark ? Colors.black87 : Colors.grey.shade100,
         radius: const Radius.circular(3),
         style: inlineCodeStyle,
         header1: inlineCodeStyle.copyWith(
@@ -488,7 +488,7 @@ class DefaultStyles {
       ),
       code: DefaultTextBlockStyle(
         TextStyle(
-          color: Colors.blue.shade900.withValues(alpha: 0.9),
+          color: themeData.brightness == Brightness.dark ? Colors.blue.shade100.withValues(alpha: 0.9) : Colors.blue.shade900.withValues(alpha: 0.9),
           fontFamily: fontFamily,
           fontSize: 13,
           height: 1.15,
@@ -497,7 +497,7 @@ class DefaultStyles {
         baseVerticalSpacing,
         VerticalSpacing.zero,
         BoxDecoration(
-          color: Colors.grey.shade50,
+          color: themeData.brightness == Brightness.dark ? Colors.black87 : Colors.grey.shade50,
           borderRadius: BorderRadius.circular(2),
         ),
       ),

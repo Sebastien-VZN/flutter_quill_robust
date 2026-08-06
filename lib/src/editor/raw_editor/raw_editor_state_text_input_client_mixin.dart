@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_quill/src/common/extensions/view_id_ext.dart';
 import 'package:flutter_quill/src/delta/delta_diff.dart';
 import 'package:flutter_quill/src/document/document.dart';
+import 'package:flutter_quill/src/document/nodes/leaf.dart';
 import 'package:flutter_quill/src/editor/editor.dart';
 import 'package:flutter_quill/src/editor/raw_editor/raw_editor.dart';
 
@@ -251,13 +252,35 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
         debugPrint("[IME-IN] diff vide, updateSelection only");
         widget.controller.updateSelection(value.selection, ChangeSource.local);
       } else {
-        debugPrint("[IME-REPLACE] replaceText(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})");
-        widget.controller.replaceText(
-          diff.start,
-          diff.deleted.length,
-          diff.inserted,
-          value.selection,
+        // When the IME (notably the Android soft keyboard) pastes content that
+        // came from an internal copy, the inserted text may contain the embed
+        // object replacement character (\uFFFC). The plain `replaceText` path
+        // would insert a bare placeholder without the embed data/styles. Route
+        // such inserts through `replaceTextWithEmbeds` so the cached
+        // `pasteStyleAndEmbed` / `pastePlainText` are reapplied, matching the
+        // behavior of the toolbar/context-menu paste path.
+        final insertedHasEmbed = diff.inserted.codeUnits.contains(
+          Embed.kObjectReplacementInt,
         );
+        if (insertedHasEmbed) {
+          debugPrint(
+            "[IME-REPLACE-EMBED] replaceTextWithEmbeds(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})",
+          );
+          widget.controller.replaceTextWithEmbeds(
+            diff.start,
+            diff.deleted.length,
+            diff.inserted,
+            value.selection,
+          );
+        } else {
+          debugPrint("[IME-REPLACE] replaceText(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})");
+          widget.controller.replaceText(
+            diff.start,
+            diff.deleted.length,
+            diff.inserted,
+            value.selection,
+          );
+        }
       }
     } finally {
       _isHandlingUpdateEditingValue = false;
