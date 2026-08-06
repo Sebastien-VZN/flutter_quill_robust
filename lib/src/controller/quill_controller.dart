@@ -583,6 +583,14 @@ class QuillController extends ChangeNotifier {
         updateEditor?.call();
         return true;
       }
+      // Markdown takes priority: it is a deliberate clipboard format written
+      // by apps using quill_native_bridge, whereas virtually all external
+      // apps (Word, browsers...) publish the "HTML Format" format instead.
+      final pasteHtmlSuccess = await pasteHtml();
+      if (pasteHtmlSuccess) {
+        updateEditor?.call();
+        return true;
+      }
     }
 
     // Only process plain text if no rich text was pasted.

@@ -3,7 +3,34 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill/src/controller/clipboard/quill_controller_paste.dart';
 import 'package:flutter_quill/src/controller/clipboard/quill_controller_rich_paste.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/clipboard/clipboard_service.dart';
+import 'package:flutter_quill/src/editor_toolbar_controller_shared/clipboard/clipboard_service_provider.dart';
 import 'package:test/test.dart';
+
+class _MockClipboardService extends ClipboardService {
+  _MockClipboardService({this.html, this.markdown});
+
+  final String? html;
+  final String? markdown;
+
+  @override
+  Future<String?> getHtmlText() async => html;
+
+  @override
+  Future<void> copyHtmlToClipboard(String html) async {}
+
+  @override
+  Future<String?> getClipboardText() async => null;
+
+  @override
+  Future<void> copyTextToClipboard(String text) async {}
+
+  @override
+  Future<String?> getMarkdownText() async => markdown;
+
+  @override
+  Future<void> copyMarkdownToClipboard(String markdown) async {}
+}
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -395,4 +422,105 @@ void main() {
       expect(plain, '[a${Embed.kObjectReplacementCharacter}b]\n');
     });
   });
+
+  group('pasteHtml', () {
+    QuillController newController() => QuillController.basic()
+      ..compose(
+        delta: Delta()..insert('[]'),
+        textSelection: const TextSelection.collapsed(offset: 0),
+        source: ChangeSource.local,
+      )
+      ..updateSelection(
+        const TextSelection.collapsed(offset: 1),
+        ChangeSource.local,
+      );
+
+    setUp(() {
+      ClipboardServiceProvider().setInstanceToDefault();
+    });
+
+    tearDown(() {
+      ClipboardServiceProvider().setInstanceToDefault();
+    });
+
+    test('returns false when no HTML is on the clipboard', () async {
+      ClipboardServiceProvider().instance = _MockClipboardService();
+      final controller = newController();
+      expect(await controller.pasteHtml(), false);
+      expect(controller.document.toPlainText(), '[]\n');
+    });
+
+    test('converts bold HTML to a styled delta', () async {
+      ClipboardServiceProvider().instance = _MockClipboardService(html: '<p>Hello <b>bold</b></p>');
+      final controller = newController();
+      expect(await controller.pasteHtml(), true);
+      final delta = controller.document.toDelta();
+      expect(
+        delta.toList().any((op) => op.attributes?['bold'] == true),
+        true,
+        reason: 'bold attribute should be preserved from <b>',
+      );
+    });
+
+    test('converts link HTML to a link attribute', () async {
+      ClipboardServiceProvider().instance = _MockClipboardService(html: '<a href="https://example.com">example</a>');
+      final controller = newController();
+      expect(await controller.pasteHtml(), true);
+      final delta = controller.document.toDelta();
+      expect(
+        delta.toList().any((op) => op.attributes?['link'] == 'https://example.com'),
+        true,
+        reason: 'link attribute should be preserved from <a href>',
+      );
+    });
+
+    test('replaces image embeds with their URL as plain text', () async {
+      ClipboardServiceProvider().instance = _MockClipboardService(html: '<p>before<img src="https://example.com/a.png">after</p>');
+      final controller = newController();
+      expect(await controller.pasteHtml(), true);
+      final delta = controller.document.toDelta();
+      expect(
+        delta.toList().any((op) => op.data is Map),
+        false,
+        reason: 'media embeds are not supported in this fork',
+      );
+      expect(controller.document.toPlainText(), contains('https://example.com/a.png'));
+    });
+
+    test('drops embeds without a portable URL (tables)', () async {
+      ClipboardServiceProvider().instance = _MockClipboardService(html: '<table><tr><td>cell</td></tr></table>');
+      final controller = newController();
+      await controller.pasteHtml();
+      final delta = controller.document.toDelta();
+      expect(
+        delta.toList().any((op) => op.data is Map),
+        false,
+        reason: 'table embeds must not leak into the document',
+      );
+    });
+
+    test('markdown takes priority over html when both are present', () async {
+      ClipboardServiceProvider().instance = _MockClipboardService(
+        html: '<p><b>html bold</b></p>',
+        markdown: '**markdown bold**',
+      );
+      final controller = newController();
+      expect(await controller.pasteMarkdown(), true);
+      final plain = controller.document.toPlainText();
+      expect(plain, contains('markdown bold'));
+      expect(plain, isNot(contains('html bold')));
+    });
+
+    test('pasteMarkdown returns false on unimplemented platforms instead of throwing', () async {
+      ClipboardServiceProvider().instance = _UnimplementedMarkdownClipboardService();
+      final controller = newController();
+      expect(await controller.pasteMarkdown(), false);
+      expect(controller.document.toPlainText(), '[]\n');
+    });
+  });
+}
+
+class _UnimplementedMarkdownClipboardService extends _MockClipboardService {
+  @override
+  Future<String?> getMarkdownText() => throw UnimplementedError('getClipboardMarkdown() has not been implemented.');
 }

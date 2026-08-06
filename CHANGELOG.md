@@ -12,8 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **QuillControllerRichPaste.pasteHtml()** (`lib/src/controller/clipboard/quill_controller_rich_paste.dart`) — new rich-paste path that reads the `"HTML Format"` clipboard format via `ClipboardService.getHtmlText()` and converts it with `HtmlToDelta`. Wired into `clipboardPaste()` right after `pasteMarkdown()`, restoring the behaviour documented by `QuillClipboardConfig.enableExternalRichPaste`: external content pasted from Word, browsers and other apps keeps its styling (bold, italic, links, colors, sizes, headers, lists, alignment) instead of falling back to plain text.
+- **Embed-to-URL sanitiser** in `pasteHtml()` — media embed operations produced by `HtmlToDelta` (`image`, `video`) are replaced with their source URL as plain text, since this fork removed media embed support. Embeds with no portable URL (tables) are dropped.
+- **`pasteMarkdown()` resilience** — catches `UnimplementedError` so iOS / macOS / Web (where `getClipboardMarkdown` is declared supported but never overridden in `quill_native_bridge`) fall through to the HTML / plain-text paste paths instead of aborting the whole paste.
 - **QuillDebugLogs** (`lib/src/common/utils/quill_debug_logs.dart`) — global debug-log manager with `quillDebugPrint()` wrapper. All `debugPrint` calls in the lib now route through this wrapper and stay silent unless enabled.
 - **QuillEditorConfig.enableDebugLogs** — config flag (default `false`) that toggles `QuillDebugLogs.enabled` at editor init. Pass `enableDebugLogs: true` to surface `DataCaster` type-mismatch logs and other internal debug output.
+
+### Fixed
+
+- **ClipboardServiceProvider not a singleton** — `_instance` was an instance field, so every `ClipboardServiceProvider()` created a fresh provider bound to `DefaultClipboardService`. The service override hook (`instance` setter) had no effect on rich paste, which builds its own provider. The backing field is now `static`, making an override visible to every consumer.
+- **ClipboardServiceProvider broken setter** — `set instance(...) => _instance;` returned the current value instead of assigning; now assigns `_instance = service`.
 
 ## [11.6.0] - 2026-08-06
 
