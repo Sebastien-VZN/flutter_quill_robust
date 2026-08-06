@@ -105,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                 showClipboardPaste: true,
                 showDirection: true,
                 customButtons: [
+                  /// TODO A verifier à quoi ça sert ! imbriqué les emiji pour les vue desktop
                   QuillToolbarCustomButtonOptions(
                     icon: const Icon(Icons.add_alarm_rounded),
                     onPressed: () {

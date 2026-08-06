@@ -519,23 +519,29 @@ class QuillController extends ChangeNotifier {
   bool readOnly;
 
   Future<bool> clipboardSelection(bool copy) async {
-    await Clipboard.setData(const ClipboardData(text: ''));
-
     /// Get the text for the selected region and expand the content of Embedded objects.
+    /// Computed first (synchronous, fast) so the system clipboard can be populated
+    /// before the slower cache computations below. This closes a race condition
+    /// where a paste triggered immediately after copy (notably via the Android IME
+    /// or the selection toolbar, which call this method fire-and-forget through
+    /// `unawaited`) would read an empty clipboard and silently do nothing.
     _pastePlainText = document.getPlainText(
       selection.start,
       selection.end - selection.start,
       includeEmbeds: true,
     );
 
-    /// Get the internal representation so it can be pasted into a QuillEditor with style retained.
-    _pasteStyleAndEmbed = getAllIndividualSelectionStylesAndEmbed();
-
-    /// Get the deltas for the selection so they can be pasted into a QuillEditor with styles and embeds retained.
-    _pasteDelta = document.toDelta().slice(selection.start, selection.end);
-
     if (!selection.isCollapsed) {
+      /// Populate the system clipboard immediately with the plain text so a
+      /// concurrent paste sees the right content.
       await Clipboard.setData(ClipboardData(text: _pastePlainText));
+
+      /// Get the internal representation so it can be pasted into a QuillEditor with style retained.
+      _pasteStyleAndEmbed = getAllIndividualSelectionStylesAndEmbed();
+
+      /// Get the deltas for the selection so they can be pasted into a QuillEditor with styles and embeds retained.
+      _pasteDelta = document.toDelta().slice(selection.start, selection.end);
+
       if (!copy) {
         if (readOnly) return false;
         final sel = selection;
@@ -548,6 +554,12 @@ class QuillController extends ChangeNotifier {
       }
       return true;
     }
+
+    /// Clear the clipboard for a collapsed selection (no content to publish),
+    /// and reset the slow caches so a subsequent paste doesn't reuse stale data.
+    _pasteStyleAndEmbed = <StyledNodeEntry>[];
+    _pasteDelta = Delta();
+    await Clipboard.setData(const ClipboardData(text: ''));
     return false;
   }
 
