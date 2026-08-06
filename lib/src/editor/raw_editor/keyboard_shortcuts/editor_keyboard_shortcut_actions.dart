@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/style.dart';
 import 'package:flutter_quill/src/editor/editor.dart';
@@ -20,13 +20,13 @@ class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent> extend
   TextRange _expandNonCollapsedRange(TextEditingValue value) {
     final selection = value.selection;
     if (!selection.isValid) {
-      debugPrint(
+      quillDebugPrint(
         '_expandNonCollapsedRange — selection is invalid, returning empty range',
       );
       return TextRange.empty;
     }
     if (selection.isCollapsed) {
-      debugPrint(
+      quillDebugPrint(
         '_expandNonCollapsedRange — selection is collapsed, returning selection as-is',
       );
       return selection;
@@ -43,7 +43,7 @@ class QuillEditorDeleteTextAction<T extends DirectionalTextEditingIntent> extend
   Object? invoke(T intent, [BuildContext? context]) {
     final selection = state.textEditingValue.selection;
     if (!selection.isValid) {
-      debugPrint(
+      quillDebugPrint(
         'DeleteTextAction.invoke — selection is invalid, returning null',
       );
       return null;
@@ -163,7 +163,7 @@ class QuillEditorUpdateTextSelectionAction<T extends DirectionalCaretMovementInt
   Object? invoke(T intent, [BuildContext? context]) {
     final selection = state.textEditingValue.selection;
     if (!selection.isValid) {
-      debugPrint(
+      quillDebugPrint(
         'ExtendSelectionByCharacterBoundaryAction.invoke — selection is invalid, returning null',
       );
       return null;
@@ -173,11 +173,11 @@ class QuillEditorUpdateTextSelectionAction<T extends DirectionalCaretMovementInt
     // Collapse to the logical start/end.
     TextSelection collapse(TextSelection selection) {
       if (!selection.isValid) {
-        debugPrint('collapse — selection is invalid, returning as-is');
+        quillDebugPrint('collapse — selection is invalid, returning as-is');
         return selection;
       }
       if (selection.isCollapsed) {
-        debugPrint(
+        quillDebugPrint(
           'collapse — selection is already collapsed, returning as-is',
         );
         return selection;
@@ -267,7 +267,7 @@ class QuillEditorExtendSelectionOrCaretPositionAction extends ContextAction<Exte
   ]) {
     final selection = state.textEditingValue.selection;
     if (!selection.isValid) {
-      debugPrint(
+      quillDebugPrint(
         'SelectionExtensionAction.invoke — selection is invalid, returning null',
       );
       return null;
@@ -405,7 +405,7 @@ class QuillEditorUpdateTextSelectionToAdjacentLineAction<T extends DirectionalCa
     final runSelection = _runSelection;
     if (runSelection == null) {
       if (_verticalMovementRun != null) {
-        debugPrint(
+        quillDebugPrint(
           '_verticalMovementRun is not null when runSelection is null, clearing',
         );
         _verticalMovementRun = null;
@@ -428,7 +428,7 @@ class QuillEditorUpdateTextSelectionToAdjacentLineAction<T extends DirectionalCa
   @override
   void invoke(T intent, [BuildContext? context]) {
     if (!state.textEditingValue.selection.isValid) {
-      debugPrint(
+      quillDebugPrint(
         'DirectionalMovementAction.invoke — selection is invalid, skipping',
       );
       return;
@@ -818,7 +818,7 @@ class QuillEditorUpdateTextSelectionToAdjacentPageAction<T extends DirectionalCa
     final runSelection = _runSelection;
     if (runSelection == null) {
       if (_verticalMovementRun != null) {
-        debugPrint(
+        quillDebugPrint(
           '_verticalMovementRun is not null when runSelection is null, clearing',
         );
         _verticalMovementRun = null;
@@ -841,7 +841,7 @@ class QuillEditorUpdateTextSelectionToAdjacentPageAction<T extends DirectionalCa
   @override
   void invoke(T intent, [BuildContext? context]) {
     if (!state.textEditingValue.selection.isValid) {
-      debugPrint(
+      quillDebugPrint(
         'DirectionalMovementAction.invoke — selection is invalid, skipping',
       );
       return;

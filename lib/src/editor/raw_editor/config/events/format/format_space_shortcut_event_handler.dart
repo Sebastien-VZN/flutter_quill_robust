@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
@@ -11,7 +11,7 @@ bool handleFormatBlockStyleBySpaceEvent({
   required BlockFormatStyle formatStyle,
 }) {
   if (character.trim().isEmpty || character == '\n') {
-    debugPrint(
+    quillDebugPrint(
       'handleFormatBlockStyleBySpaceEvent — Expected non-empty, non-newline character. Got: $character',
     );
     return false;

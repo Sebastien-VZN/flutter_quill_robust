@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart' show Diagnosticable, debugPrint, immutable;
+import 'package:flutter/foundation.dart' show Diagnosticable, immutable;
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' show LinkStyleDialog;
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/toolbar/buttons/link_style/link_style2_button.dart' show LinkStyleDialog;
 import 'package:flutter_quill/src/toolbar/simple_toolbar.dart' show LinkStyleDialog;
 
@@ -26,7 +27,7 @@ class QuillDialogTheme with Diagnosticable {
     // Le champ est déjà assigné via this.runSpacing, on loggue simplement la
     // violation d'invariant.
     if (runSpacing < 0) {
-      debugPrint(
+      quillDebugPrint(
         'QuillDialogTheme — runSpacing=$runSpacing < 0, '
         'should be non-negative',
       );

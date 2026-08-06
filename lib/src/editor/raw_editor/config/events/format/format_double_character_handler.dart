@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
@@ -18,7 +18,7 @@ bool handleFormatByWrappingWithDoubleCharacter({
   required DoubleCharacterFormatStyle formatStyle,
 }) {
   if (character.length != 1) {
-    debugPrint(
+    quillDebugPrint(
       'handleFormatByWrappingWithDoubleCharacter — Expected 1 char, got ${character.length}',
     );
     return false;

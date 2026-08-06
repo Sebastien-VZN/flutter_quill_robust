@@ -1,9 +1,8 @@
 import 'dart:math' as math;
-
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill/src/common/structs/offset_value.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/nodes/block.dart';
 import 'package:flutter_quill/src/document/nodes/container.dart';
@@ -82,7 +81,7 @@ base class Line extends QuillContainer<Leaf?> {
 
   @override
   void insert(int index, Object data, Style? style) {
-    debugPrint("[LINE-INSERT-IN] index=$index data=$data style=$style");
+    quillDebugPrint("[LINE-INSERT-IN] index=$index data=$data style=$style");
     var value = index;
     if (data is Embeddable) {
       // We do not check whether this line already has any children here as
@@ -142,7 +141,7 @@ base class Line extends QuillContainer<Leaf?> {
         (attr) => attr.scope != FormatScope.block && attr.scope != FormatScope.metadata,
       );
       if (inlineAttrs.isNotEmpty) {
-        debugPrint(
+        quillDebugPrint(
           'Line.retain — inline attributes applied to line itself, filtering them out: $inlineAttrs',
         );
       }
@@ -156,7 +155,7 @@ base class Line extends QuillContainer<Leaf?> {
           ),
         );
       if (index + local == length) {
-        debugPrint(
+        quillDebugPrint(
           'Line.retain — unexpectedly at line end (index=$index, local=$local, length=$length), skipping inline retain',
         );
         return;
@@ -167,7 +166,7 @@ base class Line extends QuillContainer<Leaf?> {
     final remain = len - local;
     if (remain > 0) {
       if (nextLine == null) {
-        debugPrint(
+        quillDebugPrint(
           'Line.retain — nextLine is null but remain=$remain > 0, skipping propagation',
         );
         return;
@@ -280,7 +279,7 @@ base class Line extends QuillContainer<Leaf?> {
   /// This line can not be in a [Block] when this method is called.
   void _wrap(Block block) {
     if (parent == null || parent is Block) {
-      debugPrint(
+      quillDebugPrint(
         'Line._wrap — invalid parent state (parent=${parent.runtimeType}), aborting wrap',
       );
       return;
@@ -300,7 +299,7 @@ base class Line extends QuillContainer<Leaf?> {
     final block = parent! as Block;
 
     if (!block.children.contains(this)) {
-      debugPrint(
+      quillDebugPrint(
         'Line._unwrap — this line is not in block.children, aborting unwrap',
       );
       return;
@@ -332,7 +331,7 @@ base class Line extends QuillContainer<Leaf?> {
   Line _getNextLine(int index) {
     var safeIndex = index;
     if (safeIndex != 0 && !(safeIndex > 0 && safeIndex < length)) {
-      debugPrint(
+      quillDebugPrint(
         'Line._getNextLine — invalid index=$index (length=$length), using 0 as fallback',
       );
       safeIndex = 0;
@@ -357,10 +356,10 @@ base class Line extends QuillContainer<Leaf?> {
   }
 
   void _insertSafe(int index, Object data, Style? style) {
-    debugPrint("[LINE-INSAFE-IN] index=$index length=$length data=$data");
+    quillDebugPrint("[LINE-INSAFE-IN] index=$index length=$length data=$data");
     if (index < 0 || index > length) {
-      debugPrint("[LINE-INSAFE-GUARD] BLOQUÉ — index=$index hors [0,$length]");
-      debugPrint(
+      quillDebugPrint("[LINE-INSAFE-GUARD] BLOQUÉ — index=$index hors [0,$length]");
+      quillDebugPrint(
         'Line._insertSafe — invalid index=$index (length=$length), aborting insert',
       );
       return;
@@ -377,30 +376,30 @@ base class Line extends QuillContainer<Leaf?> {
     var safeData = data;
     if (safeData is String) {
       if (safeData.contains('\n')) {
-        debugPrint("[LINE-INSAFE-NEWLINE] data contient newline, strip");
-        debugPrint(
+        quillDebugPrint("[LINE-INSAFE-NEWLINE] data contient newline, strip");
+        quillDebugPrint(
           'Line._insertSafe — data contains newline, stripping it: $safeData',
         );
         safeData = safeData.replaceAll('\n', '');
         if (safeData.isEmpty) {
-          debugPrint("[LINE-INSAFE-EMPTY] data vide après strip newline, return");
+          quillDebugPrint("[LINE-INSAFE-EMPTY] data vide après strip newline, return");
           return;
         }
       }
       if (safeData.isEmpty) {
-        debugPrint("[LINE-INSAFE-EMPTY] data vide, return");
+        quillDebugPrint("[LINE-INSAFE-EMPTY] data vide, return");
         return;
       }
     }
 
-    debugPrint("[LINE-INSAFE-OK] insertion effective, isEmpty=$isEmpty data=$safeData");
+    quillDebugPrint("[LINE-INSAFE-OK] insertion effective, isEmpty=$isEmpty data=$safeData");
     if (isEmpty) {
       final child = Leaf(safeData);
       add(child);
       child.format(style);
     } else {
       final result = queryChild(index, true);
-      debugPrint("[LINE-INSAFE-DELEG] delegate à child offset=${result.offset} node=${result.node}");
+      quillDebugPrint("[LINE-INSAFE-DELEG] delegate à child offset=${result.offset} node=${result.node}");
       result.node!.insert(result.offset, safeData, style);
     }
   }

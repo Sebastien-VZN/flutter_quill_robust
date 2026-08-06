@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/common/utils/widgets.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
@@ -19,12 +20,12 @@ class QuillToolbarFontSizeButton extends QuillToolbarBaseButton<QuillToolbarFont
     // production. Les options sont déjà construites et finales, on loggue
     // simplement les violations d'invariants.
     if (options.items != null && options.items!.isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'QuillToolbarFontSizeButton — items is empty, will use defaults',
       );
     }
     if (options.initialValue != null && options.initialValue!.isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'QuillToolbarFontSizeButton — initialValue is empty, ignoring',
       );
     }

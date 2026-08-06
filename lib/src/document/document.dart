@@ -1,9 +1,9 @@
 import 'dart:async' show StreamController;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill/src/common/structs/offset_value.dart';
 import 'package:flutter_quill/src/common/structs/segment_leaf_node.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/history.dart';
 import 'package:flutter_quill/src/document/nodes/block.dart';
@@ -79,19 +79,19 @@ class Document {
   ///
   /// Returns an instance of [Delta] actually composed into this document.
   Delta? insert(int index, Object? data, {int replaceLength = 0}) {
-    debugPrint("[DOC-INSERT-IN] insert(index=$index, data=$data, replaceLength=$replaceLength)");
+    quillDebugPrint("[DOC-INSERT-IN] insert(index=$index, data=$data, replaceLength=$replaceLength)");
 
     /// delta value default
     var value = data;
 
     if (index < 0) {
-      debugPrint("[DOC-INSERT-IN] index < 0 return null");
-      debugPrint("ERROR : insert index < 0 return null");
+      quillDebugPrint("[DOC-INSERT-IN] index < 0 return null");
+      quillDebugPrint("ERROR : insert index < 0 return null");
       return null;
     }
     if (value is! String && value is! Embeddable) {
-      debugPrint("[DOC-INSERT-IN] value is! String && value is! Embeddable return null");
-      debugPrint(
+      quillDebugPrint("[DOC-INSERT-IN] value is! String && value is! Embeddable return null");
+      quillDebugPrint(
         "ERROR : insert value is! String && value is! Embeddable return null",
       );
       return null;
@@ -101,14 +101,14 @@ class Document {
     if (value is Embeddable) {
       value = value.toJson();
     } else if ((data! as String).isEmpty) {
-      debugPrint("[DOC-INSERT-IN] data empty string return null");
-      debugPrint(
+      quillDebugPrint("[DOC-INSERT-IN] data empty string return null");
+      quillDebugPrint(
         "insert value (data! as String).isEmpty is Embeddable return null",
       );
       return null;
     }
 
-    debugPrint("[DOC-INSERT-RULES] _rules.apply RuleType.insert index=$index data=$value len=$replaceLength");
+    quillDebugPrint("[DOC-INSERT-RULES] _rules.apply RuleType.insert index=$index data=$value len=$replaceLength");
     final delta = _rules.apply(
       RuleType.insert,
       this,
@@ -117,7 +117,7 @@ class Document {
       len: replaceLength,
     );
     compose(delta, ChangeSource.local);
-    debugPrint("[DOC-INSERT-RESULT] delta retourné: ops=${delta.length} isEmpty=${delta.isEmpty}");
+    quillDebugPrint("[DOC-INSERT-RESULT] delta retourné: ops=${delta.length} isEmpty=${delta.isEmpty}");
     return delta;
   }
 
@@ -128,17 +128,17 @@ class Document {
   ///
   /// Returns an instance of [Delta] actually composed into this document.
   Delta? delete(int index, int len) {
-    debugPrint("[DOC-DELETE-IN] delete(index=$index, len=$len)");
+    quillDebugPrint("[DOC-DELETE-IN] delete(index=$index, len=$len)");
     if (index < 0 || len <= 0) {
-      debugPrint("[DOC-DELETE-IN] index < 0 || len <= 0 return null");
-      debugPrint("delete value index < 0 || len <= 0 return null");
+      quillDebugPrint("[DOC-DELETE-IN] index < 0 || len <= 0 return null");
+      quillDebugPrint("delete value index < 0 || len <= 0 return null");
       return null;
     }
     final delta = _rules.apply(RuleType.delete, this, index, len: len);
     if (delta.isNotEmpty) {
       compose(delta, ChangeSource.local);
     }
-    debugPrint("[DOC-DELETE-RESULT] delta ops=${delta.length} isEmpty=${delta.isEmpty}");
+    quillDebugPrint("[DOC-DELETE-RESULT] delta ops=${delta.length} isEmpty=${delta.isEmpty}");
     return delta;
   }
 
@@ -149,16 +149,16 @@ class Document {
   ///
   /// Returns an instance of [Delta] actually composed into this document.
   Delta? replace(int index, int len, Object? data) {
-    debugPrint("[DOC-REPLACE-IN] replace(index=$index, len=$len, data=$data)");
+    quillDebugPrint("[DOC-REPLACE-IN] replace(index=$index, len=$len, data=$data)");
     if (index < 0) {
-      debugPrint("[DOC-REPLACE-IN] index < 0 return null");
-      debugPrint("replace value index < 0 return null");
+      quillDebugPrint("[DOC-REPLACE-IN] index < 0 return null");
+      quillDebugPrint("replace value index < 0 return null");
       return null;
     }
 
     if (data is! String && data is! Embeddable && data is! Delta) {
-      debugPrint("[DOC-REPLACE-IN] data type invalide return null");
-      debugPrint(
+      quillDebugPrint("[DOC-REPLACE-IN] data type invalide return null");
+      quillDebugPrint(
         "replace value data is! String && data is! Embeddable && data is! Delta return null",
       );
       return null;
@@ -166,7 +166,7 @@ class Document {
 
     Delta? delta = Delta();
     if (data is Delta) {
-      debugPrint("[DOC-REPLACE-IN] data is Delta");
+      quillDebugPrint("[DOC-REPLACE-IN] data is Delta");
       // move to insertion point and add the inserted content
       if (index > 0) {
         delta.retain(index);
@@ -182,34 +182,34 @@ class Document {
       compose(delta, ChangeSource.local);
     } else {
       final dataIsNotEmpty = data is! String || data.isNotEmpty;
-      debugPrint("[DOC-REPLACE-IN] dataIsNotEmpty=$dataIsNotEmpty len=$len");
+      quillDebugPrint("[DOC-REPLACE-IN] dataIsNotEmpty=$dataIsNotEmpty len=$len");
       if (!dataIsNotEmpty && len <= 0) {
-        debugPrint("[DOC-REPLACE-IN] data vide et len<=0 return null");
+        quillDebugPrint("[DOC-REPLACE-IN] data vide et len<=0 return null");
         return null;
       }
 
       // We have to insert before applying delete rules
       // Otherwise delete would be operating on stale document snapshot.
       if (dataIsNotEmpty) {
-        debugPrint("[DOC-REPLACE-IN] appelle insert(index=$index, data=$data, replaceLength=$len)");
+        quillDebugPrint("[DOC-REPLACE-IN] appelle insert(index=$index, data=$data, replaceLength=$len)");
         delta = insert(index, data, replaceLength: len);
-        debugPrint("[DOC-REPLACE-IN] insert retourné: delta=${delta == null ? 'NULL' : 'ops=${delta.length}'}");
+        quillDebugPrint("[DOC-REPLACE-IN] insert retourné: delta=${delta == null ? 'NULL' : 'ops=${delta.length}'}");
       }
 
       if (len > 0) {
-        debugPrint("[DOC-REPLACE-IN] appelle delete(index=$index, len=$len)");
+        quillDebugPrint("[DOC-REPLACE-IN] appelle delete(index=$index, len=$len)");
         final deleteDelta = delete(index, len);
         if (deleteDelta == null) {
-          debugPrint("[DOC-REPLACE-IN] delete retourné NULL, return null");
+          quillDebugPrint("[DOC-REPLACE-IN] delete retourné NULL, return null");
           return null;
         }
         delta = Delta();
         delta = delta.compose(deleteDelta);
-        debugPrint("[DOC-REPLACE-IN] après compose deleteDelta: delta ops=${delta.length}");
+        quillDebugPrint("[DOC-REPLACE-IN] après compose deleteDelta: delta ops=${delta.length}");
       }
     }
 
-    debugPrint("[DOC-REPLACE-IN] return delta=${delta == null ? 'NULL' : 'ops=${delta.length} isEmpty=${delta.isEmpty}'}");
+    quillDebugPrint("[DOC-REPLACE-IN] return delta=${delta == null ? 'NULL' : 'ops=${delta.length} isEmpty=${delta.isEmpty}'}");
     return delta;
   }
 
@@ -224,7 +224,7 @@ class Document {
   Delta format(int index, int len, FormatAttribute? attribute) {
     var delta = Delta();
     if (index < 0 || len < 0 || attribute == null) {
-      debugPrint("Delta format delta error");
+      quillDebugPrint("Delta format delta error");
       return delta;
     }
 
@@ -496,37 +496,37 @@ class Document {
   ///
   /// In case the change is invalid, behavior of this method is unspecified.
   void compose(Delta delta, ChangeSource changeSource) {
-    debugPrint("[DOC-COMPOSE-IN] compose(delta ops=${delta.length} isEmpty=${delta.isEmpty} source=$changeSource)");
+    quillDebugPrint("[DOC-COMPOSE-IN] compose(delta ops=${delta.length} isEmpty=${delta.isEmpty} source=$changeSource)");
     if (documentChangeObserver.isClosed) {
-      debugPrint("[DOC-COMPOSE-IN] observer closed return");
-      debugPrint("compose documentChangeObserver.isClosed return void");
+      quillDebugPrint("[DOC-COMPOSE-IN] observer closed return");
+      quillDebugPrint("compose documentChangeObserver.isClosed return void");
       return;
     }
 
     delta.trim();
     if (delta.isEmpty) {
-      debugPrint("[DOC-COMPOSE-IN] delta.isEmpty après trim return");
-      debugPrint("compose delta.isEmpty return void");
+      quillDebugPrint("[DOC-COMPOSE-IN] delta.isEmpty après trim return");
+      quillDebugPrint("compose delta.isEmpty return void");
       return;
     }
 
     var offset = 0;
     final trDelta = _transform(delta);
     final originalDelta = toDelta();
-    debugPrint("[DOC-COMPOSE-OPS] trDelta ops=${trDelta.length} opsList=${trDelta.toList()}");
+    quillDebugPrint("[DOC-COMPOSE-OPS] trDelta ops=${trDelta.length} opsList=${trDelta.toList()}");
     for (final op in trDelta.toList()) {
       final style = op.attributes != null ? Style.fromJson(op.attributes) : null;
 
       if (op.isInsert) {
-        debugPrint("[DOC-COMPOSE-OP] insert offset=$offset data=${op.data}");
+        quillDebugPrint("[DOC-COMPOSE-OP] insert offset=$offset data=${op.data}");
         // Must normalize data before inserting into the document, makes sure
         // that any embedded objects are converted into EmbeddableObject type.
         _root.insert(offset, _normalize(op.data), style);
       } else if (op.isDelete) {
-        debugPrint("[DOC-COMPOSE-OP] delete offset=$offset len=${op.length}");
+        quillDebugPrint("[DOC-COMPOSE-OP] delete offset=$offset len=${op.length}");
         _root.delete(offset, op.length);
       } else if (op.attributes != null) {
-        debugPrint("[DOC-COMPOSE-OP] retain offset=$offset len=${op.length} style=$style");
+        quillDebugPrint("[DOC-COMPOSE-OP] retain offset=$offset len=${op.length} style=$style");
         _root.retain(offset, op.length, style);
       }
 
@@ -537,19 +537,19 @@ class Document {
     try {
       _delta = _delta.compose(trDelta);
     } catch (e) {
-      debugPrint("[DOC-COMPOSE-FAIL] _delta compose échoué: $e");
-      debugPrint("_delta compose failed");
+      quillDebugPrint("[DOC-COMPOSE-FAIL] _delta compose échoué: $e");
+      quillDebugPrint("_delta compose failed");
       return;
     }
     if (_delta != _root.toDelta()) {
-      debugPrint("[DOC-COMPOSE-MISMATCH] delta mismatch after compose");
-      debugPrint(
+      quillDebugPrint("[DOC-COMPOSE-MISMATCH] delta mismatch after compose");
+      quillDebugPrint(
         'Document.compose — Compose failed: delta mismatch after compose',
       );
     }
     // Guard: debugPrint replaces assert for production safety.
     cachedPlainText = null;
-    debugPrint("[DOC-COMPOSE-OK] compose réussi, _delta.len=${_delta.length} root.len=${_root.length} match=${_delta == _root.toDelta()}");
+    quillDebugPrint("[DOC-COMPOSE-OK] compose réussi, _delta.len=${_delta.length} root.len=${_root.length} match=${_delta == _root.toDelta()}");
     final change = DocChange(originalDelta, trDelta, changeSource);
     documentChangeObserver.add(change);
     history.handleDocChange(change);
@@ -633,14 +633,14 @@ class Document {
     }
 
     if (!(doc.last.data! as String).endsWith('\n')) {
-      debugPrint(r"loadDocument failed: doc does not end with \n");
+      quillDebugPrint(r"loadDocument failed: doc does not end with \n");
       return;
     }
 
     var offset = 0;
     for (final op in doc.toList()) {
       if (!op.isInsert) {
-        debugPrint(
+        quillDebugPrint(
           "'Document can only contain insert operations but ${op.key} found.",
         );
         return;

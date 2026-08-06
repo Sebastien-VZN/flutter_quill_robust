@@ -3,8 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderEditable;
 import 'package:flutter/scheduler.dart';
-
 import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/nodes/leaf.dart';
 import 'package:flutter_quill/src/editor/editor.dart';
@@ -149,7 +149,7 @@ class EditorTextSelectionGestureDetectorBuilder {
   @protected
   void onForcePressStart(ForcePressDetails details) {
     if (!delegate.forcePressEnabled) {
-      debugPrint(
+      quillDebugPrint(
         'EditorTextSelectionGestureDetectorState.onForcePressStart — forcePressEnabled is false, aborting',
       );
       return;
@@ -178,7 +178,7 @@ class EditorTextSelectionGestureDetectorBuilder {
   @protected
   void onForcePressEnd(ForcePressDetails details) {
     if (!delegate.forcePressEnabled) {
-      debugPrint(
+      quillDebugPrint(
         'EditorTextSelectionGestureDetectorState.onForcePressEnd — forcePressEnabled is false, aborting',
       );
       return;

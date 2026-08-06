@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart' show QuillController;
 import 'package:meta/meta.dart';
 
@@ -13,7 +13,7 @@ class CharacterShortcutEvent {
     required this.handler,
   }) {
     if (character.length != 1 || character == '\n') {
-      debugPrint(
+      quillDebugPrint(
         'CharacterShortcutEvent — character cannot be major than one char, and it must not be a new line',
       );
     }

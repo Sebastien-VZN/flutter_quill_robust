@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_quill/src/common/structs/horizontal_spacing.dart';
 import 'package:flutter_quill/src/common/structs/vertical_spacing.dart';
 import 'package:flutter_quill/src/common/utils/font.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/delta/delta_diff.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
@@ -115,7 +116,7 @@ class EditableTextBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!debugCheckHasMediaQuery(context)) {
-      debugPrint(
+      quillDebugPrint(
         'EditableBlock.build — MediaQuery not found, returning SizedBox.shrink',
       );
       return const SizedBox.shrink();
@@ -537,7 +538,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox implements Rend
   @override
   TextPosition? getPositionAbove(TextPosition position) {
     if (position.offset >= container.length) {
-      debugPrint(
+      quillDebugPrint(
         'getPositionAbove — offset=${position.offset} >= container.length=${container.length}, returning null',
       );
       return null;
@@ -570,7 +571,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox implements Rend
   @override
   TextPosition? getPositionBelow(TextPosition position) {
     if (position.offset >= container.length) {
-      debugPrint(
+      quillDebugPrint(
         'getPositionBelow — offset=${position.offset} >= container.length=${container.length}, returning null',
       );
       return null;
@@ -626,7 +627,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox implements Rend
       baseChild = childAfter(baseChild);
     }
     if (baseChild == null) {
-      debugPrint(
+      quillDebugPrint(
         'getBaseEndpointForSelection — baseChild is null, returning TextSelectionPoint.zero',
       );
       return const TextSelectionPoint(Offset.zero, TextDirection.ltr);
@@ -660,7 +661,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox implements Rend
       extentChild = childAfter(extentChild);
     }
     if (extentChild == null) {
-      debugPrint(
+      quillDebugPrint(
         'getExtentEndpointForSelection — extentChild is null, returning TextSelectionPoint.zero',
       );
       return const TextSelectionPoint(Offset.zero, TextDirection.ltr);
@@ -736,7 +737,7 @@ class RenderEditableTextBlock extends RenderEditableContainerBox implements Rend
   @override
   TextPosition globalToLocalPosition(TextPosition position) {
     if (!container.containsOffset(position.offset) && container.length != 0) {
-      debugPrint(
+      quillDebugPrint(
         'TextBlock.globalToLocalPosition — The provided text position is not in the current node',
       );
     }

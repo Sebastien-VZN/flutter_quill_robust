@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart' show debugPrint, immutable;
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/rules/rule.dart';
@@ -15,15 +16,15 @@ abstract class FormatRule extends Rule {
   @override
   void validateArgs(int? len, Object? data, FormatAttribute? attribute) {
     if (len == null) {
-      debugPrint('FormatRule.validateArgs — len is null, expected non-null');
+      quillDebugPrint('FormatRule.validateArgs — len is null, expected non-null');
     }
     if (data != null) {
-      debugPrint(
+      quillDebugPrint(
         'FormatRule.validateArgs — data is non-null, expected null: $data',
       );
     }
     if (attribute == null) {
-      debugPrint(
+      quillDebugPrint(
         'FormatRule.validateArgs — attribute is null, expected non-null',
       );
     }
@@ -233,7 +234,7 @@ class ResolveImageFormatRule extends FormatRule {
     }
 
     if (len != 1 || data != null) {
-      debugPrint(
+      quillDebugPrint(
         'FormatRule.applyRule — unexpected args (len=$len, data=$data), expected len=1 and data=null',
       );
       return null;

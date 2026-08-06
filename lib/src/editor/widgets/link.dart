@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/document/data_caster.dart';
 import 'package:flutter_quill/src/document/document.dart' show ChangeSource;
@@ -45,7 +45,7 @@ Future<LinkMenuAction> defaultLinkActionPickerDelegate(
     case TargetPlatform.android:
       return _showMaterialMenu(context, link);
     default:
-      debugPrint(
+      quillDebugPrint(
         'defaultShowLinkActionsMenu not supposed to '
         'be invoked for $defaultTargetPlatform. '
         "it's only supported for iOS and Android.",

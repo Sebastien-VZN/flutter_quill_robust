@@ -1,10 +1,9 @@
 import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
-
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/common/utils/quill_native_provider.dart';
-
 // Android
 
 @pragma('vm:platform-const-if', !kDebugMode)
@@ -76,7 +75,7 @@ extension PlatformThemeCheckExtension on ThemeData {
 /// this is a test.
 bool get isFlutterTest {
   if (kIsWeb) {
-    debugPrint(
+    quillDebugPrint(
       'isFlutterTest — should not be called on web platforms, returning false',
     );
     return false;

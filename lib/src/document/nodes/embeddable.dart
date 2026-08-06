@@ -1,6 +1,5 @@
 import "dart:convert" show jsonDecode, jsonEncode;
-
-import "package:flutter/foundation.dart" show debugPrint;
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import "package:flutter_quill/src/document/data_caster.dart" show DataCaster;
 
 /// An object which can be embedded into a Quill document.
@@ -16,7 +15,7 @@ class Embeddable {
       final m = Map<String, Object>.from(json);
       return Embeddable(m.keys.first, m.values.first);
     } catch (e) {
-      debugPrint("Embeddable map must only have one key : $e");
+      quillDebugPrint("Embeddable map must only have one key : $e");
       return const Embeddable("", Object);
     }
   }
@@ -74,7 +73,7 @@ class CustomBlockEmbed extends BlockEmbed {
         return CustomBlockEmbed(embeddable.type, embeddable.data.toString());
       }
     } catch (e) {
-      debugPrint("Error in fromJsonString CustomBlockEmbed : $e");
+      quillDebugPrint("Error in fromJsonString CustomBlockEmbed : $e");
       return null;
     }
     return null;

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-
 import 'package:flutter/cupertino.dart' show CupertinoTheme, cupertinoTextSelectionControls;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
@@ -201,6 +201,7 @@ class QuillEditorState extends State<QuillEditor> implements EditorTextSelection
   @override
   void initState() {
     super.initState();
+    QuillDebugLogs.enabled = widget.config.enableDebugLogs;
     _editorKey = config.editorKey ?? GlobalKey<EditorState>();
     _selectionGestureDetectorBuilder = _QuillEditorSelectionGestureDetectorBuilder(
       this,
@@ -700,7 +701,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
   Offset _getOffsetForCaret(TextPosition position) {
     final child = childAtPosition(position);
     if (child == null) {
-      debugPrint("_getOffsetForCaret (child == null)");
+      quillDebugPrint("_getOffsetForCaret (child == null)");
       return Offset.zero;
     }
     final childPosition = child.globalToLocalPosition(position);
@@ -797,7 +798,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
     if (textSelection.isCollapsed) {
       final child = childAtPosition(textSelection.extent);
       if (child == null) {
-        debugPrint("getEndpointsForSelection (child == null)");
+        quillDebugPrint("getEndpointsForSelection (child == null)");
         return [];
       }
       final localPosition = TextPosition(
@@ -825,7 +826,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
       baseChild = childAfter(baseChild);
     }
     if (baseChild == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.getBaseEndpointForSelection — baseChild is null, returning empty list',
       );
       return <TextSelectionPoint>[];
@@ -863,7 +864,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
       }
     }
     if (extentChild == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.getExtentEndpointForSelection — extentChild is null, returning empty list',
       );
       return <TextSelectionPoint>[];
@@ -954,7 +955,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
     /// The below logic does not exactly match the native version because
     /// we do not allow swapping of base and extent positions.
     if (_extendSelectionOrigin == null) {
-      debugPrint('RenderEditor._extendSelection — origin is null, skipping');
+      quillDebugPrint('RenderEditor._extendSelection — origin is null, skipping');
       return;
     }
     final position = getPositionForOffset(to);
@@ -983,7 +984,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
   @override
   void selectWordEdge(SelectionChangedCause cause) {
     if (_lastTapDownPosition == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.selectWordEdge — last tap down position is null, skipping',
       );
       return;
@@ -1086,7 +1087,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
   @override
   void performLayout() {
     if (scrollable && constraints.hasBoundedHeight) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.performLayout — scrollable container has bounded height, '
         'which violates the unlimited main axis requirement',
       );
@@ -1094,7 +1095,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
       return;
     }
     if (!constraints.hasBoundedWidth) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.performLayout — constraints have no bounded width, skipping layout',
       );
       size = constraints.smallest;
@@ -1103,7 +1104,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
 
     resolvePadding();
     if (resolvedPadding == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.performLayout — resolvedPadding is null after resolve, skipping',
       );
       size = constraints.smallest;
@@ -1124,7 +1125,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
       final childParentData = child.parentData! as EditableContainerParentData..offset = Offset(resolvedPadding!.left + leftOffset, mainAxisExtent);
       mainAxisExtent += child.size.height;
       if (child.parentData != childParentData) {
-        debugPrint(
+        quillDebugPrint(
           'RenderEditor.performLayout — child.parentData does not match childParentData',
         );
       }
@@ -1134,7 +1135,7 @@ class RenderEditor extends RenderEditableContainerBox with RelayoutWhenSystemFon
     size = constraints.constrain(Size(constraints.maxWidth, mainAxisExtent));
 
     if (!size.isFinite) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.performLayout — size is not finite after layout',
       );
     }
@@ -1625,7 +1626,7 @@ class RenderEditableContainerBox extends RenderBox
     List<RenderEditableBox>? children,
   }) : _padding = padding {
     if (!padding.isNonNegative) {
-      debugPrint('RenderEditableContainerBox — padding is negative, ignoring');
+      quillDebugPrint('RenderEditableContainerBox — padding is negative, ignoring');
     }
     addAll(children);
   }
@@ -1650,7 +1651,7 @@ class RenderEditableContainerBox extends RenderBox
 
   void setPadding(EdgeInsetsGeometry value) {
     if (!value.isNonNegative) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableContainerBox.setPadding — value is negative, ignoring',
       );
       return;
@@ -1672,7 +1673,7 @@ class RenderEditableContainerBox extends RenderBox
     _resolvedPadding = _resolvedPadding!.copyWith(left: _resolvedPadding!.left);
 
     if (_resolvedPadding != null && !_resolvedPadding!.isNonNegative) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableContainerBox.resolvePadding — resolved padding is negative',
       );
     }
@@ -1680,7 +1681,7 @@ class RenderEditableContainerBox extends RenderBox
 
   RenderEditableBox? childAtPosition(TextPosition position) {
     if (firstChild == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableContainerBox.childAtPosition — firstChild is null',
       );
     }
@@ -1700,7 +1701,7 @@ class RenderEditableContainerBox extends RenderBox
       targetChild = newChild;
     }
     if (targetChild == null) {
-      debugPrint('targetChild should not be null');
+      quillDebugPrint('targetChild should not be null');
       return null;
     }
     return targetChild;
@@ -1718,7 +1719,7 @@ class RenderEditableContainerBox extends RenderBox
   /// returns the last child.
   RenderEditableBox childAtOffset(Offset offset) {
     if (firstChild == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableContainerBox.childAtOffset — firstChild is null',
       );
     }
@@ -1759,7 +1760,7 @@ class RenderEditableContainerBox extends RenderBox
   @override
   void performLayout() {
     if (!constraints.hasBoundedWidth) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableContainerBox.performLayout — constraints have no bounded width, skipping',
       );
       size = constraints.smallest;
@@ -1767,7 +1768,7 @@ class RenderEditableContainerBox extends RenderBox
     }
     resolvePadding();
     if (_resolvedPadding == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableContainerBox.performLayout — resolvedPadding is null, skipping',
       );
       size = constraints.smallest;
@@ -1784,7 +1785,7 @@ class RenderEditableContainerBox extends RenderBox
       final childParentData = (child.parentData! as EditableContainerParentData)..offset = Offset(_resolvedPadding!.left, mainAxisExtent);
       mainAxisExtent += child.size.height;
       if (child.parentData != childParentData) {
-        debugPrint(
+        quillDebugPrint(
           'RenderEditor.performLayout — child.parentData does not match childParentData',
         );
       }
@@ -1794,7 +1795,7 @@ class RenderEditableContainerBox extends RenderBox
     size = constraints.constrain(Size(constraints.maxWidth, mainAxisExtent));
 
     if (!size.isFinite) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditor.performLayout — size is not finite after layout',
       );
     }

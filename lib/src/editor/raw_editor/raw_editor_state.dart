@@ -2,7 +2,6 @@ import 'dart:async' show StreamSubscription, unawaited;
 import 'dart:convert' show jsonDecode, jsonEncode;
 import 'dart:math' as math;
 import 'dart:ui' as ui hide TextStyle;
-
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
@@ -14,6 +13,7 @@ import 'package:flutter_quill/src/common/structs/horizontal_spacing.dart';
 import 'package:flutter_quill/src/common/structs/offset_value.dart';
 import 'package:flutter_quill/src/common/structs/vertical_spacing.dart';
 import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/delta/delta_diff.dart';
 import 'package:flutter_quill/src/document/document.dart';
@@ -100,7 +100,7 @@ class QuillRawEditorState extends EditorState
         ) ??
         false;
     if (!isAllowed) {
-      debugPrint(
+      quillDebugPrint(
         'RawEditorState.insertContent — mimeType ${content.mimeType} not allowed, skipping',
       );
       return;
@@ -332,7 +332,7 @@ class QuillRawEditorState extends EditorState
     // En debug, il lance un assert si MediaQuery est absent.
     // On l'utilise ici pour logger le cas où MediaQuery serait absent.
     if (!debugCheckHasMediaQuery(context)) {
-      debugPrint("QuillRawEditorState build — MediaQuery absent du context");
+      quillDebugPrint("QuillRawEditorState build — MediaQuery absent du context");
       return const SizedBox.shrink();
     }
     super.build(context);
@@ -358,7 +358,7 @@ class QuillRawEditorState extends EditorState
       if (decode is List<dynamic>) {
         doc = Document.fromJson(decode);
       } else {
-        debugPrint("QuillRawEditorState build decode jsonRaw ERROR");
+        quillDebugPrint("QuillRawEditorState build decode jsonRaw ERROR");
       }
     }
 
@@ -676,7 +676,7 @@ class QuillRawEditorState extends EditorState
       final formatKey = attrs[FormatAttribute.header.key];
       final headerValue = formatKey?.intValue;
       if (headerValue == null) {
-        debugPrint('_getHorizontalSpacingForLine Error formatKey');
+        quillDebugPrint('_getHorizontalSpacingForLine Error formatKey');
         return null;
       }
 
@@ -694,7 +694,7 @@ class QuillRawEditorState extends EditorState
         case 6:
           return defaultStyles!.h6!.horizontalSpacing;
         default:
-          debugPrint('_getHorizontalSpacingForLine no switch value');
+          quillDebugPrint('_getHorizontalSpacingForLine no switch value');
           return null;
       }
     }
@@ -711,7 +711,7 @@ class QuillRawEditorState extends EditorState
       final formatKey = attrs[FormatAttribute.header.key];
       final headerValue = formatKey?.intValue;
       if (headerValue == null) {
-        debugPrint('_getVerticalSpacingForLine Error formatKey');
+        quillDebugPrint('_getVerticalSpacingForLine Error formatKey');
         return null;
       }
 
@@ -729,7 +729,7 @@ class QuillRawEditorState extends EditorState
         case 6:
           return defaultStyles!.h6!.verticalSpacing;
         default:
-          debugPrint('_getVerticalSpacingForLine no switch value');
+          quillDebugPrint('_getVerticalSpacingForLine no switch value');
           return null;
       }
     }
@@ -965,7 +965,7 @@ class QuillRawEditorState extends EditorState
     unawaited(_keyboardVisibilitySubscription?.cancel());
     HardwareKeyboard.instance.removeHandler(_hardwareKeyboardEvent);
     if (hasConnection) {
-      debugPrint(
+      quillDebugPrint(
         'RawEditorState.dispose — still has connection after closeConnectionIfNeeded, forcing close',
       );
       closeConnectionIfNeeded();
@@ -1107,9 +1107,9 @@ class QuillRawEditorState extends EditorState
   }
 
   void _handleFocusChanged() {
-    debugPrint(" _handleFocusChanged INFO void _hasFocus=$_hasFocus dirty=$dirty");
+    quillDebugPrint(" _handleFocusChanged INFO void _hasFocus=$_hasFocus dirty=$dirty");
     if (dirty) {
-      debugPrint("yolo !");
+      quillDebugPrint("yolo !");
       requestKeyboard();
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
@@ -1123,14 +1123,14 @@ class QuillRawEditorState extends EditorState
   }
 
   void _afterFocusChanged() {
-    debugPrint("[FOCUS-OPEN] dirty=false, appelle openOrCloseConnection");
+    quillDebugPrint("[FOCUS-OPEN] dirty=false, appelle openOrCloseConnection");
     if (!_hasFocus && hasConnection && !widget.config.readOnly) {
       // On Windows desktop, each keystroke can trigger a brief app lifecycle
       // cycle (inactive -> resumed) which causes FocusManager to revoke focus
       // from all non-primary FocusNodes. If the IME connection is still alive
       // we re-acquire focus so the user can keep typing instead of having the
       // connection closed under their fingers.
-      debugPrint("[FOCUS-REACQUIRE] focus perdu mais connexion active, re-requestFocus");
+      quillDebugPrint("[FOCUS-REACQUIRE] focus perdu mais connexion active, re-requestFocus");
       widget.config.focusNode.requestFocus();
       return;
     }
@@ -1149,7 +1149,7 @@ class QuillRawEditorState extends EditorState
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && !_hasFocus && hasConnection && !widget.config.readOnly) {
-      debugPrint("[LIFECYCLE-RESUME] re-requestFocus après cycle lifecycle");
+      quillDebugPrint("[LIFECYCLE-RESUME] re-requestFocus après cycle lifecycle");
       widget.config.focusNode.requestFocus();
     }
   }
@@ -1241,15 +1241,15 @@ class QuillRawEditorState extends EditorState
   /// keyboard become visible.
   @override
   void requestKeyboard() {
-    debugPrint("[REQKB] _hasFocus=$_hasFocus keyboardVisible=$_keyboardVisible skip=${controller.skipRequestKeyboard}");
+    quillDebugPrint("[REQKB] _hasFocus=$_hasFocus keyboardVisible=$_keyboardVisible skip=${controller.skipRequestKeyboard}");
     if (controller.skipRequestKeyboard) {
-      debugPrint("[REQKB] skipRequestKeyboard=true, return");
+      quillDebugPrint("[REQKB] skipRequestKeyboard=true, return");
       controller.skipRequestKeyboard = false;
       return;
     }
     if (_hasFocus) {
       final keyboardAlreadyShown = _keyboardVisible;
-      debugPrint("[REQKB-OPEN] appelle openConnectionIfNeeded, keyboardAlreadyShown=$keyboardAlreadyShown");
+      quillDebugPrint("[REQKB-OPEN] appelle openConnectionIfNeeded, keyboardAlreadyShown=$keyboardAlreadyShown");
       openConnectionIfNeeded();
       if (!keyboardAlreadyShown) {
         /// delay 500 milliseconds for waiting keyboard show up
@@ -1258,7 +1258,7 @@ class QuillRawEditorState extends EditorState
         _showCaretOnScreen();
       }
     } else {
-      debugPrint("[REQKB-NOFOCUS] pas de focus, requestFocus");
+      quillDebugPrint("[REQKB-NOFOCUS] pas de focus, requestFocus");
       widget.config.focusNode.requestFocus();
     }
   }
@@ -1327,7 +1327,7 @@ class QuillRawEditorState extends EditorState
   @override
   void performSelector(String selectorName) {
     if (!isMacOSApp) {
-      debugPrint(
+      quillDebugPrint(
         'RawEditorState.performSelector — called on non-macOS platform, ignoring',
       );
       return;

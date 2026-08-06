@@ -1,4 +1,4 @@
-import "package:flutter/foundation.dart" show debugPrint;
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 
 /// Utilitaire centralise de cast securise pour les valeurs dynamiques.
 ///
@@ -15,7 +15,7 @@ class DataCaster {
   static int? toInt(Object? value, {String? context}) {
     if (value == null) return null;
     if (value is int) return value;
-    debugPrint(
+    quillDebugPrint(
       "DataCaster.toInt — type mismatch${context != null ? " ($context)" : ""} — expected int, got ${value.runtimeType}: $value",
     );
     return null;
@@ -26,7 +26,7 @@ class DataCaster {
   static String? toStr(Object? value, {String? context}) {
     if (value == null) return null;
     if (value is String) return value;
-    debugPrint(
+    quillDebugPrint(
       "DataCaster.toStr — type mismatch${context != null ? " ($context)" : ""} — expected String, got ${value.runtimeType}: $value",
     );
     return null;
@@ -37,7 +37,7 @@ class DataCaster {
   static bool? toBool(Object? value, {String? context}) {
     if (value == null) return null;
     if (value is bool) return value;
-    debugPrint(
+    quillDebugPrint(
       "DataCaster.toBool — type mismatch${context != null ? " ($context)" : ""} — expected bool, got ${value.runtimeType}: $value",
     );
     return null;
@@ -50,7 +50,7 @@ class DataCaster {
     if (value == null) return null;
     if (value is double) return value;
     if (value is int) return value.toDouble();
-    debugPrint(
+    quillDebugPrint(
       "DataCaster.toDouble — type mismatch${context != null ? " ($context)" : ""} — expected num, got ${value.runtimeType}: $value",
     );
     return null;

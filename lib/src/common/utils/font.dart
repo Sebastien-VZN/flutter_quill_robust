@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
 double? getFontSizeAsDouble(
@@ -25,7 +24,7 @@ double? getFontSizeAsDouble(
 
   final fontSize = double.tryParse(sizeValue.toString());
   if (fontSize == null) {
-    debugPrint('Invalid size $sizeValue');
+    quillDebugPrint('Invalid size $sizeValue');
     return null;
   }
   return fontSize;

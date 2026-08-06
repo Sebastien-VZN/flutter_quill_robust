@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart' show debugPrint, immutable;
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_quill/internal.dart' show InsertEmbedsRule;
 import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/rules/insert.dart' show InsertEmbedsRule;
@@ -17,15 +18,15 @@ abstract class DeleteRule extends Rule {
   @override
   void validateArgs(int? len, Object? data, FormatAttribute? attribute) {
     if (len == null) {
-      debugPrint('DeleteRule.validateArgs — len is null, expected non-null');
+      quillDebugPrint('DeleteRule.validateArgs — len is null, expected non-null');
     }
     if (data != null) {
-      debugPrint(
+      quillDebugPrint(
         'DeleteRule.validateArgs — data is non-null, expected null: $data',
       );
     }
     if (attribute != null) {
-      debugPrint(
+      quillDebugPrint(
         'DeleteRule.validateArgs — attribute is non-null, expected null: $attribute',
       );
     }

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math' as math;
-
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill/src/common/structs/offset_value.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/clipboard/quill_controller_paste.dart';
 import 'package:flutter_quill/src/controller/clipboard/quill_controller_rich_paste.dart';
 import 'package:flutter_quill/src/controller/quill_controller_config.dart';
@@ -269,11 +269,11 @@ class QuillController extends ChangeNotifier {
     bool ignoreFocus = false,
     bool shouldNotifyListeners = true,
   }) {
-    debugPrint(
+    quillDebugPrint(
       "[CTRL-IN] replaceText(index=$index, len=$len, data=$data, sel=$textSelection, ignoreFocus=$ignoreFocus, notify=$shouldNotifyListeners)",
     );
     if (onReplaceText != null && !onReplaceText!(index, len, data)) {
-      debugPrint("[CTRL-IN] onReplaceText a bloqué");
+      quillDebugPrint("[CTRL-IN] onReplaceText a bloqué");
       return;
     }
 
@@ -281,7 +281,7 @@ class QuillController extends ChangeNotifier {
     Style? style;
     if (len > 0 || data is! String || data.isNotEmpty) {
       delta = document.replace(index, len, data);
-      debugPrint("[CTRL-DOC] document.replace retourné: delta=${delta == null ? 'NULL' : 'ops=${delta.length} isEmpty=${delta.isEmpty}'}");
+      quillDebugPrint("[CTRL-DOC] document.replace retourné: delta=${delta == null ? 'NULL' : 'ops=${delta.length} isEmpty=${delta.isEmpty}'}");
 
       /// Remove block styles as they can only be attached to line endings
       style = Style.attr(

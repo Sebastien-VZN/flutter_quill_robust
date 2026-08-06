@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart' show debugPrint, immutable;
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill/src/common/extensions/uri_ext.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/style.dart';
@@ -18,10 +18,10 @@ abstract class InsertRule extends Rule {
   @override
   void validateArgs(int? len, Object? data, FormatAttribute? attribute) {
     if (data == null) {
-      debugPrint('InsertRule.validateArgs — data is null, expected non-null');
+      quillDebugPrint('InsertRule.validateArgs — data is null, expected non-null');
     }
     if (attribute != null) {
-      debugPrint(
+      quillDebugPrint(
         'InsertRule.validateArgs — attribute is non-null, expected null: $attribute',
       );
     }
@@ -64,7 +64,7 @@ class PreserveLineStyleOnSplitRule extends InsertRule {
     final delta = Delta()..retain(index + (len ?? 0));
     if (after.data is String && (after.data! as String).contains('\n')) {
       if (!after.isPlain) {
-        debugPrint('InsertRule — after is not plain, skipping newline insert');
+        quillDebugPrint('InsertRule — after is not plain, skipping newline insert');
         return null;
       }
       delta.insert('\n');
@@ -296,7 +296,7 @@ class InsertEmbedsRule extends InsertRule {
     }
 
     if (data is! Map) {
-      debugPrint(
+      quillDebugPrint(
         'InsertRule.applyRule — data is not a Map (type=${data.runtimeType}), aborting',
       );
       return null;

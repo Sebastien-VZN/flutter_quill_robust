@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:math' as math;
-
 import 'package:flutter/cupertino.dart' show CupertinoTextField;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/nodes/node.dart';
 import 'package:flutter_quill/src/editor/editor.dart';
 import 'package:flutter_quill/src/editor/widgets/text/magnifier.dart';
@@ -19,7 +18,7 @@ TextSelection localSelection(
 ) {
   final base = fromParent ? node.offset : node.documentOffset;
   if (!(base <= selection.end && selection.start <= base + node.length - 1)) {
-    debugPrint(
+    quillDebugPrint(
       'getNodeBoundary — base=$base out of selection range [${selection.start}, ${selection.end}] for node length=${node.length}',
     );
   }
@@ -228,7 +227,7 @@ class EditorTextSelectionOverlay {
   /// To hide the whole overlay, see [hide].
   void hideToolbar() {
     if (toolbar == null) {
-      debugPrint(
+      quillDebugPrint(
         'TextSelectionOverlay.hideToolbar — toolbar is already null, skipping',
       );
       return;
@@ -241,7 +240,7 @@ class EditorTextSelectionOverlay {
   /// Shows the toolbar by inserting it into the [context]'s overlay.
   void showToolbar() {
     if (toolbar != null) {
-      debugPrint(
+      quillDebugPrint(
         'TextSelectionOverlay.showToolbar — toolbar already exists, skipping',
       );
       return;
@@ -383,7 +382,7 @@ class EditorTextSelectionOverlay {
   /// Builds the handles by inserting them into the [context]'s overlay.
   void showHandles() {
     if (_handles != null) {
-      debugPrint(
+      quillDebugPrint(
         'TextSelectionOverlay.showHandles — handles already exist, skipping',
       );
       return;
@@ -556,7 +555,7 @@ class _TextSelectionHandleOverlayState extends State<_TextSelectionHandleOverlay
       case _TextSelectionHandlePosition.end:
         // For collapsed selections, we shouldn't be building the [end] handle.
         if (widget.selection.isCollapsed) {
-          debugPrint(
+          quillDebugPrint(
             '_TextSelectionHandleOverlay — selection is collapsed, skipping end handle',
           );
           return const SizedBox.shrink();
@@ -899,7 +898,7 @@ class _EditorTextSelectionGestureDetectorState extends State<EditorTextSelection
 
   void _handleDragStart(DragStartDetails details) {
     if (_lastDragStartDetails != null) {
-      debugPrint(
+      quillDebugPrint(
         '_TextSelectionGestureDetectorState._handleDragStart — last drag start details not null, overwriting',
       );
     }
@@ -924,13 +923,13 @@ class _EditorTextSelectionGestureDetectorState extends State<EditorTextSelection
   /// immediately. See [_handleDragEnd].
   void _handleDragUpdateThrottled() {
     if (_lastDragStartDetails == null) {
-      debugPrint(
+      quillDebugPrint(
         '_TextSelectionGestureDetectorState._handleDragUpdateThrottled — last drag start details is null, skipping',
       );
       return;
     }
     if (_lastDragUpdateDetails == null) {
-      debugPrint(
+      quillDebugPrint(
         '_TextSelectionGestureDetectorState._handleDragUpdateThrottled — last drag update details is null, skipping',
       );
       return;
@@ -946,7 +945,7 @@ class _EditorTextSelectionGestureDetectorState extends State<EditorTextSelection
 
   void _handleDragEnd(DragEndDetails details) {
     if (_lastDragStartDetails == null) {
-      debugPrint(
+      quillDebugPrint(
         '_TextSelectionGestureDetectorState._handleDragEnd — last drag start details is null, skipping',
       );
       return;

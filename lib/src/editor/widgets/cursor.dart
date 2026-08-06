@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/widgets.dart';
-
 import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/editor/widgets/box.dart';
 
 /// Style properties of editing cursor.
@@ -164,7 +163,7 @@ class CursorCont extends ChangeNotifier {
     blink.dispose();
     color.dispose();
     if (_cursorTimer != null) {
-      debugPrint('Cursor._cursorTimer is not null in dispose, cancelling it');
+      quillDebugPrint('Cursor._cursorTimer is not null in dispose, cancelling it');
       _cursorTimer!.cancel();
       _cursorTimer = null;
     }

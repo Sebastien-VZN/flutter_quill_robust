@@ -1,7 +1,7 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show TextLayoutMetrics;
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 
 /// An interface for retrieving the logical text boundary
 /// (left-closed-right-open)
@@ -215,7 +215,7 @@ class QuillEditorExpandedTextBoundary extends QuillEditorTextBoundary {
   @override
   TextEditingValue get textEditingValue {
     if (innerTextBoundary.textEditingValue != outerTextBoundary.textEditingValue) {
-      debugPrint(
+      quillDebugPrint(
         'CombinedTextBoundary.textEditingValue — inner != outer, returning inner',
       );
     }
@@ -286,7 +286,7 @@ class QuillEditorMixedBoundary extends QuillEditorTextBoundary {
   @override
   TextEditingValue get textEditingValue {
     if (leadingTextBoundary.textEditingValue != trailingTextBoundary.textEditingValue) {
-      debugPrint(
+      quillDebugPrint(
         'LeadingTrailingTextBoundary.textEditingValue — leading != trailing, returning leading',
       );
     }

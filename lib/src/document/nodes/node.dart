@@ -1,7 +1,6 @@
 import 'dart:collection';
-
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/nodes/container.dart';
 import 'package:flutter_quill/src/document/nodes/line.dart';
@@ -116,7 +115,7 @@ abstract base class Node extends LinkedListEntry<Node> {
   @override
   void insertBefore(Node entry) {
     if (entry.parent != null || parent == null) {
-      debugPrint(
+      quillDebugPrint(
         'Node.insertBefore — invalid state (entry.parent=${entry.parent}, parent=$parent), aborting',
       );
       return;
@@ -129,7 +128,7 @@ abstract base class Node extends LinkedListEntry<Node> {
   @override
   void insertAfter(Node entry) {
     if (entry.parent != null || parent == null) {
-      debugPrint(
+      quillDebugPrint(
         'Node.insertAfter — invalid state (entry.parent=${entry.parent}, parent=$parent), aborting',
       );
       return;
@@ -142,7 +141,7 @@ abstract base class Node extends LinkedListEntry<Node> {
   @override
   void unlink() {
     if (parent == null) {
-      debugPrint('Node.unlink — parent is already null, aborting');
+      quillDebugPrint('Node.unlink — parent is already null, aborting');
       return;
     }
     clearLengthCache();

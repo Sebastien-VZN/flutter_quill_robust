@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/document/nodes/leaf.dart';
 import 'package:meta/meta.dart';
@@ -10,7 +10,7 @@ typedef SpaceShortcutEventHandler = bool Function(QuillText node, QuillControlle
 class SpaceShortcutEvent {
   SpaceShortcutEvent({required this.character, required this.handler}) {
     if (character == '\n' || character.trim().isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'SpaceShortcutEvent — character cannot be empty, a whitespace or a new line.',
       );
     }

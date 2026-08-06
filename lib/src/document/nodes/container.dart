@@ -1,7 +1,7 @@
 import "dart:collection" show LinkedList;
 import "dart:developer" as developer;
-
 import "package:flutter/foundation.dart";
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import "package:flutter_quill/src/document/nodes/leaf.dart";
 import "package:flutter_quill/src/document/nodes/line.dart";
 import "package:flutter_quill/src/document/nodes/node.dart";
@@ -171,9 +171,9 @@ abstract base class QuillContainer<T extends Node?> extends Node {
   /// and returns without modifying the document.
   @override
   void insert(int index, Object data, Style? style) {
-    debugPrint("[CONT-INSERT-IN] index=$index length=$length data=$data");
+    quillDebugPrint("[CONT-INSERT-IN] index=$index length=$length data=$data");
     if (index < 0 || index > length) {
-      debugPrint("[CONT-INSERT-GUARD] BLOQUÉ — index=$index hors [0,$length]");
+      quillDebugPrint("[CONT-INSERT-GUARD] BLOQUÉ — index=$index hors [0,$length]");
       developer.log(
         "QuillContainer.insert: index $index out of bounds (length=$length) — skipping.",
         name: "quill.container",
@@ -184,14 +184,14 @@ abstract base class QuillContainer<T extends Node?> extends Node {
     if (isNotEmpty) {
       final child = queryChild(index, false);
       if (child.isNotEmpty) {
-        debugPrint("[CONT-INSERT-CHILD] delegate à child offset=${child.offset} node=${child.node}");
+        quillDebugPrint("[CONT-INSERT-CHILD] delegate à child offset=${child.offset} node=${child.node}");
         child.node!.insert(child.offset, data, style);
       } else {
-        debugPrint("[CONT-INSERT-CHILD] child isEmpty, skip");
+        quillDebugPrint("[CONT-INSERT-CHILD] child isEmpty, skip");
       }
     } else {
       final node = defaultChild;
-      debugPrint("[CONT-INSERT-DEFAULT] container vide, add defaultChild=${node.runtimeType} puis insert");
+      quillDebugPrint("[CONT-INSERT-DEFAULT] container vide, add defaultChild=${node.runtimeType} puis insert");
       add(node);
       node?.insert(index, data, style);
     }

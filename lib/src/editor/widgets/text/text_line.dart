@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -136,7 +135,7 @@ class _TextLineState extends State<TextLine> {
   @override
   Widget build(BuildContext context) {
     if (!debugCheckHasMediaQuery(context)) {
-      debugPrint("TextLine build — debugCheckHasMediaQuery(context) false");
+      quillDebugPrint("TextLine build — debugCheckHasMediaQuery(context) false");
       return const SizedBox.shrink();
     }
 
@@ -318,7 +317,7 @@ class _TextLineState extends State<TextLine> {
     TextSpanBuilder textSpanBuilder,
   ) {
     if (widget.composingRange.isValid && !widget.composingRange.isCollapsed) {
-      debugPrint(
+      quillDebugPrint(
         "_splitAndApplyComposingStyle error : if(widget.composingRange.isValid && !widget.composingRange.isCollapsed) line 321",
       );
       return [];
@@ -462,7 +461,7 @@ class _TextLineState extends State<TextLine> {
     DefaultStyles defaultStyles,
   ) {
     if (text.isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'TextLine._buildText — text is empty, returning empty TextSpan',
       );
       return const TextSpan(text: '');
@@ -954,7 +953,7 @@ class RenderEditableTextLine extends RenderEditableBox {
 
   void setPadding(EdgeInsetsGeometry p) {
     if (!p.isNonNegative) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableTextLine.setPadding — padding is negative, ignoring',
       );
       return;
@@ -1039,7 +1038,7 @@ class RenderEditableTextLine extends RenderEditableBox {
     }
     _resolvedPadding = padding.resolve(textDirection);
     if (_resolvedPadding != null && !_resolvedPadding!.isNonNegative) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableTextLine._resolvePadding — resolved padding is negative',
       );
     }
@@ -1069,7 +1068,7 @@ class RenderEditableTextLine extends RenderEditableBox {
     }
     final boxes = _getBoxes(textSelection);
     if (boxes.isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableTextLine._getEndpointForSelection — boxes is empty, returning zero point',
       );
       return const TextSelectionPoint(Offset.zero, TextDirection.ltr);
@@ -1125,7 +1124,7 @@ class RenderEditableTextLine extends RenderEditableBox {
 
   TextPosition? _getPosition(TextPosition textPosition, double dyScale) {
     if (textPosition.offset >= line.length) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableTextLine._getPosition — offset=${textPosition.offset} >= line.length=${line.length}, returning null',
       );
       return null;
@@ -1315,7 +1314,7 @@ class RenderEditableTextLine extends RenderEditableBox {
 
     _resolvePadding();
     if (_resolvedPadding == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableTextLine.performLayout — resolvedPadding is null after resolve, skipping layout',
       );
       size = constraints.smallest;
@@ -1470,7 +1469,7 @@ class RenderEditableTextLine extends RenderEditableBox {
 
   void _paintSelection(PaintingContext context, Offset effectiveOffset) {
     if (_selectedRects == null) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableTextLine._paintSelection — _selectedRects is null, skipping',
       );
       return;
@@ -1512,7 +1511,7 @@ class RenderEditableTextLine extends RenderEditableBox {
         position: position,
         hitTest: (result, transformed) {
           if (transformed != position - childParentData.offset) {
-            debugPrint(
+            quillDebugPrint(
               'RenderEditableTextLine.hitTest — transformed=$transformed != expected ${position - childParentData.offset}',
             );
           }
@@ -1550,7 +1549,7 @@ class RenderEditableTextLine extends RenderEditableBox {
   @override
   TextPosition globalToLocalPosition(TextPosition position) {
     if (!container.containsOffset(position.offset)) {
-      debugPrint(
+      quillDebugPrint(
         'RenderEditableTextLine.globalToLocalPosition — offset ${position.offset} not in container, clamping',
       );
     }
@@ -1590,19 +1589,19 @@ class _TextLineElement extends RenderObjectElement {
   @override
   void forgetChild(Element child) {
     if (!_slotToChildren.containsValue(child)) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.forgetChild — child not in _slotToChildren, skipping',
       );
       return;
     }
     if (child.slot is! TextLineSlot) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.forgetChild — child.slot is not a TextLineSlot, skipping',
       );
       return;
     }
     if (!_slotToChildren.containsKey(child.slot)) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.forgetChild — _slotToChildren does not contain child.slot, skipping',
       );
       return;
@@ -1622,7 +1621,7 @@ class _TextLineElement extends RenderObjectElement {
   void update(EditableTextLine newWidget) {
     super.update(newWidget);
     if (widget != newWidget) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.update — widget does not equal newWidget after super.update',
       );
     }
@@ -1635,7 +1634,7 @@ class _TextLineElement extends RenderObjectElement {
     // assert(child is RenderBox);
     _updateRenderObject(child, slot);
     if (!renderObject.children.keys.contains(slot)) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.insertRenderObjectChild — renderObject does not contain slot after update',
       );
     }
@@ -1644,20 +1643,20 @@ class _TextLineElement extends RenderObjectElement {
   @override
   void removeRenderObjectChild(RenderObject child, TextLineSlot? slot) {
     if (child is! RenderBox) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.removeRenderObjectChild — child is not a RenderBox, skipping',
       );
       return;
     }
     if (renderObject.children[slot!] != child) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.removeRenderObjectChild — renderObject children[slot] does not equal child, skipping',
       );
       return;
     }
     _updateRenderObject(null, slot);
     if (renderObject.children.keys.contains(slot)) {
-      debugPrint(
+      quillDebugPrint(
         'TextLineElement.removeRenderObjectChild — renderObject still contains slot after removal',
       );
     }

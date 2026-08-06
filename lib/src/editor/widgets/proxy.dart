@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/editor/widgets/box.dart';
 
 class BaselineProxy extends SingleChildRenderObjectWidget {
@@ -101,7 +102,7 @@ class RenderEmbedProxy extends RenderProxyBox implements RenderContentProxyBox {
   @override
   Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) {
     if (position.offset != 1 && position.offset != 0 && position.offset != -1) {
-      debugPrint(
+      quillDebugPrint(
         'ProxyRenderEditor.getOffsetForCaret — unexpected offset=${position.offset}, expected 1, 0 or -1',
       );
     }

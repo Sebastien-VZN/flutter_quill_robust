@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:ui' show lerpDouble;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_quill/src/common/extensions/view_id_ext.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/delta/delta_diff.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/nodes/leaf.dart';
@@ -74,7 +73,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
 
     if (!hasConnection) {
       _lastKnownRemoteTextEditingValue = textEditingValue;
-      debugPrint(
+      quillDebugPrint(
         "[OPEN-1] textEditingValue.text='${_lastKnownRemoteTextEditingValue?.text}' len=${_lastKnownRemoteTextEditingValue?.text.length} sel=${_lastKnownRemoteTextEditingValue?.selection}",
       );
       _textInputConnection = TextInput.attach(
@@ -107,7 +106,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
       }
       final remote = _lastKnownRemoteTextEditingValue;
       if (remote != null) {
-        debugPrint("[OPEN-2] setEditingState appelé, remote.text='${remote.text}' len=${remote.text.length} sel=${remote.selection}");
+        quillDebugPrint("[OPEN-2] setEditingState appelé, remote.text='${remote.text}' len=${remote.text.length} sel=${remote.selection}");
         _textInputConnection!.setEditingState(remote);
       }
     }
@@ -118,7 +117,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
     final composingRange = _lastKnownRemoteTextEditingValue?.composing ?? textEditingValue.composing;
     if (hasConnection) {
       if (!mounted) {
-        debugPrint(
+        quillDebugPrint(
           'RawEditorStateTextInputClientMixin — not mounted but has connection, skipping',
         );
         return;
@@ -192,7 +191,9 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
       return;
     }
 
-    debugPrint("[REMOTE-PUSH] setEditingState actualValue.text='${actualValue.text}' len=${actualValue.text.length} sel=${actualValue.selection}");
+    quillDebugPrint(
+      "[REMOTE-PUSH] setEditingState actualValue.text='${actualValue.text}' len=${actualValue.text.length} sel=${actualValue.selection}",
+    );
     _lastKnownRemoteTextEditingValue = actualValue;
     _textInputConnection!.setEditingState(
       actualValue.copyWith(composing: TextRange.empty),
@@ -209,28 +210,28 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
 
   @override
   void updateEditingValue(TextEditingValue value) {
-    debugPrint("[IME-IN] value.text='${value.text}' len=${value.text.length} sel=${value.selection} composing=${value.composing}");
+    quillDebugPrint("[IME-IN] value.text='${value.text}' len=${value.text.length} sel=${value.selection} composing=${value.composing}");
     if (!shouldCreateInputConnection) {
-      debugPrint("[IME-IN] shouldCreateInputConnection=false, return");
+      quillDebugPrint("[IME-IN] shouldCreateInputConnection=false, return");
       return;
     }
 
     final last = _lastKnownRemoteTextEditingValue;
     final lastStr = last == null ? "NULL" : "text='${last.text}' len=${last.text.length} sel=${last.selection}";
-    debugPrint("[IME-LAST] last=$lastStr");
+    quillDebugPrint("[IME-LAST] last=$lastStr");
     if (last == value) {
-      debugPrint("[IME-IN] last == value, return");
+      quillDebugPrint("[IME-IN] last == value, return");
       return;
     }
 
     if (last != null && last.text == value.text && last.selection == value.selection) {
-      debugPrint("[IME-IN] composing-only, return");
+      quillDebugPrint("[IME-IN] composing-only, return");
       _lastKnownRemoteTextEditingValue = value;
       return;
     }
 
     if (last != null && last.text == value.text) {
-      debugPrint("[IME-IN] selection-only, return");
+      quillDebugPrint("[IME-IN] selection-only, return");
       _lastKnownRemoteTextEditingValue = value;
       widget.controller.updateSelection(value.selection, ChangeSource.local);
       return;
@@ -242,14 +243,14 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
     final text = value.text;
     final cursorPosition = value.selection.extentOffset;
     final diff = getDiff(oldText, text, cursorPosition);
-    debugPrint(
+    quillDebugPrint(
       "[IME-DIFF] oldText='$oldText'(len=${oldText.length}) -> newText='$text'(len=${text.length}) cursor=$cursorPosition => start=${diff.start} del='${diff.deleted}'(${diff.deleted.length}) ins='${diff.inserted}'(${diff.inserted.length})",
     );
 
     _isHandlingUpdateEditingValue = true;
     try {
       if (diff.deleted.isEmpty && diff.inserted.isEmpty) {
-        debugPrint("[IME-IN] diff vide, updateSelection only");
+        quillDebugPrint("[IME-IN] diff vide, updateSelection only");
         widget.controller.updateSelection(value.selection, ChangeSource.local);
       } else {
         // When the IME (notably the Android soft keyboard) pastes content that
@@ -263,7 +264,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
           Embed.kObjectReplacementInt,
         );
         if (insertedHasEmbed) {
-          debugPrint(
+          quillDebugPrint(
             "[IME-REPLACE-EMBED] replaceTextWithEmbeds(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})",
           );
           widget.controller.replaceTextWithEmbeds(
@@ -273,7 +274,9 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
             value.selection,
           );
         } else {
-          debugPrint("[IME-REPLACE] replaceText(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})");
+          quillDebugPrint(
+            "[IME-REPLACE] replaceText(index=${diff.start}, len=${diff.deleted.length}, data='${diff.inserted}', sel=${value.selection})",
+          );
           widget.controller.replaceText(
             diff.start,
             diff.deleted.length,
@@ -347,7 +350,7 @@ mixin RawEditorStateTextInputClientMixin on EditorState implements TextInputClie
         );
       case FloatingCursorDragState.Update:
         if (_lastTextPosition == null) {
-          debugPrint(
+          quillDebugPrint(
             'RawEditorStateTextInputClientMixin — last text position not set, skipping update',
           );
           return;

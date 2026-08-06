@@ -1,7 +1,6 @@
 import 'dart:math' as math;
-
-import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/nodes/embeddable.dart';
 import 'package:flutter_quill/src/document/nodes/line.dart';
 import 'package:flutter_quill/src/document/nodes/node.dart';
@@ -17,7 +16,7 @@ abstract base class Leaf extends Node {
     }
     final text = data as String;
     if (text.isEmpty) {
-      debugPrint('Leaf() — data is empty string, returning empty QuillText');
+      quillDebugPrint('Leaf() — data is empty string, returning empty QuillText');
       return QuillText();
     }
     return QuillText(text);
@@ -72,20 +71,20 @@ abstract base class Leaf extends Node {
   @override
   void insert(int index, Object data, Style? style) {
     final length = this.length;
-    debugPrint("[LEAF-INSERT-IN] index=$index length=$length data=$data");
+    quillDebugPrint("[LEAF-INSERT-IN] index=$index length=$length data=$data");
     if (index < 0 || index > length) {
-      debugPrint("[LEAF-INSERT-GUARD] BLOQUÉ — index=$index hors [0,$length]");
-      debugPrint(
+      quillDebugPrint("[LEAF-INSERT-GUARD] BLOQUÉ — index=$index hors [0,$length]");
+      quillDebugPrint(
         'Leaf.insert — invalid index=$index (length=$length), aborting',
       );
       return;
     }
     final node = Leaf(data);
     if (index < length) {
-      debugPrint("[LEAF-INSERT-SPLIT] splitAt($index) puis insertBefore");
+      quillDebugPrint("[LEAF-INSERT-SPLIT] splitAt($index) puis insertBefore");
       splitAt(index)!.insertBefore(node);
     } else {
-      debugPrint("[LEAF-INSERT-AFTER] insertAfter (fin de leaf)");
+      quillDebugPrint("[LEAF-INSERT-AFTER] insertAfter (fin de leaf)");
       insertAfter(node);
     }
     node.format(style);
@@ -111,7 +110,7 @@ abstract base class Leaf extends Node {
   void delete(int index, int? len) {
     final length = this.length;
     if (index >= length) {
-      debugPrint('Leaf.delete — index=$index >= length=$length, aborting');
+      quillDebugPrint('Leaf.delete — index=$index >= length=$length, aborting');
       return;
     }
 
@@ -180,7 +179,7 @@ abstract base class Leaf extends Node {
   /// node's style.
   Leaf? splitAt(int index) {
     if (index < 0 || index > length) {
-      debugPrint(
+      quillDebugPrint(
         'Leaf.splitAt — invalid index=$index (length=$length), returning null',
       );
       return null;
@@ -193,7 +192,7 @@ abstract base class Leaf extends Node {
     }
 
     if (this is! QuillText) {
-      debugPrint(
+      quillDebugPrint(
         'Leaf.splitAt — cannot split non-text leaf (type=$runtimeType), returning null',
       );
       return null;
@@ -212,7 +211,7 @@ abstract base class Leaf extends Node {
   /// method may return `null`.
   Leaf? cutAt(int index) {
     if (index < 0 || index > length) {
-      debugPrint(
+      quillDebugPrint(
         'Leaf.cutAt — invalid index=$index (length=$length), returning null',
       );
       return null;
@@ -239,7 +238,7 @@ abstract base class Leaf extends Node {
   /// if provided [index] is `0`.
   Leaf _isolate(int index, int length) {
     if (index < 0 || index >= this.length || index + length > this.length) {
-      debugPrint(
+      quillDebugPrint(
         'Leaf._isolate — invalid index=$index, length=$length (this.length=${this.length}), returning this as fallback',
       );
       return this;
@@ -268,7 +267,7 @@ abstract base class Leaf extends Node {
 base class QuillText extends Leaf {
   QuillText([String super.text = '']) : super.val() {
     if (value.contains('\n')) {
-      debugPrint('QuillText() — text contains newline: $value');
+      quillDebugPrint('QuillText() — text contains newline: $value');
     }
   }
 

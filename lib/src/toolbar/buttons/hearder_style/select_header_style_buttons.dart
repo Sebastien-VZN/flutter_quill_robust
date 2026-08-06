@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/style.dart';
 import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
@@ -78,7 +79,7 @@ class QuillToolbarSelectHeaderStyleButtonsState extends QuillToolbarSelectHeader
   @override
   Widget build(BuildContext context) {
     if (!_attributes.every((element) => _valueToText.keys.contains(element))) {
-      debugPrint(
+      quillDebugPrint(
         'QuillToolbarSelectHeaderStyleButtons.build — All attributes must be one of them: header, h1, h2 or h3',
       );
     }

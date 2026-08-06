@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_quill/src/common/structs/horizontal_spacing.dart';
 import 'package:flutter_quill/src/common/structs/vertical_spacing.dart';
 import 'package:flutter_quill/src/common/utils/platform.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/document/style.dart';
 import 'package:flutter_quill/src/editor/widgets/text/utils/text_block_utils.dart';
@@ -23,7 +23,7 @@ class QuillStyles extends InheritedWidget {
       return null;
     }
     if (widget == null) {
-      debugPrint('QuillStyles.get — widget is null but nullOk=false');
+      quillDebugPrint('QuillStyles.get — widget is null but nullOk=false');
       return null;
     }
     return widget.data;

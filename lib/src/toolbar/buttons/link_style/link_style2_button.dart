@@ -1,9 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' show QuillToolbarLinkStyleButton;
 import 'package:flutter_quill/src/common/utils/link_validator.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/common/utils/widgets.dart';
 import 'package:flutter_quill/src/editor/widgets/link.dart';
 import 'package:flutter_quill/src/l10n/extensions/localizations_ext.dart';
@@ -37,23 +37,23 @@ class QuillToolbarLinkStyleButton2 extends QuillToolbarLinkStyleBaseButton2 {
     // production. Les options sont déjà construites et finales, on loggue
     // simplement les violations d'invariants.
     if (options.addLinkLabel != null && options.addLinkLabel!.isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'QuillToolbarLinkStyleButton2 — addLinkLabel is empty, ignoring',
       );
     }
     if (options.editLinkLabel != null && options.editLinkLabel!.isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'QuillToolbarLinkStyleButton2 — editLinkLabel is empty, ignoring',
       );
     }
     if (options.childrenSpacing <= 0) {
-      debugPrint(
+      quillDebugPrint(
         'QuillToolbarLinkStyleButton2 — childrenSpacing='
         '${options.childrenSpacing} <= 0, should be positive',
       );
     }
     if (options.validationMessage != null && options.validationMessage!.isEmpty) {
-      debugPrint(
+      quillDebugPrint(
         'QuillToolbarLinkStyleButton2 — validationMessage is empty, ignoring',
       );
     }
@@ -176,19 +176,19 @@ class LinkStyleDialog extends StatefulWidget {
     // production. Les champs sont déjà assignés via this.*, on loggue
     // simplement les violations d'invariants.
     if (addLinkLabel != null && addLinkLabel!.isEmpty) {
-      debugPrint('LinkStyleDialog — addLinkLabel is empty, ignoring');
+      quillDebugPrint('LinkStyleDialog — addLinkLabel is empty, ignoring');
     }
     if (editLinkLabel != null && editLinkLabel!.isEmpty) {
-      debugPrint('LinkStyleDialog — editLinkLabel is empty, ignoring');
+      quillDebugPrint('LinkStyleDialog — editLinkLabel is empty, ignoring');
     }
     if (childrenSpacing <= 0) {
-      debugPrint(
+      quillDebugPrint(
         'LinkStyleDialog — childrenSpacing=$childrenSpacing <= 0, '
         'should be positive',
       );
     }
     if (validationMessage != null && validationMessage!.isEmpty) {
-      debugPrint('LinkStyleDialog — validationMessage is empty, ignoring');
+      quillDebugPrint('LinkStyleDialog — validationMessage is empty, ignoring');
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_quill/src/common/structs/offset_value.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/editor/editor.dart';
 import 'package:flutter_quill/src/editor/raw_editor/config/raw_editor_config.dart';
@@ -14,15 +15,15 @@ class QuillRawEditor extends StatefulWidget {
     super.key,
   }) {
     if (config.maxHeight != null && config.maxHeight! <= 0) {
-      debugPrint('QuillRawEditor — maxHeight must be greater than 0');
+      quillDebugPrint('QuillRawEditor — maxHeight must be greater than 0');
     }
     if (config.minHeight != null && config.minHeight! < 0) {
-      debugPrint(
+      quillDebugPrint(
         'QuillRawEditor — minHeight must be greater than or equal to 0',
       );
     }
     if (config.maxHeight != null && config.minHeight != null && config.maxHeight! < config.minHeight!) {
-      debugPrint(
+      quillDebugPrint(
         'QuillRawEditor — maxHeight must be greater than or equal to minHeight',
       );
     }

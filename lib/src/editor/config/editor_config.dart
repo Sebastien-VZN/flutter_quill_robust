@@ -4,6 +4,7 @@ library;
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/nodes/node.dart';
 import 'package:flutter_quill/src/editor/config/search_config.dart';
 import 'package:flutter_quill/src/editor/embed/embed_editor_builder.dart';
@@ -83,9 +84,17 @@ class QuillEditorConfig {
     this.readOnlyMouseCursor = SystemMouseCursors.text,
     this.onPerformAction,
     this.customLeadingBlockBuilder,
+    this.enableDebugLogs = false,
   });
 
   final LeadingBlockNodeBuilder? customLeadingBlockBuilder;
+
+  /// Active les logs de debug de flutter_quill (très verbeux).
+  ///
+  /// Désactivé par défaut. Quand `true`, tous les [debugPrint] internes
+  /// de la lib (via [quillDebugPrint]) produisent leurs logs.
+  /// À activer uniquement pour le diagnostic, jamais en production.
+  final bool enableDebugLogs;
 
   /// The text placeholder in the quill editor
   final String? placeholder;
@@ -537,6 +546,7 @@ class QuillEditorConfig {
     void Function()? onScribbleActivated,
     EdgeInsets? scribbleAreaInsets,
     void Function(TextInputAction action)? onPerformAction,
+    bool? enableDebugLogs,
   }) {
     return QuillEditorConfig(
       customLeadingBlockBuilder: customLeadingBlockBuilder ?? this.customLeadingBlockBuilder,
@@ -593,6 +603,7 @@ class QuillEditorConfig {
       onScribbleActivated: onScribbleActivated ?? this.onScribbleActivated,
       scribbleAreaInsets: scribbleAreaInsets ?? this.scribbleAreaInsets,
       onPerformAction: onPerformAction ?? this.onPerformAction,
+      enableDebugLogs: enableDebugLogs ?? this.enableDebugLogs,
     );
   }
 }

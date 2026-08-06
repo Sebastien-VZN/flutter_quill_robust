@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart' show debugPrint, immutable;
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:flutter_quill/quill_delta.dart';
+import 'package:flutter_quill/src/common/utils/quill_debug_logs.dart';
 import 'package:flutter_quill/src/document/document.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/rules/delete.dart';
@@ -86,7 +87,7 @@ class Rules {
         continue;
       }
       try {
-        debugPrint("[RULE-APPLY] essai rule=${rule.runtimeType} type=$ruleType index=$index len=$len data=$data");
+        quillDebugPrint("[RULE-APPLY] essai rule=${rule.runtimeType} type=$ruleType index=$index len=$len data=$data");
         final result = rule.apply(
           document,
           index,
@@ -95,17 +96,17 @@ class Rules {
           attribute: attribute,
         );
         if (result != null) {
-          debugPrint("[RULE-RESULT] rule=${rule.runtimeType} a retourné delta ops=${result.length}");
+          quillDebugPrint("[RULE-RESULT] rule=${rule.runtimeType} a retourné delta ops=${result.length}");
           return result..trim();
         } else {
-          debugPrint("[RULE-SKIP] rule=${rule.runtimeType} a retourné null, continue");
+          quillDebugPrint("[RULE-SKIP] rule=${rule.runtimeType} a retourné null, continue");
         }
       } catch (e) {
-        debugPrint("[RULE-THROW] rule=${rule.runtimeType} a lancé exception: $e");
+        quillDebugPrint("[RULE-THROW] rule=${rule.runtimeType} a lancé exception: $e");
         rethrow;
       }
     }
-    debugPrint("[RULE-NONE] aucune rule n'a matché pour type=$ruleType");
+    quillDebugPrint("[RULE-NONE] aucune rule n'a matché pour type=$ruleType");
     throw FormatException(
       'Apply delta rules failed. No matching rule found for type: $ruleType',
     );
