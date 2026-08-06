@@ -28,7 +28,7 @@ void main() {
           ChangeSource.local,
         );
 
-      //final result = QuillTextLink('Example', 'https://example.com')..submit(controller);
+      QuillTextLink('Example', 'https://example.com').submit(controller);
 
       // The submitted text must be in the document.
       expect(
