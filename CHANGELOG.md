@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- _Nothing yet._
+- **QuillDebugLogs** (`lib/src/common/utils/quill_debug_logs.dart`) — global debug-log manager with `quillDebugPrint()` wrapper. All `debugPrint` calls in the lib now route through this wrapper and stay silent unless enabled.
+- **QuillEditorConfig.enableDebugLogs** — config flag (default `false`) that toggles `QuillDebugLogs.enabled` at editor init. Pass `enableDebugLogs: true` to surface `DataCaster` type-mismatch logs and other internal debug output.
 
 ## [11.5.4] - 2026-08-06
 

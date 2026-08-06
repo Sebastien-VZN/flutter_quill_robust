@@ -11,6 +11,7 @@ A production-hardened fork of [flutter_quill](https://pub.dev/packages/flutter_q
 - **Clean clipboard** — `ClipboardService` uses only text, HTML, and Markdown operations through `quill_native_bridge`.
 - **Strict linter** — `very_good_analysis` with `strict-casts`, `strict-inference`, and `strict-raw-types` enabled.
 - **Delta converters moved** — `HtmlToDelta` and `MarkdownToDelta` live in the `quill_native_bridge` package.
+- **Centralized debug logs** — all internal `debugPrint` calls go through `quillDebugPrint()` (see `QuillDebugLogs`). Disabled by default; opt in via `QuillEditorConfig(enableDebugLogs: true)` to surface `DataCaster` type-mismatch traces and other internal debug output.
 
 ## Install
 
