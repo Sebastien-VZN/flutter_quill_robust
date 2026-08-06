@@ -75,6 +75,9 @@ class FlutterQuillLocalizationsFa extends FlutterQuillLocalizations {
   String get search => 'جستجو';
 
   @override
+  String get emoji => 'Emoji';
+
+  @override
   String get camera => 'دوربین';
 
   @override

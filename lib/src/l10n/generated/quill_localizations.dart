@@ -327,6 +327,12 @@ abstract class FlutterQuillLocalizations {
   /// **'Search'**
   String get search;
 
+  /// No description provided for @emoji.
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji'**
+  String get emoji;
+
   /// No description provided for @camera.
   ///
   /// In en, this message translates to:

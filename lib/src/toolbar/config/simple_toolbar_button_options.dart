@@ -3,6 +3,7 @@ import 'package:flutter_quill/src/toolbar/config/buttons/clear_format_options.da
 import 'package:flutter_quill/src/toolbar/config/buttons/clipboard_button_options.dart';
 import 'package:flutter_quill/src/toolbar/config/buttons/color_options.dart';
 import 'package:flutter_quill/src/toolbar/config/buttons/custom_button_options.dart';
+import 'package:flutter_quill/src/toolbar/config/buttons/emoji_options.dart';
 import 'package:flutter_quill/src/toolbar/config/buttons/font_family_options.dart';
 import 'package:flutter_quill/src/toolbar/config/buttons/font_size_options.dart';
 import 'package:flutter_quill/src/toolbar/config/buttons/history_options.dart';
@@ -24,6 +25,7 @@ export 'buttons/clear_format_options.dart';
 export 'buttons/clipboard_button_options.dart';
 export 'buttons/color_options.dart';
 export 'buttons/custom_button_options.dart';
+export 'buttons/emoji_options.dart';
 export 'buttons/font_family_options.dart';
 export 'buttons/font_size_options.dart';
 export 'buttons/history_options.dart';
@@ -67,6 +69,7 @@ class QuillSimpleToolbarButtonOptions {
     this.clearFormat = const QuillToolbarClearFormatButtonOptions(),
     this.selectAlignmentButtons = const QuillToolbarSelectAlignmentButtonOptions(),
     this.search = const QuillToolbarSearchButtonOptions(),
+    this.emoji = const QuillToolbarEmojiButtonOptions(),
     this.selectHeaderStyleButtons = const QuillToolbarSelectHeaderStyleButtonsOptions(),
     this.selectHeaderStyleDropdownButton = const QuillToolbarSelectHeaderStyleDropdownButtonOptions(),
     this.selectLineHeightStyleDropdownButton = const QuillToolbarSelectLineHeightStyleDropdownButtonOptions(),
@@ -112,6 +115,8 @@ class QuillSimpleToolbarButtonOptions {
   final QuillToolbarSelectAlignmentButtonOptions selectAlignmentButtons;
 
   final QuillToolbarSearchButtonOptions search;
+
+  final QuillToolbarEmojiButtonOptions emoji;
 
   final QuillToolbarClipboardButtonOptions clipboardCut;
 

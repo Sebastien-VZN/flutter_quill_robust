@@ -75,6 +75,9 @@ class FlutterQuillLocalizationsVi extends FlutterQuillLocalizations {
   String get search => 'Tìm';
 
   @override
+  String get emoji => 'Emoji';
+
+  @override
   String get camera => 'Máy ảnh';
 
   @override

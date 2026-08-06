@@ -75,6 +75,9 @@ class FlutterQuillLocalizationsKm extends FlutterQuillLocalizations {
   String get search => 'ស្វែងរក';
 
   @override
+  String get emoji => 'Emoji';
+
+  @override
   String get camera => 'កាមេរ៉ា';
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_quill/src/common/utils/platform.dart';
 import 'package:flutter_quill/src/controller/quill_controller.dart';
 import 'package:flutter_quill/src/document/format_attribute.dart';
 import 'package:flutter_quill/src/toolbar/buttons/alignment/select_alignment_buttons.dart';
@@ -12,6 +13,7 @@ export 'buttons/clear_format_button.dart';
 export 'buttons/clipboard_button.dart';
 export 'buttons/color/color_button.dart';
 export 'buttons/custom_button_button.dart';
+export 'buttons/emoji/emoji_button.dart';
 export 'buttons/font_family_button.dart';
 export 'buttons/font_size_button.dart';
 export 'buttons/hearder_style/select_header_style_buttons.dart';
@@ -285,6 +287,12 @@ class QuillSimpleToolbar extends StatelessWidget implements PreferredSizeWidget 
             QuillToolbarSearchButton(
               controller: controller,
               options: config.buttonOptions.search,
+            ),
+          if (config.showEmojiButton && isDesktop)
+            QuillToolbarEmojiButton(
+              controller: controller,
+              options: config.buttonOptions.emoji,
+              baseOptions: QuillToolbarBaseButtonOptions.fromBase(config.buttonOptions.base),
             ),
           if (config.showClipboardCut)
             QuillToolbarClipboardButton(

@@ -15,6 +15,7 @@ export 'base_button_options.dart';
 export 'buttons/clear_format_options.dart';
 export 'buttons/color_options.dart';
 export 'buttons/custom_button_options.dart';
+export 'buttons/emoji_options.dart';
 export 'buttons/font_family_options.dart';
 export 'buttons/font_size_options.dart';
 export 'buttons/history_options.dart';
@@ -106,6 +107,7 @@ class QuillSimpleToolbarConfig {
     this.showSearchButton = true,
     this.showSubscript = true,
     this.showSuperscript = true,
+    this.showEmojiButton = true,
     this.showClipboardCut = false,
     this.showClipboardCopy = false,
     this.showClipboardPaste = false,
@@ -177,6 +179,10 @@ class QuillSimpleToolbarConfig {
   final bool showSearchButton;
   final bool showSubscript;
   final bool showSuperscript;
+
+  /// Show the emoji button (desktop-only). Has no effect on mobile platforms,
+  /// where emojis are provided by the native keyboard.
+  final bool showEmojiButton;
 
   final bool showClipboardCut;
 

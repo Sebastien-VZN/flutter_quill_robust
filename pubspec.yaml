@@ -1,6 +1,6 @@
 name: flutter_quill
 description: "A rich text editor built for Android, iOS, Web, and desktop platforms. It's the WYSIWYG editor and a Quill component for Flutter."
-version: 11.5.5
+version: 11.6.0
 homepage: https://github.com/Sebastien-VZN/flutter_quill_robust
 repository: https://github.com/Sebastien-VZN/flutter_quill_robust
 issue_tracker: https://github.com/Sebastien-VZN/flutter_quill_robust/issues
@@ -26,6 +26,9 @@ dependencies:
   intl: '>=0.19.0 <0.21.0'
 
   flutter_colorpicker: ^1.1.0
+
+  # Emoji picker overlay for the desktop toolbar button
+  emoji_picker_flutter: ^4.5.3
 
   # For converting HTML to Quill delta
   markdown: ^7.1.0

@@ -75,6 +75,9 @@ class FlutterQuillLocalizationsTk extends FlutterQuillLocalizations {
   String get search => 'Gözleg';
 
   @override
+  String get emoji => 'Emoji';
+
+  @override
   String get camera => 'Kamera';
 
   @override

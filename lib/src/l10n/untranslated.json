@@ -1,5 +1,10 @@
 {
+  "am": [
+    "emoji"
+  ],
+
   "ar": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -12,6 +17,7 @@
   ],
 
   "bg": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -24,6 +30,7 @@
   ],
 
   "bn": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -35,7 +42,12 @@
     "saveImagePermissionDenied"
   ],
 
+  "bs": [
+    "emoji"
+  ],
+
   "ca": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -48,6 +60,7 @@
   ],
 
   "cs": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -60,6 +73,7 @@
   ],
 
   "da": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -72,6 +86,7 @@
   ],
 
   "de": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -84,6 +99,7 @@
   ],
 
   "el": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -96,6 +112,7 @@
   ],
 
   "en_US": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -108,6 +125,7 @@
   ],
 
   "es": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -120,6 +138,7 @@
   ],
 
   "fa": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -129,9 +148,14 @@
     "openFileLocation",
     "openFile",
     "saveImagePermissionDenied"
+  ],
+
+  "fi": [
+    "emoji"
   ],
 
   "fr": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -143,7 +167,12 @@
     "saveImagePermissionDenied"
   ],
 
+  "gu": [
+    "emoji"
+  ],
+
   "he": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -156,6 +185,7 @@
   ],
 
   "hi": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -167,7 +197,12 @@
     "saveImagePermissionDenied"
   ],
 
+  "hr": [
+    "emoji"
+  ],
+
   "hu": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -180,6 +215,7 @@
   ],
 
   "id": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -192,6 +228,7 @@
   ],
 
   "it": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -204,6 +241,7 @@
   ],
 
   "ja": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -216,6 +254,7 @@
   ],
 
   "km": [
+    "emoji",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
     "successImageSaved",
@@ -227,6 +266,7 @@
   ],
 
   "ko": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -239,6 +279,7 @@
   ],
 
   "ku": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -251,6 +292,7 @@
   ],
 
   "ku_CKB": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -262,7 +304,16 @@
     "saveImagePermissionDenied"
   ],
 
+  "mk": [
+    "emoji"
+  ],
+
+  "mn": [
+    "emoji"
+  ],
+
   "ms": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -275,6 +326,7 @@
   ],
 
   "ne": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -287,6 +339,7 @@
   ],
 
   "nl": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -299,6 +352,7 @@
   ],
 
   "no": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -311,6 +365,7 @@
   ],
 
   "pl": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -323,6 +378,7 @@
   ],
 
   "pt": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -334,7 +390,12 @@
     "saveImagePermissionDenied"
   ],
 
+  "pt_BR": [
+    "emoji"
+  ],
+
   "ro": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -347,6 +408,7 @@
   ],
 
   "ro_RO": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -359,6 +421,7 @@
   ],
 
   "ru": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -371,6 +434,7 @@
   ],
 
   "sk": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -383,6 +447,7 @@
   ],
 
   "sr": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -395,6 +460,7 @@
   ],
 
   "sv": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -407,6 +473,7 @@
   ],
 
   "sw": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -419,6 +486,7 @@
   ],
 
   "th": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -431,6 +499,7 @@
   ],
 
   "tk": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -443,6 +512,7 @@
   ],
 
   "tr": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -455,6 +525,7 @@
   ],
 
   "uk": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -467,6 +538,7 @@
   ],
 
   "ur": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -479,6 +551,7 @@
   ],
 
   "vi": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -491,6 +564,7 @@
   ],
 
   "zh": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -503,6 +577,7 @@
   ],
 
   "zh_CN": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -515,6 +590,7 @@
   ],
 
   "zh_HK": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",
@@ -527,6 +603,7 @@
   ],
 
   "zh_TW": [
+    "emoji",
     "insertVideo",
     "errorUnexpectedSavingImage",
     "successImageSavedGallery",

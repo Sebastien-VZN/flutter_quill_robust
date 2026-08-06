@@ -75,6 +75,9 @@ class FlutterQuillLocalizationsZh extends FlutterQuillLocalizations {
   String get search => '搜索';
 
   @override
+  String get emoji => 'Emoji';
+
+  @override
   String get camera => '拍照';
 
   @override

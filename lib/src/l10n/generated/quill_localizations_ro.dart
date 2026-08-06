@@ -75,6 +75,9 @@ class FlutterQuillLocalizationsRo extends FlutterQuillLocalizations {
   String get search => 'Caută';
 
   @override
+  String get emoji => 'Emoji';
+
+  @override
   String get camera => 'Cameră';
 
   @override
