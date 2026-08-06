@@ -1,7 +1,7 @@
 name: flutter_quill_example
 description: "Demonstrates how to use the flutter_quill package."
 publish_to: none
-version: 0.1.0+1
+version: 0.1.1+2
 
 environment:
   sdk: ^3.12.0
